@@ -251,7 +251,11 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
       return;
     }
     if (!db.isValidPhoneNumber(mobileNumber)) {
-      setFormError('Please enter a valid phone number containing 7 to 15 digits');
+      setFormError('Please enter an 11-digit phone number, or 12 digits including Pakistan country code 92');
+      return;
+    }
+    if (emergencyPhone.trim() && !db.isValidPhoneNumber(emergencyPhone)) {
+      setFormError('Emergency phone must contain 11 digits, or 12 digits including Pakistan country code 92');
       return;
     }
     if (!bloodGroup) {
@@ -466,11 +470,13 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                   id="member-mobile-number"
                   type="tel"
                   required
+                  maxLength={16}
                   value={mobileNumber}
                   onChange={(e) => handleMobileChange(e.target.value)}
                   placeholder="0300 1234567"
                   className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
                 />
+                <span className="mt-1 block text-[10px] text-[#8B909A]">Enter 11 digits (or 12 digits with country code 92).</span>
               </div>
 
               <div>
@@ -723,6 +729,7 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                     <label className="text-[10px] uppercase text-[#8B909A] block mb-1">Emergency Phone</label>
                     <input
                       type="tel"
+                      maxLength={16}
                       value={emergencyPhone}
                       onChange={(e) => setEmergencyPhone(e.target.value)}
                       placeholder="Emergency contact"

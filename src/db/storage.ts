@@ -30,6 +30,8 @@ import {
 const STORAGE_PREFIX = 'tgt_db_';
 const CLEAN_V2_FLAG = 'tgt_db_clean_v2';
 const BLOOD_GROUPS = new Set<BloodGroup>(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
+const INVALID_PHONE_NUMBER_ERROR =
+  'Enter a valid phone number with exactly 11 digits, or 12 digits including Pakistan country code 92.';
 
 const normalizePhoneNumber = (phone: string): string => {
   let digits = phone.replace(/\D/g, '');
@@ -807,7 +809,8 @@ class DatabaseManager {
   public isValidPhoneNumber(phone: string): boolean {
     const trimmed = phone.trim();
     const digits = trimmed.replace(/\D/g, '');
-    return /^\+?[\d\s().-]+$/.test(trimmed) && digits.length >= 7 && digits.length <= 15;
+    return /^\+?[\d\s().-]+$/.test(trimmed)
+      && (digits.length === 11 || (digits.length === 12 && digits.startsWith('92')));
   }
 
   public getPlans(): MembershipPlan[] {
@@ -869,6 +872,9 @@ class DatabaseManager {
   }
 
   public updateReceptionistProfile(profile: ReceptionistProfile): void {
+    if (profile.phone.trim() && !this.isValidPhoneNumber(profile.phone)) {
+      throw new Error(INVALID_PHONE_NUMBER_ERROR);
+    }
     this.state.settings.receptionistProfile = profile;
     this.state.currentUser.fullName = profile.name;
     this.addAuditLog('STAFF', 'Receptionist Updated', `Front Desk Officer set to ${profile.name} (${profile.shift})`);
@@ -926,7 +932,12 @@ class DatabaseManager {
     customRollNumber?: string
   ): Member {
     if (!this.isValidPhoneNumber(memberData.mobileNumber)) {
-      throw new Error('Enter a valid phone number containing 7 to 15 digits.');
+      throw new Error(INVALID_PHONE_NUMBER_ERROR);
+    }
+    for (const phone of [memberData.whatsappNumber, memberData.emergencyContactPhone]) {
+      if (phone?.trim() && !this.isValidPhoneNumber(phone)) {
+        throw new Error(INVALID_PHONE_NUMBER_ERROR);
+      }
     }
     if (!memberData.bloodGroup || !BLOOD_GROUPS.has(memberData.bloodGroup)) {
       throw new Error('A valid blood group is required.');
@@ -1054,7 +1065,12 @@ class DatabaseManager {
       throw new Error('The returning member profile could not be found or is not marked as left.');
     }
     if (!this.isValidPhoneNumber(memberData.mobileNumber)) {
-      throw new Error('Enter a valid phone number containing 7 to 15 digits.');
+      throw new Error(INVALID_PHONE_NUMBER_ERROR);
+    }
+    for (const phone of [memberData.whatsappNumber, memberData.emergencyContactPhone]) {
+      if (phone?.trim() && !this.isValidPhoneNumber(phone)) {
+        throw new Error(INVALID_PHONE_NUMBER_ERROR);
+      }
     }
     if (!memberData.bloodGroup || !BLOOD_GROUPS.has(memberData.bloodGroup)) {
       throw new Error('A valid blood group is required.');
@@ -1146,7 +1162,12 @@ class DatabaseManager {
       throw new Error('A valid blood group is required.');
     }
     if (updates.mobileNumber && !this.isValidPhoneNumber(updates.mobileNumber)) {
-      throw new Error('Enter a valid phone number containing 7 to 15 digits.');
+      throw new Error(INVALID_PHONE_NUMBER_ERROR);
+    }
+    for (const phone of [updates.whatsappNumber, updates.emergencyContactPhone]) {
+      if (phone?.trim() && !this.isValidPhoneNumber(phone)) {
+        throw new Error(INVALID_PHONE_NUMBER_ERROR);
+      }
     }
     if (updates.totalFee !== undefined || updates.paidAmount !== undefined || updates.balanceDue !== undefined) {
       throw new Error('Member fee totals are maintained by the fee ledger.');
@@ -1715,6 +1736,11 @@ class DatabaseManager {
   // --- SETTINGS & AUDIT ---
 
   public updateSettings(updates: Partial<GymSettings>): void {
+    for (const phone of [updates.phone, updates.whatsapp, updates.receptionistProfile?.phone]) {
+      if (phone?.trim() && !this.isValidPhoneNumber(phone)) {
+        throw new Error(INVALID_PHONE_NUMBER_ERROR);
+      }
+    }
     this.state.settings = { ...this.state.settings, ...updates };
     if (updates.receptionistProfile?.name) {
       this.state.currentUser.fullName = updates.receptionistProfile.name;

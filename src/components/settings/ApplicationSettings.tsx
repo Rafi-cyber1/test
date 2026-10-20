@@ -28,13 +28,25 @@ export const ApplicationSettings: React.FC = () => {
   );
 
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [restoreStatus, setRestoreStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'receptionist' | 'gym' | 'database' | 'audit'>('receptionist');
 
   const auditLogs = db.getState().auditLogs;
 
+  const validatePhoneNumbers = (phones: Array<{ label: string; value: string }>) => {
+    const invalidPhone = phones.find(({ value }) => value.trim() && !db.isValidPhoneNumber(value));
+    if (invalidPhone) {
+      setPhoneError(`${invalidPhone.label} must contain 11 digits, or 12 digits including Pakistan country code 92.`);
+      return false;
+    }
+    setPhoneError(null);
+    return true;
+  };
+
   const handleSaveReceptionist = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validatePhoneNumbers([{ label: 'Contact phone', value: receptionist.phone }])) return;
     db.updateReceptionistProfile(receptionist);
     setSettings(db.getSettings());
     setSaveSuccess(true);
@@ -43,6 +55,11 @@ export const ApplicationSettings: React.FC = () => {
 
   const handleSaveGymSettings = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validatePhoneNumbers([
+      { label: 'Official contact phone', value: settings.phone },
+      { label: 'WhatsApp hotline', value: settings.whatsapp },
+      { label: 'Receptionist phone', value: receptionist.phone },
+    ])) return;
     db.updateSettings({
       ...settings,
       receptionistProfile: receptionist,
@@ -148,6 +165,11 @@ export const ApplicationSettings: React.FC = () => {
       {/* Tab 1: Receptionist Profile */}
       {activeTab === 'receptionist' && (
         <form onSubmit={handleSaveReceptionist} className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-4 max-w-2xl text-xs">
+          {phoneError && (
+            <div role="alert" className="rounded-[6px] border border-[#E5484D]/40 bg-[#E5484D]/10 p-2.5 text-xs text-[#E5484D]">
+              {phoneError}
+            </div>
+          )}
           <div className="space-y-1">
             <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
               Front Desk Officer Profile
@@ -176,11 +198,16 @@ export const ApplicationSettings: React.FC = () => {
                 Contact Phone
               </label>
               <input
-                type="text"
+                type="tel"
+                maxLength={16}
                 value={receptionist.phone}
-                onChange={(e) => setReceptionist({ ...receptionist, phone: e.target.value })}
+                onChange={(e) => {
+                  setReceptionist({ ...receptionist, phone: e.target.value });
+                  setPhoneError(null);
+                }}
                 className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
               />
+              <span className="mt-1 block text-[10px] text-[#8B909A]">11 digits, or 12 digits with country code 92.</span>
             </div>
           </div>
 
@@ -224,6 +251,11 @@ export const ApplicationSettings: React.FC = () => {
       {/* Tab 2: Gym Details & Location */}
       {activeTab === 'gym' && (
         <form onSubmit={handleSaveGymSettings} className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-4 max-w-2xl text-xs">
+          {phoneError && (
+            <div role="alert" className="rounded-[6px] border border-[#E5484D]/40 bg-[#E5484D]/10 p-2.5 text-xs text-[#E5484D]">
+              {phoneError}
+            </div>
+          )}
           <div className="space-y-1">
             <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
               Gym Facility Information
@@ -278,9 +310,13 @@ export const ApplicationSettings: React.FC = () => {
                 Official Contact Phone
               </label>
               <input
-                type="text"
+                type="tel"
+                maxLength={16}
                 value={settings.phone}
-                onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+                onChange={(e) => {
+                  setSettings({ ...settings, phone: e.target.value });
+                  setPhoneError(null);
+                }}
                 className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
               />
             </div>
@@ -290,9 +326,13 @@ export const ApplicationSettings: React.FC = () => {
                 WhatsApp Hotline
               </label>
               <input
-                type="text"
+                type="tel"
+                maxLength={16}
                 value={settings.whatsapp}
-                onChange={(e) => setSettings({ ...settings, whatsapp: e.target.value })}
+                onChange={(e) => {
+                  setSettings({ ...settings, whatsapp: e.target.value });
+                  setPhoneError(null);
+                }}
                 className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
               />
             </div>

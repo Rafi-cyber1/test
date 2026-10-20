@@ -19,6 +19,15 @@ Object.defineProperty(globalThis, 'localStorage', {
 const { addCalendarMonths, db } = await import('../../src/db/storage');
 const { ExportService } = await import('../../src/services/exportService');
 
+test('phone validation requires 11 local digits or a Pakistan country-coded number', () => {
+  assert.equal(db.isValidPhoneNumber('03001234567'), true);
+  assert.equal(db.isValidPhoneNumber('+92 300 1234567'), true);
+  assert.equal(db.isValidPhoneNumber('12345678'), false);
+  assert.equal(db.isValidPhoneNumber('123456789'), false);
+  assert.equal(db.isValidPhoneNumber('0300123456'), false);
+  assert.equal(db.isValidPhoneNumber('030012345678'), false);
+});
+
 test('member fee ledger lifecycle: enrollment, payment, idempotency, next cycle, and validation', async (t) => {
   const today = new Date().toISOString().slice(0, 10);
   const expiry = new Date(`${today}T00:00:00Z`);
