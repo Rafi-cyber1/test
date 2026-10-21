@@ -17,7 +17,6 @@ Object.defineProperty(globalThis, 'localStorage', {
 });
 
 const { addCalendarMonths, db } = await import('../../src/db/storage');
-const { appStorage } = await import('../../src/db/appStorage');
 const { ExportService } = await import('../../src/services/exportService');
 
 test('phone validation requires 11 local digits or a Pakistan country-coded number', () => {
@@ -27,32 +26,6 @@ test('phone validation requires 11 local digits or a Pakistan country-coded numb
   assert.equal(db.isValidPhoneNumber('123456789'), false);
   assert.equal(db.isValidPhoneNumber('0300123456'), false);
   assert.equal(db.isValidPhoneNumber('030012345678'), false);
-});
-
-test('desktop storage migrates existing browser values into the SQLite bridge', () => {
-  const desktopValues = new Map<string, string>();
-  const legacyKey = 'legacy-migration-test';
-  localStorage.setItem(legacyKey, 'legacy-data');
-  Object.defineProperty(globalThis, 'window', {
-    configurable: true,
-    value: {
-      gymTownStorage: {
-        getItem: (key: string) => desktopValues.get(key) ?? null,
-        setItem: (key: string, value: string) => desktopValues.set(key, value),
-        removeItem: (key: string) => desktopValues.delete(key),
-      },
-    },
-  });
-
-  try {
-    assert.equal(appStorage.getItem(legacyKey), 'legacy-data');
-    assert.equal(desktopValues.get(legacyKey), 'legacy-data');
-    appStorage.setItem(legacyKey, 'sqlite-data');
-    assert.equal(desktopValues.get(legacyKey), 'sqlite-data');
-  } finally {
-    Reflect.deleteProperty(globalThis, 'window');
-    localStorage.removeItem(legacyKey);
-  }
 });
 
 test('member fee ledger lifecycle: enrollment, payment, idempotency, next cycle, and validation', async (t) => {

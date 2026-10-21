@@ -324,14 +324,9 @@ test('unsupported Electron printing falls back to browser print for receipts and
   await page.getByRole('button', { name: 'Close receipt' }).click();
   await page.getByRole('button', { name: 'Member Fee Record' }).click();
   await page.evaluate(() => {
-    Object.defineProperty(window, 'gymTownStorage', {
+    Object.defineProperty(window, 'gymTownPrint', {
       configurable: true,
-      value: {
-        getItem: (key: string) => localStorage.getItem(key),
-        setItem: (key: string, value: string) => localStorage.setItem(key, value),
-        removeItem: (key: string) => localStorage.removeItem(key),
-        print: async () => { throw new Error('Printing is not supported'); },
-      },
+      value: async () => { throw new Error('Printing is not supported'); },
     });
   });
 
