@@ -97,7 +97,17 @@ test('member fee ledger lifecycle: enrollment, payment, idempotency, next cycle,
 
     assert.equal(db.renewMembership(member.id, 'plan_admission_advance', 0), true);
     assert.equal(member.planId, 'plan_monthly');
-    assert.equal(db.getMemberFeeLedger(member.id).filter((entry) => entry.type === 'CHARGE').at(-1)?.amount, 2000);
+    assert.equal(db.getMemberFeeLedger(member.id).filter((entry) => entry.type === 'CHARGE').at(-1)?.amount, 2500);
+    assert.match(db.getMemberFeeLedger(member.id).at(-1)?.description || '', /Rs\. 500 overdue late fee/);
+    const overduePayment = db.recordPayment({
+      memberId: member.id,
+      rollNumber: member.rollNumber,
+      memberName: member.fullName,
+      amount: 500,
+      paymentMethod: 'Cash',
+      paymentType: 'MEMBERSHIP',
+    }, today);
+    assert.equal(overduePayment.lateFee, 500);
   });
 
   test('fee ledger CSV escapes text and exports running balances by billing month', () => {

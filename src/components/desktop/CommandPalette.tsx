@@ -4,7 +4,6 @@ import {
   Users, 
   CreditCard, 
   CheckCircle, 
-  MessageSquare, 
   Settings, 
   FileText, 
   UserPlus, 
@@ -78,8 +77,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     { label: 'Inventory & Daily Sales (POS)', tab: 'inventory', icon: ShoppingBag },
     { label: 'Membership Plans & Fee Rates (PKR)', tab: 'plans', icon: CreditCard },
     { label: 'Manual Attendance Check-In', tab: 'attendance', icon: CheckCircle },
-    { label: 'Payments & Fee Collection', tab: 'finance', icon: CreditCard },
-    { label: 'WhatsApp Expiry Notifications', tab: 'whatsapp', icon: MessageSquare },
+    { label: 'Member Fee Record & Payment Collection', tab: 'ledger', icon: CreditCard },
     { label: 'Station Settings & Backup', tab: 'settings', icon: Settings },
   ].filter((c) => c.label.toLowerCase().includes(query.toLowerCase()));
 

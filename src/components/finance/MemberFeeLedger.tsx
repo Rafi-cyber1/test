@@ -1,27 +1,49 @@
 import React, { useRef, useState } from 'react';
-import { CreditCard, Download, ReceiptText, Wallet } from 'lucide-react';
+import { CreditCard, Download, Printer, ReceiptText, Wallet } from 'lucide-react';
 import { db } from '../../db/storage';
 import { Member, PaymentMethod } from '../../types';
 import { ExportService } from '../../services/exportService';
+import { printDocument } from '../../services/printService';
+import { PrintableReceipt } from './PrintableReceipt';
 
-export const MemberFeeLedger: React.FC = () => {
+interface MemberFeeLedgerProps {
+  initialOpenCollectPayment?: boolean;
+  initialMemberId?: string;
+  onClearInitialPayment?: () => void;
+}
+
+export const MemberFeeLedger: React.FC<MemberFeeLedgerProps> = ({
+  initialOpenCollectPayment,
+  initialMemberId,
+  onClearInitialPayment,
+}) => {
   const [, setRefreshKey] = useState(0);
-  const [selectedMemberId, setSelectedMemberId] = useState(() => db.getMembers()[0]?.id || '');
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState(() => initialMemberId || db.getMembers()[0]?.id || '');
+  const [showPaymentForm, setShowPaymentForm] = useState(initialOpenCollectPayment || false);
   const [amount, setAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [receiptToPrint, setReceiptToPrint] = useState<import('../../types').PaymentRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const submitLock = useRef(false);
   const paymentRequestKey = useRef('');
 
   React.useEffect(() => db.subscribe(() => setRefreshKey((key) => key + 1)), []);
+  React.useEffect(() => {
+    if (!initialOpenCollectPayment) return;
+    setSelectedMemberId(initialMemberId || db.getMembers()[0]?.id || '');
+    setShowPaymentForm(true);
+    onClearInitialPayment?.();
+  }, [initialOpenCollectPayment, initialMemberId, onClearInitialPayment]);
 
   const members = db.getMembers();
   const member = members.find((candidate) => candidate.id === selectedMemberId);
   const ledger = member ? db.getMemberFeeLedger(member.id) : [];
+  const paymentHistory = member
+    ? db.getPayments().filter((payment) => payment.memberId === member.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    : [];
   let runningBalance = 0;
   const rows = ledger.map((entry) => {
     runningBalance += entry.type === 'CHARGE' ? entry.amount : -entry.amount;
@@ -41,7 +63,7 @@ export const MemberFeeLedger: React.FC = () => {
     setSubmitting(true);
     setError(null);
     try {
-      db.recordPayment({
+      const payment = db.recordPayment({
         memberId: member.id,
         rollNumber: member.rollNumber,
         memberName: member.fullName,
@@ -54,6 +76,7 @@ export const MemberFeeLedger: React.FC = () => {
       setAmount('');
       setNotes('');
       setShowPaymentForm(false);
+      setReceiptToPrint(payment);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to record payment.');
     } finally {
@@ -66,7 +89,7 @@ export const MemberFeeLedger: React.FC = () => {
     <section className="flex-1 p-5 space-y-4 text-[#ECEAE6]">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold">Member Fee Ledger</h2>
+          <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold">Member Fee Record</h2>
           <p className="mt-1 text-xs text-[#8B909A]">Charges, payments, and running balances from the member ledger.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -108,11 +131,46 @@ export const MemberFeeLedger: React.FC = () => {
           </div>
 
           <div className="overflow-hidden rounded-[8px] border border-[#262A30] bg-[#15171A]">
+            <div className="border-b border-[#262A30] p-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider">Payment History</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] text-left text-xs">
+                <thead className="bg-[#1C1F23] text-[10px] uppercase tracking-wider text-[#8B909A]"><tr>
+                  <th className="p-3">Payment Date</th><th className="p-3">Membership Month</th><th className="p-3 text-right">Fee</th><th className="p-3 text-right">Late Fee</th><th className="p-3 text-right">Total Paid</th><th className="p-3">Method</th><th className="p-3">Status</th><th className="p-3">Receipt #</th>
+                </tr></thead>
+                <tbody className="divide-y divide-[#262A30]">
+                  {paymentHistory.map((payment) => (
+                    <tr key={payment.id}>
+                      <td className="whitespace-nowrap p-3 font-mono text-[#8B909A]">{payment.paymentDate || payment.createdAt.slice(0, 10)}</td>
+                      <td className="p-3">{payment.billingMonth || '—'}</td>
+                      <td className="p-3 text-right font-mono">Rs. {Math.max(0, payment.amount - (payment.lateFee || 0)).toLocaleString()}</td>
+                      <td className="p-3 text-right font-mono">Rs. {(payment.lateFee || 0).toLocaleString()}</td>
+                      <td className="p-3 text-right font-mono font-bold">Rs. {payment.amount.toLocaleString()}</td>
+                      <td className="p-3">{payment.paymentMethod}</td>
+                      <td className="p-3">{payment.paymentStatus || 'Recorded'}</td>
+                      <td className="p-3 font-mono text-[#8B909A]">{payment.receiptNumber}</td>
+                    </tr>
+                  ))}
+                  {paymentHistory.length === 0 && <tr><td colSpan={8} className="p-8 text-center text-[#8B909A]">No payment records.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-[8px] border border-[#262A30] bg-[#15171A]">
             <div className="flex items-center justify-between border-b border-[#262A30] p-3">
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
                 <ReceiptText className="h-4 w-4 text-[#8B909A]" /> Transaction History
               </h3>
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void printDocument('fee-record')}
+                  className="flex items-center gap-1.5 rounded-[6px] border border-[#262A30] px-3 py-2 text-xs font-bold text-[#8B909A] hover:text-[#ECEAE6]"
+                >
+                  <Printer className="h-3.5 w-3.5" /> Print Fee Record
+                </button>
                 <button
                   type="button"
                   onClick={() => ExportService.exportMemberFeeLedgerToCsv(member, ledger)}
@@ -172,6 +230,23 @@ export const MemberFeeLedger: React.FC = () => {
             </div>
           </div>
 
+          <div className="print-fee-record" aria-hidden="true">
+            <header>
+              <h1>{db.getSettings().gymName || 'THE GYM TOWN'}</h1>
+              <p>Member Fee Record</p>
+              <p>{member.fullName} · {member.rollNumber} · {member.mobileNumber}</p>
+            </header>
+            <table>
+              <thead><tr><th>Date</th><th>Membership Month</th><th>Fee</th><th>Late Fee</th><th>Total Paid</th><th>Method</th><th>Status</th><th>Receipt #</th></tr></thead>
+              <tbody>{paymentHistory.map((payment) => <tr key={payment.id}>
+                <td>{payment.paymentDate || payment.createdAt.slice(0, 10)}</td><td>{payment.billingMonth || '—'}</td>
+                <td>Rs. {Math.max(0, payment.amount - (payment.lateFee || 0)).toLocaleString()}</td><td>Rs. {(payment.lateFee || 0).toLocaleString()}</td>
+                <td>Rs. {payment.amount.toLocaleString()}</td><td>{payment.paymentMethod}</td><td>{payment.paymentStatus || 'Recorded'}</td><td>{payment.receiptNumber}</td>
+              </tr>)}</tbody>
+              <tfoot><tr><td colSpan={4}>Total collected</td><td>Rs. {paymentHistory.reduce((sum, payment) => sum + payment.amount, 0).toLocaleString()}</td><td colSpan={3}></td></tr></tfoot>
+            </table>
+          </div>
+
           {showPaymentForm && (
             <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
               <form onSubmit={handleCollectPayment} className="w-full max-w-md space-y-4 rounded-[8px] border border-[#262A30] bg-[#15171A] p-5 shadow-2xl">
@@ -201,7 +276,7 @@ export const MemberFeeLedger: React.FC = () => {
                       onChange={(event) => setPaymentMethod(event.target.value as PaymentMethod)}
                       className="mt-1 w-full rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]"
                     >
-                      {(['Cash', 'Bank Transfer', 'JazzCash', 'EasyPaisa', 'Card'] as PaymentMethod[]).map((method) => (
+                      {(['Cash'] as PaymentMethod[]).map((method) => (
                         <option key={method} value={method}>{method}</option>
                       ))}
                     </select>
@@ -243,6 +318,7 @@ export const MemberFeeLedger: React.FC = () => {
           No member selected.
         </div>
       )}
+      {receiptToPrint && <PrintableReceipt payment={receiptToPrint} onClose={() => setReceiptToPrint(null)} />}
     </section>
   );
 };

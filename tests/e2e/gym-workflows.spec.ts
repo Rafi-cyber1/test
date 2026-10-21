@@ -39,9 +39,14 @@ test.beforeEach(async ({ page, baseURL }) => {
       sessionStorage.setItem('__playwright_initialized', 'true');
     }
     (window as Window & { __printCalls?: number }).__printCalls = 0;
+    (window as Window & { __openedUrl?: string }).__openedUrl = '';
     window.print = () => {
       const target = window as Window & { __printCalls?: number };
       target.__printCalls = (target.__printCalls || 0) + 1;
+    };
+    window.open = (url) => {
+      (window as Window & { __openedUrl?: string }).__openedUrl = String(url || '');
+      return null;
     };
   });
 
@@ -88,7 +93,7 @@ test('enrollment validates blood group and phone; roll number, directory, and re
   await page.getByLabel('Mobile (WhatsApp) *').fill('123');
   await page.getByLabel('Blood Group *').selectOption('A+');
   await page.getByRole('button', { name: 'Register & Enroll Member' }).click();
-  await expect(page.getByRole('alert')).toContainText('valid phone number');
+  await expect(page.getByRole('alert')).toContainText('11-digit phone number');
 
   await page.getByLabel('Mobile (WhatsApp) *').fill('03001234567');
   await page.getByRole('button', { name: 'Register & Enroll Member' }).click();
@@ -96,8 +101,8 @@ test('enrollment validates blood group and phone; roll number, directory, and re
   await expect(page.getByText(/Receipt Issued:/)).toBeVisible();
   await expect(page.locator('.print-receipt')).toContainText('QA Blood Member');
   await expect(page.locator('.print-receipt')).toContainText('the-gym-town-01');
-  await expect(page.locator('.print-receipt')).toContainText('A+');
-  await expect(page.locator('.print-receipt')).toContainText('This fee is strictly Non-Refundable.');
+  await expect(page.locator('.print-receipt')).toContainText('Membership fees are non-refundable.');
+  await expect(page.locator('.print-receipt')).toContainText('CASH ONLY');
   await expect.poll(() => page.evaluate(() => (window as Window & { __printCalls?: number }).__printCalls))
     .toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Close receipt' }).click();
@@ -181,20 +186,77 @@ test('attendance rejects unknown names and duplicate daily check-ins while prese
   expect(attendance.map((record: { memberName: string }) => record.memberName).sort()).toEqual(['Rafi', 'Uzzi']);
 });
 
-test('fee collection rejects overpayment and renders and prints a persisted thermal receipt', async ({ page }) => {
+test('member information edits update the existing record without duplicating payments', async ({ page }) => {
+  await enrollMember(page, 'QA Edit Member', '03003334444', 2000);
+  await page.getByRole('button', { name: 'Close receipt' }).click();
+  await page.getByRole('button', { name: 'Member Directory' }).click();
+
+  const memberRow = page.getByRole('row').filter({ hasText: 'QA Edit Member' });
+  await memberRow.getByTitle('Edit member information').click();
+  await page.getByLabel('Full name').fill('QA Edited Member');
+  await page.getByLabel('Phone number').fill('03003334445');
+  await page.getByLabel('Admission date').fill('2026-09-01');
+  await page.getByLabel('Membership start date').fill('2026-10-01');
+  await page.getByLabel('Membership duration (months)').fill('3');
+  await page.getByRole('button', { name: 'Save Changes' }).click();
+
+  const updatedRow = page.getByRole('row').filter({ hasText: 'QA Edited Member' });
+  await expect(updatedRow).toContainText('03003334445');
+  await expect(updatedRow).toContainText('2027-01-01');
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('tgt_db_data') || '{}'));
+  expect(stored.members).toHaveLength(1);
+  expect(stored.members[0].registrationDate).toBe('2026-09-01');
+  expect(stored.payments).toHaveLength(1);
+});
+
+test('monthly attendance displays database check-ins by member and calendar day', async ({ page }) => {
+  await enrollMember(page, 'QA Calendar Member', '03005556666', 2000);
+  await page.getByRole('button', { name: 'Close receipt' }).click();
+  await page.getByRole('button', { name: 'Manual Attendance' }).click();
+  await page.getByPlaceholder(/e\.g\. TGT-2026/).fill('QA Calendar Member');
+  await page.locator('form').last().getByRole('button', { name: 'Check In' }).click();
+  await page.getByRole('button', { name: 'Monthly Attendance' }).click();
+
+  await page.getByLabel('Member').selectOption({ label: 'the-gym-town-01 — QA Calendar Member' });
+  await expect(page.getByText('Present: 1')).toBeVisible();
+  await expect(page.getByText('Absent:')).toBeVisible();
+  const today = new Date().getDate();
+  await expect(page.locator('tbody tr').filter({ hasText: 'QA Calendar Member' }).locator('td').nth(today - 1)).toHaveText('P');
+});
+
+test('expiry alert opens a reviewable WhatsApp reminder for the registered phone', async ({ page }) => {
+  await enrollMember(page, 'QA Expiring Member', '03007778888', 2000);
+  await page.getByRole('button', { name: 'Close receipt' }).click();
+  await page.evaluate(() => {
+    const stored = JSON.parse(localStorage.getItem('tgt_db_data') || '{}');
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + 3);
+    stored.members[0].expiryDate = `${expiry.getFullYear()}-${String(expiry.getMonth() + 1).padStart(2, '0')}-${String(expiry.getDate()).padStart(2, '0')}`;
+    localStorage.setItem('tgt_db_data', JSON.stringify(stored));
+  });
+  await page.reload();
+
+  const alertRow = page.getByRole('row').filter({ hasText: 'QA Expiring Member' });
+  await expect(page.getByRole('heading', { name: /Membership Expiring Soon/ })).toBeVisible();
+  await expect(alertRow).toContainText('03007778888');
+  await expect(alertRow).toContainText('3 days');
+  await alertRow.getByRole('button', { name: 'Send WhatsApp Message' }).click();
+  const openedUrl = await page.evaluate(() => (window as Window & { __openedUrl?: string }).__openedUrl || '');
+  expect(openedUrl).toContain('wa.me/923007778888');
+  expect(decodeURIComponent(openedUrl)).toContain('your membership at The Gym Town is expiring in 3 days');
+  await expect(alertRow.getByRole('button', { name: 'Reminder opened' })).toBeDisabled();
+});
+
+test('fee record collection creates a cash receipt and prints without dashboard chrome', async ({ page }) => {
   await enrollMember(page, 'QA Fee Member', '03007654321', 2000);
   await page.getByRole('button', { name: 'Close receipt' }).click();
-  await page.getByRole('button', { name: 'Payments & Register' }).click();
+  await page.getByRole('button', { name: 'Member Fee Record' }).click();
   await page.getByRole('button', { name: 'Collect Payment' }).click();
 
-  const amountInput = page.getByLabel('Amount Received (PKR)');
-  await expect(amountInput).toHaveAttribute('max', '2000');
-  await amountInput.fill('2001');
-  await page.getByRole('button', { name: 'Confirm & Issue Receipt' }).click();
-  await expect(page.getByText(/Receipt Issued:/)).toHaveCount(0);
-
+  const amountInput = page.getByLabel('Amount');
   await amountInput.fill('2000');
-  await page.getByRole('button', { name: 'Confirm & Issue Receipt' }).click();
+  await expect(page.getByLabel('Payment Method').locator('option')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Record Payment' }).click();
   await expect(page.getByText(/Receipt Issued:/)).toBeVisible();
 
   const receipt = page.locator('.print-receipt');
@@ -205,10 +267,9 @@ test('fee collection rejects overpayment and renders and prints a persisted ther
     .toBeGreaterThan(0);
   await expect(receipt).toContainText('QA Fee Member');
   await expect(receipt).toContainText('the-gym-town-01');
-  await expect(receipt).toContainText('O+');
   await expect(receipt).toContainText('Rs. 2,000');
-  await expect(receipt).toContainText('Any adjustment or claim must be reported within 10 days of issuance.');
-  await expect(receipt).toContainText('No claims entertained without the original receipt.');
+  await expect(receipt).toContainText('Rs. 500 when membership payment is overdue.');
+  await expect(receipt).toContainText('CASH ONLY');
   await expect.poll(() => page.evaluate(() => (window as Window & { __printCalls?: number }).__printCalls))
     .toBeGreaterThan(0);
   await page.getByRole('button', { name: '58mm' }).click();
@@ -245,6 +306,8 @@ test('fee collection rejects overpayment and renders and prints a persisted ther
   });
   expect(printMetrics80.width).toBeCloseTo((80 * 96) / 25.4, 0);
   expect(printMetrics80.scrollWidth).toBeLessThanOrEqual(printMetrics80.clientWidth);
+  await page.emulateMedia({ media: 'screen' });
+  await page.getByRole('button', { name: 'Close receipt' }).click();
 
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('tgt_db_data') || '{}'));
   expect(stored.payments).toHaveLength(2);
@@ -275,7 +338,7 @@ test('renewal adds the fee and payment exactly once to lifetime totals', async (
 test('member fee ledger updates balances immediately for partial and advance payments', async ({ page }) => {
   await enrollMember(page, 'QA Ledger Member', '03006665545', 2000);
   await page.getByRole('button', { name: 'Close receipt' }).click();
-  await page.getByRole('button', { name: 'Member Fee Ledger' }).click();
+  await page.getByRole('button', { name: 'Member Fee Record' }).click();
   await expect(page.getByText('Outstanding Due')).toBeVisible();
   await expect(page.getByText('Outstanding Due').locator('..').getByText('Rs. 2,000', { exact: true })).toBeVisible();
 
@@ -284,6 +347,7 @@ test('member fee ledger updates balances immediately for partial and advance pay
   await page.getByLabel('Payment Date').fill('2026-10-17');
   await page.getByLabel('Notes').fill('Partial payment');
   await page.getByRole('button', { name: 'Record Payment' }).click();
+  await page.getByRole('button', { name: 'Close receipt' }).click();
   await expect(page.getByText('Outstanding Due')).toBeVisible();
   await expect(page.getByText('Outstanding Due').locator('..').getByText('Rs. 1,000', { exact: true })).toBeVisible();
   await expect(page.getByText('Partial payment')).toBeVisible();
@@ -291,6 +355,7 @@ test('member fee ledger updates balances immediately for partial and advance pay
   await page.getByRole('button', { name: 'Collect Payment' }).click();
   await page.getByLabel('Amount').fill('1500');
   await page.getByRole('button', { name: 'Record Payment' }).click();
+  await page.getByRole('button', { name: 'Close receipt' }).click();
   await expect(page.getByText('Member Credit')).toBeVisible();
   await expect(page.getByText('Member Credit').locator('..').getByText('Rs. 500', { exact: true })).toBeVisible();
 
@@ -301,6 +366,17 @@ test('member fee ledger updates balances immediately for partial and advance pay
   expect(member.balanceDue).toBe(-500);
   expect(ledger.filter((entry: { type: string }) => entry.type === 'PAYMENT')).toHaveLength(3);
   expect(ledger.find((entry: { description: string }) => entry.description === 'Partial payment').date).toBe('2026-10-17');
+
+  const printCallsBefore = await page.evaluate(() => (window as Window & { __printCalls?: number }).__printCalls || 0);
+  await page.getByRole('button', { name: 'Print Fee Record' }).click();
+  await expect.poll(() => page.evaluate(() => (window as Window & { __printCalls?: number }).__printCalls || 0))
+    .toBeGreaterThan(printCallsBefore);
+  await page.evaluate(() => { document.documentElement.dataset.printTarget = 'fee-record'; });
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.locator('.print-fee-record')).toContainText('QA Ledger Member');
+  await expect(page.locator('.print-fee-record')).toContainText('2026-10-17');
+  await page.emulateMedia({ media: 'screen' });
+  await page.evaluate(() => { delete document.documentElement.dataset.printTarget; });
 });
 
 test('registration rejects a missing blood group and payment above the total fee', async ({ page }) => {
@@ -317,7 +393,7 @@ test('registration rejects a missing blood group and payment above the total fee
   expect(members).toHaveLength(0);
 });
 
-test('member history and attendance remain on the same profile after leaving and rejoining', async ({ page }) => {
+test('removed member can be restored with payment and attendance history intact', async ({ page }) => {
   await enrollMember(page, 'QA Returning Member', '03009998877', 4000);
   await page.getByRole('button', { name: 'Close receipt' }).click();
   await page.getByRole('button', { name: 'Manual Attendance' }).click();
@@ -331,24 +407,23 @@ test('member history and attendance remain on the same profile after leaving and
   await page.getByRole('button', { name: 'Mark as Left' }).click();
   await page.getByRole('button', { name: 'Confirm Leave' }).click();
 
-  await page.getByRole('button', { name: 'Enroll Member' }).click();
-  await page.getByLabel('Mobile (WhatsApp) *').fill('03009998877');
-  await expect(page.getByText(/Rejoining will restore this profile/)).toBeVisible();
-  await expect(page.getByLabel('Member Unique ID / Roll # *')).toHaveValue('the-gym-town-01');
-  await page.getByRole('button', { name: 'Register & Enroll Member' }).click();
-  await expect(page.getByText(/Receipt Issued:/)).toBeVisible();
-  await page.getByRole('button', { name: 'Close receipt' }).click();
+  await page.getByRole('button', { name: /Removed Members \(/ }).click();
+  await expect(page.getByText('QA Returning Member', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Restore' }).click();
+  await page.getByRole('button', { name: /Active Members \(/ }).click();
+  await expect(page.getByText('QA Returning Member', { exact: true })).toBeVisible();
 
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('tgt_db_data') || '{}'));
   expect(stored.members).toHaveLength(1);
   expect(stored.members[0].id).toBe(stored.attendance[0].memberId);
   expect(stored.members[0].rollNumber).toBe('the-gym-town-01');
+  expect(stored.members[0].archived).toBe(false);
+  expect(stored.payments).toHaveLength(1);
   expect(stored.members[0].membershipPeriods).toHaveLength(2);
   expect(stored.members[0].membershipPeriods[0].endDate).toBeTruthy();
   expect(stored.members[0].registrationDate).toBe(stored.members[0].membershipPeriods[0].startDate);
   expect(stored.members[0].membershipPeriods[1].startDate).toBeTruthy();
   expect(stored.attendance).toHaveLength(1);
-  expect(stored.membershipHistory.some((entry: { actionType: string }) => entry.actionType === 'REJOIN')).toBe(true);
 
   await page.getByRole('button', { name: 'Member Directory' }).click();
   await page.getByRole('button', { name: 'Profile' }).click();

@@ -118,7 +118,8 @@ export const MonthlyFeeRenewalModal: React.FC<MonthlyFeeRenewalModalProps> = ({
           trainingType: 'CUSTOM' as const,
         };
     setSelectedPlanId(defaultRenewalPlan.id);
-    setAmountPaid(defaultRenewalPlan.price);
+    const lateFee = member.expiryDate < new Date().toISOString().slice(0, 10) ? 500 : 0;
+    setAmountPaid(defaultRenewalPlan.price + lateFee);
     setDiscount(0);
     setPaymentMethod('Cash');
     setNotes(`Monthly fee renewal (${defaultRenewalPlan.name})`);
@@ -145,7 +146,8 @@ export const MonthlyFeeRenewalModal: React.FC<MonthlyFeeRenewalModalProps> = ({
     setSelectedPlanId(planId);
     const p = renewalPlans.find((x) => x.id === planId);
     if (p) {
-      setAmountPaid(Math.max(0, p.price - discount));
+      const lateFee = selectedMember && selectedMember.expiryDate < new Date().toISOString().slice(0, 10) ? 500 : 0;
+      setAmountPaid(Math.max(0, p.price + lateFee - discount));
     }
   };
 
@@ -372,13 +374,17 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                           setDiscount(d);
                           setRenewalError(null);
                           if (activePlan) {
-                            setAmountPaid(Math.max(0, activePlan.price - d));
+                            const lateFee = selectedMember && selectedMember.expiryDate < new Date().toISOString().slice(0, 10) ? 500 : 0;
+                            setAmountPaid(Math.max(0, activePlan.price + lateFee - d));
                           }
                         }}
                         className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
                       />
                     </div>
                   </div>
+                  {selectedMember && selectedMember.expiryDate < new Date().toISOString().slice(0, 10) && (
+                    <p className="text-[11px] text-[#E5AE4A]">Overdue membership late fee: Rs. 500</p>
+                  )}
 
                   {/* Payment Method */}
                   <div>
@@ -386,7 +392,7 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                       Payment Mode
                     </label>
                     <div className="grid grid-cols-4 gap-2">
-                      {(['Cash', 'JazzCash', 'EasyPaisa', 'Card'] as PaymentMethod[]).map(
+                      {(['Cash'] as PaymentMethod[]).map(
                         (method) => (
                           <button
                             key={method}

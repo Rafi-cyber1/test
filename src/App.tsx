@@ -8,9 +8,7 @@ import { ExecutiveDashboard } from './components/dashboard/ExecutiveDashboard';
 import { MemberManagement } from './components/members/MemberManagement';
 import { BloodDirectory } from './components/members/BloodDirectory';
 import { SmartAttendance } from './components/attendance/SmartAttendance';
-import { FinancialManagement } from './components/finance/FinancialManagement';
 import { MemberFeeLedger } from './components/finance/MemberFeeLedger';
-import { WhatsAppManager } from './components/whatsapp/WhatsAppManager';
 import { ApplicationSettings } from './components/settings/ApplicationSettings';
 import { MembershipPlans } from './components/membership/MembershipPlans';
 import { InventoryManagement } from './components/inventory/InventoryManagement';
@@ -29,6 +27,7 @@ export default function App() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [showNewMemberModal, setShowNewMemberModal] = useState(false);
   const [showQuickPayment, setShowQuickPayment] = useState(false);
+  const [quickPaymentMemberId, setQuickPaymentMemberId] = useState<string | undefined>();
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [renewalRollNumber, setRenewalRollNumber] = useState<string | undefined>();
   const [selectedMemberForProfile, setSelectedMemberForProfile] = useState<Member | null>(null);
@@ -96,7 +95,8 @@ export default function App() {
               setShowRenewalModal(true);
             }}
             onOpenQuickPayment={() => {
-              setActiveTab('finance');
+              setActiveTab('ledger');
+              setQuickPaymentMemberId(undefined);
               setShowQuickPayment(true);
             }}
             onNavigate={(tab) => setActiveTab(tab)}
@@ -114,7 +114,8 @@ export default function App() {
                   setShowRenewalModal(true);
                 }}
                 onOpenQuickPayment={() => {
-                  setActiveTab('finance');
+                  setActiveTab('ledger');
+                  setQuickPaymentMemberId(undefined);
                   setShowQuickPayment(true);
                 }}
               />
@@ -129,8 +130,9 @@ export default function App() {
                   setShowRenewalModal(true);
                 }}
                 onOpenQuickPaymentForMember={(m) => {
-                  setSelectedMemberForProfile(m);
-                  setActiveTab('finance');
+                    setSelectedMemberForProfile(null);
+                    setQuickPaymentMemberId(m.id);
+                    setActiveTab('ledger');
                   setShowQuickPayment(true);
                 }}
               />
@@ -144,16 +146,16 @@ export default function App() {
 
             {activeTab === 'attendance' && <SmartAttendance />}
 
-            {activeTab === 'finance' && (
-              <FinancialManagement
+            {activeTab === 'ledger' && (
+              <MemberFeeLedger
                 initialOpenCollectPayment={showQuickPayment}
-                onClearInitialPayment={() => setShowQuickPayment(false)}
+                initialMemberId={quickPaymentMemberId}
+                onClearInitialPayment={() => {
+                  setShowQuickPayment(false);
+                  setQuickPaymentMemberId(undefined);
+                }}
               />
             )}
-
-            {activeTab === 'ledger' && <MemberFeeLedger />}
-
-            {activeTab === 'whatsapp' && <WhatsAppManager />}
 
             {activeTab === 'settings' && <ApplicationSettings />}
           </main>

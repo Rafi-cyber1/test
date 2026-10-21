@@ -1,6 +1,6 @@
 export type MembershipStatus = 'ACTIVE' | 'EXPIRING_SOON' | 'EXPIRED' | 'FROZEN' | 'PENDING_PAYMENT';
 export type PaymentStatus = 'PAID' | 'PARTIAL' | 'UNPAID';
-export type PaymentMethod = 'Cash' | 'Bank Transfer' | 'JazzCash' | 'EasyPaisa' | 'Card';
+export type PaymentMethod = 'Cash';
 export type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 export type UserRole = 'SUPER_ADMIN' | 'GYM_OWNER' | 'MANAGER' | 'RECEPTIONIST' | 'TRAINER';
 export type AccessStatus = 'GRANTED' | 'DENIED';
@@ -109,8 +109,10 @@ export interface PaymentRecord {
   memberName: string;
   bloodGroup?: BloodGroup;
   amount: number;
+  lateFee?: number;
   paymentMethod: PaymentMethod;
   paymentType: 'MEMBERSHIP' | 'REGISTRATION' | 'PERSONAL_TRAINING' | 'OTHER';
+  paymentDate?: string;
   billingMonth?: string; // e.g. "2026-10" or "October 2026"
   totalFee?: number;
   balanceDue?: number;

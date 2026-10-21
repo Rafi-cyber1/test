@@ -3,6 +3,7 @@ import { X, Printer, Send, Check, MessageSquare } from 'lucide-react';
 import { PaymentRecord, Member } from '../../types';
 import { db } from '../../db/storage';
 import { WhatsAppService } from '../../services/whatsappService';
+import { printDocument } from '../../services/printService';
 
 interface PrintableReceiptProps {
   payment: PaymentRecord;
@@ -19,16 +20,21 @@ export const PrintableReceipt: React.FC<PrintableReceiptProps> = ({
   const [paperWidth, setPaperWidth] = useState<58 | 80>(80);
   const settings = db.getSettings();
   const member = db.getMemberById(payment.memberId);
+  const lateFee = payment.lateFee || 0;
+  const membershipFee = Math.max(0, payment.amount - lateFee);
+  const membershipMonth = payment.billingMonth || payment.createdAt.slice(0, 7);
 
   useEffect(() => {
     if (autoTriggerPrint) {
-      const timer = window.setTimeout(() => window.print(), 600);
+      const timer = window.setTimeout(() => {
+        void printDocument('receipt');
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [payment, settings.gymName, autoTriggerPrint]);
 
   const handlePrint = () => {
-    window.print();
+    void printDocument('receipt');
   };
 
   const handleSendWhatsAppReceipt = () => {
@@ -197,7 +203,7 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
             <style>{`@media print { @page { size: ${paperWidth}mm 200mm; margin: 0; } }`}</style>
             <header className="text-center pb-2 border-b border-black border-dashed">
               <img
-                src="/logo.png"
+                src={`${import.meta.env.BASE_URL}logo.png`}
                 alt={settings.gymName || 'The Gym Town'}
                 className="receipt-logo mx-auto mb-1 h-8 max-w-full object-contain"
               />
@@ -208,41 +214,45 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
 
             <section className="py-2 border-b border-black border-dashed space-y-1">
               <div className="flex justify-between gap-2"><span>RECEIPT #</span><span>{payment.receiptNumber}</span></div>
-              <div className="flex justify-between gap-2"><span>DATE</span><span>{payment.createdAt.replace('T', ' ').substring(0, 19)}</span></div>
-              <div className="flex justify-between gap-2"><span>STUDENT</span><span className="text-right">{payment.memberName}</span></div>
-              <div className="flex justify-between gap-2"><span>ROLL / ID</span><span>{payment.rollNumber}</span></div>
-              <div className="flex justify-between gap-2"><span>BLOOD GROUP</span><span>{payment.bloodGroup || member?.bloodGroup || 'Not recorded'}</span></div>
+              <div className="flex justify-between gap-2"><span>PAYMENT DATE</span><span>{payment.paymentDate || payment.createdAt.replace('T', ' ').substring(0, 10)}</span></div>
+              <div className="flex justify-between gap-2"><span>MEMBER</span><span className="text-right">{payment.memberName}</span></div>
+              <div className="flex justify-between gap-2"><span>MEMBER ID</span><span>{payment.rollNumber}</span></div>
+              <div className="flex justify-between gap-2"><span>MEMBERSHIP MONTH</span><span>{membershipMonth}</span></div>
             </section>
 
             <table className="w-full my-2 border-b border-black border-dashed">
               <thead>
                 <tr className="border-b border-black border-dashed">
-                  <th className="py-1 text-left font-bold">FEE HEAD</th>
+                  <th className="py-1 text-left font-bold">FEE</th>
                   <th className="py-1 text-right font-bold">AMOUNT</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td className="py-1 pr-2 align-top">{payment.notes || payment.paymentType.replace(/_/g, ' ')}</td>
-                  <td className="py-1 text-right align-top whitespace-nowrap">Rs. {payment.amount.toLocaleString()}</td>
+                  <td className="py-1 text-right align-top whitespace-nowrap">Rs. {membershipFee.toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td className="py-1 pr-2">Late payment charge</td>
+                  <td className="py-1 text-right whitespace-nowrap">Rs. {lateFee.toLocaleString()}</td>
                 </tr>
               </tbody>
               <tfoot>
                 <tr className="border-t border-black border-dashed font-bold">
-                  <td className="py-1">AMOUNT PAID</td>
+                  <td className="py-1">TOTAL AMOUNT PAID</td>
                   <td className="py-1 text-right whitespace-nowrap">Rs. {payment.amount.toLocaleString()}</td>
                 </tr>
               </tfoot>
             </table>
 
             <div className="py-2 border-b border-black border-dashed">
-              PAYMENT METHOD: {payment.paymentMethod}
+              PAYMENT METHOD: {payment.paymentMethod.toUpperCase()}
             </div>
             <footer className="pt-2 text-[9px] leading-snug">
-              <div className="font-bold mb-1">Terms &amp; Conditions:</div>
-              <div>1. This fee is strictly Non-Refundable.</div>
-              <div>2. Any adjustment or claim must be reported within 10 days of issuance.</div>
-              <div>3. No claims entertained without the original receipt.</div>
+              <div className="font-bold mb-1">IMPORTANT TERMS</div>
+              <div>1. Membership fees are non-refundable.</div>
+              <div>2. Late payment charge: Rs. 500 when membership payment is overdue.</div>
+              <div>3. Accepted payment method: CASH ONLY.</div>
             </footer>
             <div className="pt-2 text-center text-[9px]">Thank you for your payment.</div>
           </div>

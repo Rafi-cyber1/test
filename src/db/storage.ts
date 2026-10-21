@@ -50,6 +50,11 @@ export const addCalendarMonths = (date: string, months: number): string => {
 };
 
 const monthFromDate = (date: string): string => date.slice(0, 7);
+const isValidCalendarDate = (date: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const parsed = new Date(`${date}T00:00:00.000Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date;
+};
 
 export interface DatabaseState {
   members: Member[];
@@ -1158,10 +1163,16 @@ class DatabaseManager {
   public updateMember(id: string, updates: Partial<Member>): Member | null {
     const index = this.state.members.findIndex((m) => m.id === id);
     if (index === -1) return null;
+    const duplicate = this.isDuplicateMember(
+      updates.mobileNumber || this.state.members[index].mobileNumber,
+      updates.email ?? this.state.members[index].email,
+      id
+    );
+    if (duplicate.duplicate) throw new Error(duplicate.reason || 'Member contact details are already in use.');
     if (updates.bloodGroup && !BLOOD_GROUPS.has(updates.bloodGroup)) {
       throw new Error('A valid blood group is required.');
     }
-    if (updates.mobileNumber && !this.isValidPhoneNumber(updates.mobileNumber)) {
+    if (updates.mobileNumber !== undefined && !this.isValidPhoneNumber(updates.mobileNumber)) {
       throw new Error(INVALID_PHONE_NUMBER_ERROR);
     }
     for (const phone of [updates.whatsappNumber, updates.emergencyContactPhone]) {
@@ -1171,6 +1182,11 @@ class DatabaseManager {
     }
     if (updates.totalFee !== undefined || updates.paidAmount !== undefined || updates.balanceDue !== undefined) {
       throw new Error('Member fee totals are maintained by the fee ledger.');
+    }
+    for (const date of [updates.registrationDate, updates.startDate, updates.expiryDate]) {
+      if (date !== undefined && !isValidCalendarDate(date)) {
+        throw new Error('Member dates must be valid calendar dates.');
+      }
     }
 
     this.recomputeLedgerBalances();
@@ -1189,6 +1205,15 @@ class DatabaseManager {
     const updated: Member = {
       ...current,
       ...updates,
+      status: current.status === 'FROZEN'
+        ? 'FROZEN'
+        : balanceDue > 0 && paidAmount === 0
+          ? 'PENDING_PAYMENT'
+          : (updates.expiryDate || current.expiryDate) < formatDate(new Date())
+            ? 'EXPIRED'
+            : (updates.expiryDate || current.expiryDate) <= datePlus(3)
+              ? 'EXPIRING_SOON'
+              : 'ACTIVE',
       balanceDue,
       paymentStatus,
       updatedAt: new Date().toISOString(),
@@ -1219,6 +1244,35 @@ class DatabaseManager {
     member.archived = true;
     member.updatedAt = new Date().toISOString();
     this.addAuditLog('MEMBERS', 'Member Left', `Marked ${member.fullName} (${member.rollNumber}) as left; profile history retained`);
+    this.persist();
+    return true;
+  }
+
+  public restoreMember(id: string): boolean {
+    const member = this.state.members.find((candidate) => candidate.id === id);
+    if (!member || !member.archived) return false;
+
+    member.archived = false;
+    const today = formatDate(new Date());
+    if (member.expiryDate >= today) {
+      const periods = member.membershipPeriods?.length
+        ? [...member.membershipPeriods]
+        : [{ id: `mperiod_${member.id}_1`, startDate: member.registrationDate || member.startDate }];
+      const lastPeriod = periods[periods.length - 1];
+      if (lastPeriod.endDate) {
+        periods.push({ id: `mperiod_${member.id}_${periods.length + 1}`, startDate: today });
+      }
+      member.membershipPeriods = periods;
+    }
+    member.status = member.balanceDue > 0 && member.paidAmount === 0
+      ? 'PENDING_PAYMENT'
+      : member.expiryDate < today
+        ? 'EXPIRED'
+        : member.expiryDate <= datePlus(3)
+          ? 'EXPIRING_SOON'
+          : 'ACTIVE';
+    member.updatedAt = new Date().toISOString();
+    this.addAuditLog('MEMBERS', 'Member Restored', `Restored ${member.fullName} (${member.rollNumber}) to the active directory`);
     this.persist();
     return true;
   }
@@ -1271,6 +1325,9 @@ class DatabaseManager {
     paymentMethod: PaymentRecord['paymentMethod'] = 'Cash',
     discount: number = 0
   ): boolean {
+    if (paymentMethod !== 'Cash') {
+      throw new Error('The Gym Town accepts cash payments only.');
+    }
     const member = this.getMemberById(memberId);
     const renewalPlanId = planId === 'plan_admission_advance'
       ? 'plan_monthly'
@@ -1312,7 +1369,8 @@ class DatabaseManager {
     if (!Number.isFinite(amountPaid) || amountPaid < 0) {
       throw new Error('Payment amount must be a valid non-negative amount.');
     }
-    const finalFee = plan.price - discount;
+    const lateFee = member.expiryDate < todayStr ? 500 : 0;
+    const finalFee = plan.price + lateFee - discount;
     if (amountPaid > member.balanceDue + finalFee) {
       throw new Error('Payment amount cannot exceed the outstanding balance after renewal.');
     }
@@ -1331,7 +1389,7 @@ class DatabaseManager {
       member,
       finalFee,
       baseStartDate,
-      `Membership renewal charge (${plan.name}) — ${billingMonth}`,
+      `Membership renewal charge (${plan.name}) — ${billingMonth}${lateFee ? ' + Rs. 500 overdue late fee' : ''}`,
       billingMonth
     );
 
@@ -1360,8 +1418,9 @@ class DatabaseManager {
         amount: amountPaid,
         paymentMethod,
         paymentType: 'MEMBERSHIP',
+        lateFee: Math.min(lateFee, Math.max(0, amountPaid - (plan.price - discount))),
         billingMonth,
-        notes: `Renewal payment for ${plan.name}`,
+        notes: `Renewal payment for ${plan.name}${lateFee ? ' including Rs. 500 overdue late fee' : ''}`,
       });
     }
 
@@ -1601,6 +1660,9 @@ class DatabaseManager {
     ledgerDate: string = formatDate(new Date()),
     idempotencyKey?: string
   ): PaymentRecord {
+    if (entry.paymentMethod !== 'Cash') {
+      throw new Error('The Gym Town accepts cash payments only.');
+    }
     if (!Number.isFinite(entry.amount) || entry.amount <= 0) {
       throw new Error('Payment amount must be a finite value greater than zero.');
     }
@@ -1636,9 +1698,30 @@ class DatabaseManager {
     const receiptSeq = (this.state.payments.length + 1).toString().padStart(4, '0');
     const receiptNumber = `REC-${new Date().getFullYear()}-${receiptSeq}`;
     const receivedBy = this.state.settings.receptionistProfile?.name || this.state.currentUser.fullName || 'Bilal Tariq';
+    const billingMonth = entry.billingMonth || monthFromDate(ledgerDate);
+    const overdueFeeDue = member
+      ? this.state.memberFeeLedger
+          .filter((ledgerEntry) => ledgerEntry.memberId === member.id
+            && ledgerEntry.type === 'CHARGE'
+            && ledgerEntry.billingMonth === billingMonth
+            && ledgerEntry.description.includes('Rs. 500 overdue late fee'))
+          .length * 500
+      : 0;
+    const overdueFeeAlreadyPaid = member
+      ? this.state.payments
+          .filter((existing) => existing.memberId === member.id && existing.billingMonth === billingMonth)
+          .reduce((total, existing) => total + (existing.lateFee || 0), 0)
+      : 0;
+    const lateFee = Math.min(
+      entry.amount,
+      entry.lateFee ?? Math.max(0, overdueFeeDue - overdueFeeAlreadyPaid)
+    );
 
     const payment: PaymentRecord = {
       ...entry,
+      lateFee,
+      paymentDate: ledgerDate,
+      billingMonth,
       bloodGroup: entry.bloodGroup || this.getMemberById(entry.memberId)?.bloodGroup,
       id: `pay_${Date.now()}_${receiptSeq}`,
       receiptNumber,
@@ -1663,7 +1746,7 @@ class DatabaseManager {
         recordedBy: payment.receivedBy,
         paymentId: payment.id,
         idempotencyKey,
-        billingMonth: entry.billingMonth || monthFromDate(ledgerDate),
+        billingMonth,
       };
       this.state.memberFeeLedger.push(ledgerEntry);
       this.recomputeLedgerBalances();
@@ -1676,6 +1759,8 @@ class DatabaseManager {
         member.paymentStatus = 'PARTIAL';
       }
       member.updatedAt = new Date().toISOString();
+      payment.paymentStatus = member.paymentStatus;
+      payment.balanceDue = member.balanceDue;
     }
 
     this.addAuditLog('FINANCE', 'Payment Received', `Collected Rs. ${payment.amount} from ${payment.memberName} (${payment.receiptNumber})`);
@@ -1694,6 +1779,9 @@ class DatabaseManager {
   }
 
   public recordExpense(entry: Omit<ExpenseRecord, 'id' | 'createdBy'>): ExpenseRecord {
+    if (entry.paymentMethod !== 'Cash') {
+      throw new Error('The Gym Town records cash transactions only.');
+    }
     const expense: ExpenseRecord = {
       ...entry,
       id: `exp_${Date.now()}`,
@@ -1939,6 +2027,9 @@ class DatabaseManager {
     memberName?: string;
     notes?: string;
   }): { success: boolean; sale?: Sale; error?: string } {
+    if (saleData.paymentMethod !== 'Cash') {
+      return { success: false, error: 'The Gym Town accepts cash payments only.' };
+    }
     if (!saleData.items || saleData.items.length === 0) {
       return { success: false, error: 'Sale must contain at least one item' };
     }
@@ -2068,6 +2159,9 @@ class DatabaseManager {
     purchaseDate: string;
     notes?: string;
   }): { success: boolean; purchase?: StockPurchase; error?: string } {
+    if (purchaseData.paymentMethod !== 'Cash') {
+      return { success: false, error: 'The Gym Town records cash transactions only.' };
+    }
     if (!purchaseData.items || purchaseData.items.length === 0) {
       return { success: false, error: 'Purchase shipment must contain at least one product' };
     }

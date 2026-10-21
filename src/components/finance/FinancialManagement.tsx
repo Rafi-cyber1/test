@@ -108,7 +108,7 @@ export const FinancialManagement: React.FC<FinancialManagementProps> = ({
   };
 
   // Cash breakdown
-  const methods = ['Cash', 'JazzCash', 'EasyPaisa', 'Bank Transfer', 'Card'] as const;
+  const methods = ['Cash'] as const;
   const todayBreakdown = methods.map((m) => {
     const sum = todayPayments
       .filter((p) => p.paymentMethod === m)
@@ -461,7 +461,7 @@ export const FinancialManagement: React.FC<FinancialManagementProps> = ({
                   Payment Method
                 </label>
                 <div className="grid grid-cols-4 gap-2">
-                  {(['Cash', 'JazzCash', 'EasyPaisa', 'Card'] as PaymentMethod[]).map((method) => (
+                  {(['Cash'] as PaymentMethod[]).map((method) => (
                     <button
                       key={method}
                       type="button"

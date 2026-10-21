@@ -59,9 +59,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
     inventory: { title: 'STORE & POINT OF SALE (POS)', subtitle: 'Stock Catalog & Daily Sales' },
     plans: { title: 'MEMBERSHIP PLANS & RATES', subtitle: 'Fee Structure & Packages' },
     attendance: { title: 'MANUAL ATTENDANCE REGISTER', subtitle: 'Daily Check-in & Logs' },
-    finance: { title: 'PAYMENTS & FINANCIAL LEDGER', subtitle: 'Fee Collections & Balance Dues' },
-    ledger: { title: 'MEMBER FEE LEDGER', subtitle: 'Member Charges, Payments & Running Balances' },
-    whatsapp: { title: 'WHATSAPP EXPIRY NOTIFICATIONS', subtitle: 'Automated Reminders & Receipts' },
+    ledger: { title: 'MEMBER FEE RECORD', subtitle: 'Complete Member Payment History & Receipts' },
     settings: { title: 'STATION & SYSTEM SETTINGS', subtitle: 'Desk Profile & Data Backup' },
   };
 

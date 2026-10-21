@@ -65,7 +65,12 @@ export class WhatsAppService {
    */
   public static getOfficial3DayDirectUrl(member: Member): string {
     const cleanPhone = this.cleanPhoneNumber(member.whatsappNumber || member.mobileNumber);
-    const message = `Salam ${member.fullName}, your membership at THE GYM TOWN is expiring in 3 days on ${member.expiryDate}. Please renew to avoid interruption.`;
+    const expiry = new Date(`${member.expiryDate}T00:00:00`);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const daysLeft = Math.max(0, Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+    const dayText = `${daysLeft} day${daysLeft === 1 ? '' : 's'}`;
+    const message = `Dear Member, your membership at The Gym Town is expiring in ${dayText}. Please renew your membership on time to continue enjoying our gym facilities. Thank you - The Gym Town.`;
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
   }
 
@@ -96,6 +101,8 @@ export class WhatsAppService {
     const alreadySentToday = this.isReminderSentToday(member);
     const today = new Date().toISOString().split('T')[0];
     const url = this.getOfficial3DayDirectUrl(member);
+    if (alreadySentToday) return { url, alreadySentToday };
+    const message = decodeURIComponent(url.split('text=')[1] || '');
 
     // Update member record in DB with today's reminder stamp
     db.updateMember(member.id, {
@@ -108,7 +115,7 @@ export class WhatsAppService {
       memberName: member.fullName,
       whatsappNumber: member.whatsappNumber || member.mobileNumber,
       messageType: 'EXPIRY_3DAYS',
-      messageText: `Salam ${member.fullName}, your membership at THE GYM TOWN is expiring in 3 days on ${member.expiryDate}. Please renew to avoid interruption.`,
+      messageText: message,
       status: 'CLICK_TO_CHAT',
       sentAt: new Date().toISOString(),
     });

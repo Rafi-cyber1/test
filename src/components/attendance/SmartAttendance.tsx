@@ -6,6 +6,7 @@ import {
   Clock,
   AlertTriangle,
   Calendar,
+  CalendarDays,
   Check,
   X,
 } from 'lucide-react';
@@ -14,6 +15,9 @@ import { soundEffects } from '../../services/soundEffects';
 import { Member } from '../../types';
 
 export const SmartAttendance: React.FC = () => {
+  const [activeView, setActiveView] = useState<'manual' | 'monthly'>('manual');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [selectedMemberId, setSelectedMemberId] = useState('ALL');
   const [searchInput, setSearchInput] = useState('');
   const [lastCheckInResult, setLastCheckInResult] = useState<{
     status: 'IDLE' | 'SUCCESS' | 'DENIED';
@@ -22,10 +26,39 @@ export const SmartAttendance: React.FC = () => {
   }>({ status: 'IDLE', message: '' });
 
   const members = db.getMembers();
+  const allMembers = db.getAllMembers();
   const attendanceRecords = db.getAttendance();
 
   const todayStr = new Date().toISOString().split('T')[0];
   const todayRecords = attendanceRecords.filter((a) => a.timestamp.startsWith(todayStr));
+  const [year, month] = selectedMonth.split('-').map(Number);
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const monthDays = Array.from({ length: daysInMonth }, (_, index) => index + 1);
+  const monthPrefix = `${selectedMonth}-`;
+  const monthlyMembers = selectedMemberId === 'ALL'
+    ? allMembers
+    : allMembers.filter((member) => member.id === selectedMemberId);
+  const monthlyAttendance = monthlyMembers.map((member) => {
+    const attended = new Set(attendanceRecords
+      .filter((record) => record.memberId === member.id && record.accessStatus === 'GRANTED' && record.timestamp.startsWith(monthPrefix))
+      .map((record) => Number(record.timestamp.slice(8, 10))));
+    const days = monthDays.map((day) => {
+      const date = `${selectedMonth}-${String(day).padStart(2, '0')}`;
+      const membershipPeriods = member.membershipPeriods?.length
+        ? member.membershipPeriods
+        : [{ startDate: member.startDate, endDate: member.expiryDate }];
+      const membershipWasValid = membershipPeriods.some((period) =>
+        period.startDate <= date && (!period.endDate || period.endDate >= date)
+      );
+      const state = attended.has(day)
+        ? 'PRESENT'
+        : date < todayStr && membershipWasValid
+          ? 'ABSENT'
+          : 'NOT_MARKED';
+      return { day, state };
+    });
+    return { member, days, presentDays: days.filter(({ state }) => state === 'PRESENT').length, absentDays: days.filter(({ state }) => state === 'ABSENT').length };
+  });
 
   const suggestions = searchInput.trim().length >= 1
     ? members
@@ -167,6 +200,18 @@ export const SmartAttendance: React.FC = () => {
         </div>
       </div>
 
+      <div className="flex gap-1 border-b border-[#262A30]">
+        {([
+          { key: 'manual', label: 'Manual Attendance' },
+          { key: 'monthly', label: 'Monthly Attendance' },
+        ] as const).map((tab) => (
+          <button key={tab.key} type="button" onClick={() => setActiveView(tab.key)} className={`border-b-2 px-3 py-2 text-xs font-semibold ${activeView === tab.key ? 'border-[#D9383A] text-[#ECEAE6]' : 'border-transparent text-[#8B909A] hover:text-[#ECEAE6]'}`}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeView === 'manual' && <>
       {/* Check-in Input Bar */}
       <div className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-3">
         <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block">
@@ -292,6 +337,54 @@ export const SmartAttendance: React.FC = () => {
           </table>
         </div>
       </div>
+      </>}
+
+      {activeView === 'monthly' && (
+        <section className="space-y-4">
+          <div className="flex flex-wrap items-end justify-between gap-3 rounded-[8px] border border-[#262A30] bg-[#15171A] p-4">
+            <div>
+              <h3 className="flex items-center gap-2 font-condensed text-sm font-bold uppercase"><CalendarDays className="h-4 w-4 text-[#D9383A]" /> Monthly Attendance</h3>
+              <p className="mt-1 text-xs text-[#8B909A]">Present days are read from recorded check-ins; past unrecorded days are shown as absent.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <label className="text-[11px] text-[#8B909A]">Month
+                <input type="month" value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)} className="mt-1 block rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]" />
+              </label>
+              <label className="text-[11px] text-[#8B909A]">Member
+                <select value={selectedMemberId} onChange={(event) => setSelectedMemberId(event.target.value)} className="mt-1 block min-w-52 rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]">
+                  <option value="ALL">All active members</option>
+                  {allMembers.map((member) => <option key={member.id} value={member.id}>{member.rollNumber} — {member.fullName}{member.archived ? ' (Removed)' : ''}</option>)}
+                </select>
+              </label>
+            </div>
+          </div>
+
+          {selectedMemberId !== 'ALL' && monthlyAttendance[0] && (
+            <div className="flex gap-4 text-xs">
+              <span className="status-pill-success">Present: {monthlyAttendance[0].presentDays}</span>
+              <span className="status-pill-danger">Absent: {monthlyAttendance[0].absentDays}</span>
+            </div>
+          )}
+
+          <div className="overflow-x-auto rounded-[8px] border border-[#262A30] bg-[#15171A]">
+            <table className="w-full min-w-max border-collapse text-[10px]">
+              <thead className="sticky top-0 bg-[#1C1F23] text-[#8B909A]">
+                <tr><th className="sticky left-0 z-10 bg-[#1C1F23] p-2 text-left">Member</th>{monthDays.map((day) => <th key={day} className="min-w-8 p-2 text-center">{day}</th>)}</tr>
+              </thead>
+              <tbody className="divide-y divide-[#262A30]">
+                {monthlyAttendance.map(({ member, days }) => (
+                  <tr key={member.id}>
+                    <th className="sticky left-0 bg-[#15171A] p-2 text-left font-medium text-[#ECEAE6]">{member.fullName}<span className="block font-mono text-[9px] text-[#8B909A]">{member.rollNumber}{member.archived ? ' · Removed' : ''}</span></th>
+                    {days.map(({ day, state }) => <td key={day} title={`${day}: ${state.replace('_', ' ')}`} className={`p-1 text-center font-bold ${state === 'PRESENT' ? 'text-[#3DB88B]' : state === 'ABSENT' ? 'text-[#E5484D]' : 'text-[#8B909A]'}`}>{state === 'PRESENT' ? 'P' : state === 'ABSENT' ? 'A' : '—'}</td>)}
+                  </tr>
+                ))}
+                {monthlyAttendance.length === 0 && <tr><td colSpan={daysInMonth + 1} className="p-8 text-center text-[#8B909A]">No members to display.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex gap-4 text-[11px] text-[#8B909A]"><span className="text-[#3DB88B]">P Present</span><span className="text-[#E5484D]">A Absent</span><span>— Not Marked</span></div>
+        </section>
+      )}
     </div>
   );
 };

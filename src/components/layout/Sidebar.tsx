@@ -4,8 +4,6 @@ import {
   Users,
   Layers,
   CheckCircle,
-  CreditCard,
-  MessageSquare,
   Settings,
   ShoppingBag,
   ChevronLeft,
@@ -36,14 +34,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentUser,
 }) => {
   const members = db.getMembers();
-  const expiringCount = members.filter((m) => m.status === 'EXPIRING_SOON').length;
-  const pendingPaymentCount = members.filter(
-    (m) => m.paymentStatus === 'UNPAID' || m.paymentStatus === 'PARTIAL'
-  ).length;
-
   const lowStockCount = db.getLowStockProducts().length;
 
-  const navGroups = [
+  const navGroups: { group: string; items: { id: string; label: string; icon: typeof LayoutDashboard; badge?: number; alert?: string }[] }[] = [
     {
       group: 'OPERATIONS',
       items: [
@@ -68,19 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       group: 'BILLING & SYSTEM',
       items: [
-        {
-          id: 'finance',
-          label: 'Payments & Register',
-          icon: CreditCard,
-          alert: pendingPaymentCount > 0 ? `${pendingPaymentCount}` : undefined,
-        },
-        { id: 'ledger', label: 'Member Fee Ledger', icon: Wallet },
-        {
-          id: 'whatsapp',
-          label: 'WhatsApp Expiry Alerts',
-          icon: MessageSquare,
-          badge: expiringCount > 0 ? expiringCount : undefined,
-        },
+        { id: 'ledger', label: 'Member Fee Record', icon: Wallet },
         { id: 'settings', label: 'Station Settings', icon: Settings },
       ],
     },

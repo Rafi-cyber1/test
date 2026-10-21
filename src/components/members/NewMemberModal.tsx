@@ -656,10 +656,6 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                   className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
                 >
                   <option value="Cash">Cash (Front Desk)</option>
-                  <option value="JazzCash">JazzCash</option>
-                  <option value="EasyPaisa">EasyPaisa</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Card">Card</option>
                 </select>
               </div>
             </div>

@@ -71,7 +71,8 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
     : undefined;
   const renewalPlans = customRenewPlan ? [...plans, customRenewPlan] : plans;
   const [renewPlanId, setRenewPlanId] = useState(defaultRenewPlanId);
-  const [renewPaidAmount, setRenewPaidAmount] = useState<number>(renewalPlans.find((p) => p.id === defaultRenewPlanId)?.price || 2000);
+  const renewalLateFee = member.expiryDate < new Date().toISOString().slice(0, 10) ? 500 : 0;
+  const [renewPaidAmount, setRenewPaidAmount] = useState<number>((renewalPlans.find((p) => p.id === defaultRenewPlanId)?.price || 2000) + renewalLateFee);
   const [renewDiscount, setRenewDiscount] = useState<number>(0);
   const [renewMethod, setRenewMethod] = useState<PaymentMethod>('Cash');
   const [renewError, setRenewError] = useState<string | null>(null);
@@ -664,10 +665,6 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                   className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
                 >
                   <option value="Cash">Cash (Front Desk)</option>
-                  <option value="JazzCash">JazzCash</option>
-                  <option value="EasyPaisa">EasyPaisa</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Card">Card</option>
                 </select>
               </div>
 
@@ -728,7 +725,7 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                   onChange={(e) => {
                     setRenewPlanId(e.target.value);
                     const p = renewalPlans.find((pl) => pl.id === e.target.value);
-                    if (p) setRenewPaidAmount(p.price);
+                    if (p) setRenewPaidAmount(p.price + renewalLateFee - renewDiscount);
                   }}
                   className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
                 >
@@ -739,6 +736,7 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                   ))}
                 </select>
               </div>
+              {renewalLateFee > 0 && <p className="text-[11px] text-[#E5AE4A]">Overdue membership late fee: Rs. 500</p>}
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
@@ -778,10 +776,6 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                   className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
                 >
                   <option value="Cash">Cash (Front Desk)</option>
-                  <option value="JazzCash">JazzCash</option>
-                  <option value="EasyPaisa">EasyPaisa</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Card">Card</option>
                 </select>
               </div>
 

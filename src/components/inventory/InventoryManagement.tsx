@@ -26,6 +26,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { db } from '../../db/storage';
+import { printDocument } from '../../services/printService';
 import { Product, ProductCategory, PaymentMethod, Sale, StockPurchase } from '../../types';
 import { GymTownLogo } from '../common/GymTownLogo';
 
@@ -637,7 +638,7 @@ export const InventoryManagement: React.FC = () => {
                     Payment Method
                   </label>
                   <div className="grid grid-cols-4 gap-1.5">
-                    {(['Cash', 'JazzCash', 'EasyPaisa', 'Card'] as PaymentMethod[]).map((method) => (
+                    {(['Cash'] as PaymentMethod[]).map((method) => (
                       <button
                         key={method}
                         type="button"
@@ -805,7 +806,7 @@ export const InventoryManagement: React.FC = () => {
                 <div className="font-condensed text-2xl font-bold text-[#ECEAE6] tabular-nums mt-1">
                   Rs. {salesMetrics.digitalSales.toLocaleString()}
                 </div>
-                <span className="text-[10px] text-[#8B909A] mt-1 block">JazzCash / EasyPaisa / Card</span>
+                <span className="text-[10px] text-[#8B909A] mt-1 block">Cash only</span>
               </div>
             </div>
 
@@ -1671,9 +1672,6 @@ export const InventoryManagement: React.FC = () => {
                   className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
                 >
                   <option value="Cash">Cash on Delivery</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="JazzCash">JazzCash</option>
-                  <option value="EasyPaisa">EasyPaisa</option>
                 </select>
               </div>
 
@@ -1726,7 +1724,7 @@ export const InventoryManagement: React.FC = () => {
             </div>
 
             {/* Receipt Printable Preview (80mm style) */}
-            <div className="p-5 font-mono text-[11px] leading-relaxed bg-[#0D0E10] border-b border-[#262A30] text-[#ECEAE6] select-text">
+            <div className="p-5 font-mono text-[11px] leading-relaxed bg-[#0D0E10] border-b border-[#262A30] text-[#ECEAE6] select-text print-inventory-receipt">
               <div className="text-center pb-3 border-b border-dashed border-[#262A30]">
                 <div className="font-bold text-sm text-[#ECEAE6] tracking-wider uppercase">THE GYM TOWN</div>
                 <div className="text-[10px] text-[#8B909A]">Hyderabad District Station</div>
@@ -1797,7 +1795,9 @@ export const InventoryManagement: React.FC = () => {
                 Close
               </button>
               <button
-                onClick={() => window.print()}
+                onClick={() => {
+                  void printDocument('inventory-receipt');
+                }}
                 className="px-4 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] flex items-center gap-1.5 cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5" />
