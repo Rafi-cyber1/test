@@ -4,6 +4,7 @@ import { X, Printer, Shield, Phone, Calendar, User } from 'lucide-react';
 import { Member } from '../../types';
 import { db } from '../../db/storage';
 import { GymTownLogo } from '../common/GymTownLogo';
+import { printDocument } from '../../services/printService';
 
 interface PrintableMemberCardProps {
   member: Member;
@@ -29,7 +30,7 @@ export const PrintableMemberCard: React.FC<PrintableMemberCardProps> = ({ member
   }, [member.rollNumber]);
 
   const handlePrint = () => {
-    window.print();
+    void printDocument('member-card');
   };
 
   return (

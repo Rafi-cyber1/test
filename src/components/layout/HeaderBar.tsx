@@ -8,6 +8,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { db } from '../../db/storage';
+import { appStorage } from '../../db/appStorage';
 import { GymTownLogo } from '../common/GymTownLogo';
 
 interface HeaderBarProps {
@@ -33,7 +34,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   const [isLightMode, setIsLightMode] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('tgt_theme');
+    const savedTheme = appStorage.getItem('tgt_theme');
     if (savedTheme === 'light') {
       setIsLightMode(true);
       document.documentElement.classList.add('light');
@@ -43,11 +44,11 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   const toggleTheme = () => {
     if (isLightMode) {
       document.documentElement.classList.remove('light');
-      localStorage.setItem('tgt_theme', 'dark');
+      appStorage.setItem('tgt_theme', 'dark');
       setIsLightMode(false);
     } else {
       document.documentElement.classList.add('light');
-      localStorage.setItem('tgt_theme', 'light');
+      appStorage.setItem('tgt_theme', 'light');
       setIsLightMode(true);
     }
   };

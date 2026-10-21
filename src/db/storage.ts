@@ -26,12 +26,14 @@ import {
   StockMovementType,
   BloodGroup,
 } from '../types';
+import { appStorage } from './appStorage';
 
 const STORAGE_PREFIX = 'tgt_db_';
 const CLEAN_V2_FLAG = 'tgt_db_clean_v2';
 const BLOOD_GROUPS = new Set<BloodGroup>(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
 const INVALID_PHONE_NUMBER_ERROR =
   'Enter a valid phone number with exactly 11 digits, or 12 digits including Pakistan country code 92.';
+const DEMO_MEMBER_EMAIL_PATTERN = /^demo\.member\.\d{3}@example\.test$/;
 
 const normalizePhoneNumber = (phone: string): string => {
   let digits = phone.replace(/\D/g, '');
@@ -550,7 +552,7 @@ class DatabaseManager {
 
   private loadState(): DatabaseState {
     try {
-      const stored = localStorage.getItem(`${STORAGE_PREFIX}data`);
+      const stored = appStorage.getItem(`${STORAGE_PREFIX}data`);
 
       if (stored) {
         const parsed = JSON.parse(stored);
@@ -617,7 +619,7 @@ class DatabaseManager {
         });
         if (attendanceToUse.some((record, index) => record !== storedAttendance[index])
           || JSON.stringify(parsed.plans) !== JSON.stringify(plansToUse)) {
-          localStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify({
+          appStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify({
             ...parsed,
             attendance: attendanceToUse,
             plans: plansToUse,
@@ -654,12 +656,12 @@ class DatabaseManager {
         };
         this.recomputeLedgerBalances(migratedState);
         if (!Array.isArray(parsed.memberFeeLedger)) {
-          localStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify(migratedState));
+          appStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify(migratedState));
         }
-        localStorage.setItem(CLEAN_V2_FLAG, 'true');
+        appStorage.setItem(CLEAN_V2_FLAG, 'true');
         return migratedState;
       }
-      localStorage.setItem(CLEAN_V2_FLAG, 'true');
+      appStorage.setItem(CLEAN_V2_FLAG, 'true');
     } catch (error) {
       throw new Error('Saved application data could not be loaded. The stored data was left unchanged.', { cause: error });
     }
@@ -698,8 +700,8 @@ class DatabaseManager {
     };
 
     try {
-      localStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify(cleanState));
-      localStorage.setItem(CLEAN_V2_FLAG, 'true');
+      appStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify(cleanState));
+      appStorage.setItem(CLEAN_V2_FLAG, 'true');
     } catch (error) {
       throw new Error('Unable to initialize application storage.', { cause: error });
     }
@@ -709,7 +711,7 @@ class DatabaseManager {
 
   private persist(): void {
     try {
-      localStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify(this.state));
+      appStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify(this.state));
     } catch (error) {
       console.error('Storage persistence failed', error);
       throw new Error('Unable to save application data. Check available browser storage and try again.', { cause: error });
@@ -774,6 +776,109 @@ class DatabaseManager {
 
   public getAllMembers(): Member[] {
     return this.state.members;
+  }
+
+  public async seedDemoData(): Promise<number> {
+    if (this.state.members.some((member) => DEMO_MEMBER_EMAIL_PATTERN.test(member.email || ''))) {
+      throw new Error('Demo records already exist. Remove them before adding the demo dataset again.');
+    }
+
+    const today = new Date();
+    const todayString = formatDate(today);
+    const plans = this.state.plans.filter((plan) => plan.isActive);
+    const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+    const paymentMethods: PaymentMethod[] = ['Cash'];
+
+    for (let index = 1; index <= 120; index += 1) {
+      const memberNumber = index.toString().padStart(3, '0');
+      const plan = plans[index % plans.length] || DEFAULT_PLANS[1];
+      const paymentMethod: PaymentMethod = 'Cash';
+      const expiryOffset = index % 10 === 0 ? -7 : index % 10 === 1 ? 2 : 30;
+      const expiry = new Date(`${todayString}T00:00:00Z`);
+      expiry.setUTCDate(expiry.getUTCDate() + expiryOffset);
+      const registration = new Date(`${todayString}T00:00:00Z`);
+      registration.setUTCDate(registration.getUTCDate() - (index % 90));
+      const registrationDate = formatDate(registration);
+      const phone = `0300${(1000 + index).toString().padStart(7, '0')}`;
+      const fee = plan.price;
+      const paidAmount = index % 4 === 0 ? 0 : index % 4 === 1 ? Math.floor(fee / 2) : fee;
+
+      const member = this.addMember({
+        fullName: `DEMO - Member ${memberNumber}`,
+        fatherName: `Demo Parent ${memberNumber}`,
+        mobileNumber: phone,
+        whatsappNumber: phone,
+        email: `demo.member.${memberNumber}@example.test`,
+        gender: index % 2 === 0 ? 'Male' : 'Female',
+        bloodGroup: bloodGroups[index % bloodGroups.length],
+        registrationDate,
+        planId: plan.id,
+        planName: plan.name,
+        startDate: registrationDate,
+        expiryDate: formatDate(expiry),
+        emergencyContactName: `Demo Contact ${memberNumber}`,
+        emergencyContactPhone: `0300${(9000 + index).toString().padStart(7, '0')}`,
+        notes: 'DEMO DATA ONLY — do not contact this number.',
+        totalFee: fee,
+        paidAmount,
+        admissionFee: plan.id.startsWith('plan_admission') ? 2000 : 0,
+        monthlyFee: plan.id.startsWith('plan_admission') ? fee - 2000 : fee,
+        billingMonths: 1,
+      }, `DEMO-TGT-${memberNumber}-X`);
+
+      const initialPayment = this.state.payments.find((payment) => payment.memberId === member.id);
+      if (initialPayment) {
+        initialPayment.paymentMethod = paymentMethod;
+        const ledgerPayment = this.state.memberFeeLedger.find((entry) => entry.paymentId === initialPayment.id);
+        if (ledgerPayment) ledgerPayment.paymentMethod = paymentMethod;
+      }
+
+      if (member.paidAmount > 0 && member.status !== 'EXPIRED' && index % 3 !== 0) {
+        this.recordAttendance({
+          memberId: member.id,
+          rollNumber: member.rollNumber,
+          memberName: member.fullName,
+          method: 'MANUAL',
+          accessStatus: 'GRANTED',
+          notes: 'Demo attendance record for testing.',
+        });
+      }
+
+      await new Promise<void>((resolve) => setTimeout(resolve, 1));
+    }
+
+    this.addAuditLog('SYSTEM', 'Demo Dataset Added', 'Added 120 clearly labeled demo member profiles for testing.');
+    this.persist();
+    return 120;
+  }
+
+  public removeDemoData(): number {
+    const demoMembers = this.state.members.filter((member) =>
+      DEMO_MEMBER_EMAIL_PATTERN.test(member.email || '')
+    );
+    if (demoMembers.length === 0) return 0;
+
+    const demoMemberIds = new Set(demoMembers.map((member) => member.id));
+    this.state.members = this.state.members.filter((member) => !demoMemberIds.has(member.id));
+    this.state.membershipHistory = this.state.membershipHistory.filter((entry) => !demoMemberIds.has(entry.memberId));
+    this.state.memberFeeLedger = this.state.memberFeeLedger.filter((entry) => !demoMemberIds.has(entry.memberId));
+    this.state.attendance = this.state.attendance.filter((entry) => !demoMemberIds.has(entry.memberId));
+    this.state.payments = this.state.payments.filter((entry) => !demoMemberIds.has(entry.memberId));
+    this.state.doorLogs = this.state.doorLogs.filter((entry) => !demoMemberIds.has(entry.memberId));
+    this.state.notifications = this.state.notifications.filter((entry) => !demoMemberIds.has(entry.memberId));
+    this.state.sales = this.state.sales.filter((entry) => !entry.memberId || !demoMemberIds.has(entry.memberId));
+    this.state.auditLogs = this.state.auditLogs.filter((entry) =>
+      !entry.details.includes('DEMO - Member ')
+    );
+    this.addAuditLog('SYSTEM', 'Demo Dataset Removed', `Removed ${demoMembers.length} demo member profiles and their related records.`);
+    this.persist();
+    return demoMembers.length;
+  }
+
+  public getDemoMemberCount(): number {
+    return this.state.members.filter((member) =>
+      DEMO_MEMBER_EMAIL_PATTERN.test(member.email || '')
+    ).length;
   }
 
   public getMemberById(id: string): Member | undefined {

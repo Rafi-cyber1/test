@@ -39,10 +39,12 @@ test.beforeEach(async ({ page, baseURL }) => {
       sessionStorage.setItem('__playwright_initialized', 'true');
     }
     (window as Window & { __printCalls?: number }).__printCalls = 0;
+    (window as Window & { __lastPrintTarget?: string }).__lastPrintTarget = '';
     (window as Window & { __openedUrl?: string }).__openedUrl = '';
     window.print = () => {
       const target = window as Window & { __printCalls?: number };
       target.__printCalls = (target.__printCalls || 0) + 1;
+      (window as Window & { __lastPrintTarget?: string }).__lastPrintTarget = document.documentElement.dataset.printTarget || '';
     };
     window.open = (url) => {
       (window as Window & { __openedUrl?: string }).__openedUrl = String(url || '');
@@ -315,6 +317,41 @@ test('fee record collection creates a cash receipt and prints without dashboard 
   expect(stored.payments[0].receiptNumber).toMatch(/^REC-\d{4}-\d{4}$/);
   expect(stored.members[0].balanceDue).toBe(0);
   expect(stored.members[0].paidAmount).toBe(4000);
+});
+
+test('unsupported Electron printing falls back to browser print for receipts and fee records', async ({ page }) => {
+  await enrollMember(page, 'QA Print Fallback Member', '03004445556', 2000);
+  await page.getByRole('button', { name: 'Close receipt' }).click();
+  await page.getByRole('button', { name: 'Member Fee Record' }).click();
+  await page.evaluate(() => {
+    Object.defineProperty(window, 'gymTownStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => localStorage.getItem(key),
+        setItem: (key: string, value: string) => localStorage.setItem(key, value),
+        removeItem: (key: string) => localStorage.removeItem(key),
+        print: async () => { throw new Error('Printing is not supported'); },
+      },
+    });
+  });
+
+  const callsBeforeReceipt = await page.evaluate(() => (window as Window & { __printCalls?: number }).__printCalls || 0);
+  await page.getByRole('button', { name: 'Collect Payment' }).click();
+  await page.getByLabel('Amount').fill('100');
+  await page.getByRole('button', { name: 'Record Payment' }).click();
+  await expect(page.getByText(/Receipt Issued:/)).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (window as Window & { __printCalls?: number }).__printCalls || 0))
+    .toBeGreaterThan(callsBeforeReceipt);
+  expect(await page.evaluate(() => (window as Window & { __lastPrintTarget?: string }).__lastPrintTarget))
+    .toBe('receipt');
+  await page.getByRole('button', { name: 'Close receipt' }).click();
+
+  const callsBeforeFeeRecord = await page.evaluate(() => (window as Window & { __printCalls?: number }).__printCalls || 0);
+  await page.getByRole('button', { name: 'Print Fee Record' }).click();
+  await expect.poll(() => page.evaluate(() => (window as Window & { __printCalls?: number }).__printCalls || 0))
+    .toBeGreaterThan(callsBeforeFeeRecord);
+  expect(await page.evaluate(() => (window as Window & { __lastPrintTarget?: string }).__lastPrintTarget))
+    .toBe('fee-record');
 });
 
 test('renewal adds the fee and payment exactly once to lifetime totals', async ({ page }) => {

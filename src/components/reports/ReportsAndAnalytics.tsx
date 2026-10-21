@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { db } from '../../db/storage';
 import { ExportService } from '../../services/exportService';
+import { printDocument } from '../../services/printService';
 
 export const ReportsAndAnalytics: React.FC = () => {
   const [reportType, setReportType] = useState<'REVENUE' | 'ATTENDANCE' | 'OUTSTANDING' | 'MEMBERS'>('REVENUE');
@@ -27,7 +28,7 @@ export const ReportsAndAnalytics: React.FC = () => {
   const handleExportAttendance = () => ExportService.exportAttendanceToCsv(attendance);
 
   const handlePrint = () => {
-    window.print();
+    void printDocument('report');
   };
 
   const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
@@ -37,7 +38,7 @@ export const ReportsAndAnalytics: React.FC = () => {
   const totalOverdue = overdueMembers.reduce((sum, m) => sum + m.balanceDue, 0);
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto print-report">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
         <div>

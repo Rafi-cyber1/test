@@ -17,6 +17,7 @@ Object.defineProperty(globalThis, 'localStorage', {
 });
 
 const { addCalendarMonths, db } = await import('../../src/db/storage');
+const { appStorage } = await import('../../src/db/appStorage');
 const { ExportService } = await import('../../src/services/exportService');
 
 test('phone validation requires 11 local digits or a Pakistan country-coded number', () => {
@@ -26,6 +27,32 @@ test('phone validation requires 11 local digits or a Pakistan country-coded numb
   assert.equal(db.isValidPhoneNumber('123456789'), false);
   assert.equal(db.isValidPhoneNumber('0300123456'), false);
   assert.equal(db.isValidPhoneNumber('030012345678'), false);
+});
+
+test('desktop storage migrates existing browser values into the SQLite bridge', () => {
+  const desktopValues = new Map<string, string>();
+  const legacyKey = 'legacy-migration-test';
+  localStorage.setItem(legacyKey, 'legacy-data');
+  Object.defineProperty(globalThis, 'window', {
+    configurable: true,
+    value: {
+      gymTownStorage: {
+        getItem: (key: string) => desktopValues.get(key) ?? null,
+        setItem: (key: string, value: string) => desktopValues.set(key, value),
+        removeItem: (key: string) => desktopValues.delete(key),
+      },
+    },
+  });
+
+  try {
+    assert.equal(appStorage.getItem(legacyKey), 'legacy-data');
+    assert.equal(desktopValues.get(legacyKey), 'legacy-data');
+    appStorage.setItem(legacyKey, 'sqlite-data');
+    assert.equal(desktopValues.get(legacyKey), 'sqlite-data');
+  } finally {
+    Reflect.deleteProperty(globalThis, 'window');
+    localStorage.removeItem(legacyKey);
+  }
 });
 
 test('member fee ledger lifecycle: enrollment, payment, idempotency, next cycle, and validation', async (t) => {
@@ -279,4 +306,60 @@ test('member fee ledger lifecycle: enrollment, payment, idempotency, next cycle,
     assert.equal(persistedLedger.filter((entry: { type: string }) => entry.type === 'CHARGE').length, 2);
     assert.equal(persistedLedger.filter((entry: { type: string }) => entry.type === 'PAYMENT').length, 4);
   });
+
+  await t.test('I — archiving and restoring retains payment and attendance history', () => {
+    db.recordAttendance({
+      memberId: member.id,
+      rollNumber: member.rollNumber,
+      memberName: member.fullName,
+      method: 'MANUAL',
+      accessStatus: 'GRANTED',
+    });
+    const paymentCount = db.getPayments().filter((payment) => payment.memberId === member.id).length;
+    const attendanceCount = db.getAttendance().filter((record) => record.memberId === member.id).length;
+
+    assert.equal(db.leaveMember(member.id), true);
+    assert.equal(db.getMembers().some((candidate) => candidate.id === member.id), false);
+    assert.equal(db.getAllMembers().find((candidate) => candidate.id === member.id)?.archived, true);
+    assert.equal(db.getPayments().filter((payment) => payment.memberId === member.id).length, paymentCount);
+    assert.equal(db.getAttendance().filter((record) => record.memberId === member.id).length, attendanceCount);
+    assert.equal(db.restoreMember(member.id), true);
+    assert.equal(db.getMembers().some((candidate) => candidate.id === member.id), true);
+    assert.equal(db.getPayments().filter((payment) => payment.memberId === member.id).length, paymentCount);
+    assert.equal(db.getAttendance().filter((record) => record.memberId === member.id).length, attendanceCount);
+  });
+});
+
+test('demo dataset adds 120 linked test profiles and can be removed without deleting real members', async () => {
+  const existingMemberIds = new Set(db.getAllMembers().map((member) => member.id));
+  const existingPaymentCount = db.getPayments().length;
+  const existingLedgerCount = db.getState().memberFeeLedger.length;
+  const added = await db.seedDemoData();
+
+  assert.equal(added, 120);
+  assert.equal(db.getDemoMemberCount(), 120);
+  assert.equal(
+    db.getAllMembers().filter((member) => member.fullName.startsWith('DEMO - Member ')).length,
+    120
+  );
+  assert.ok(db.getPayments().length > existingPaymentCount);
+  assert.ok(db.getAttendance().some((entry) => entry.memberName.startsWith('DEMO - Member ')));
+  assert.ok(db.getAllMembers().some((member) => member.paymentStatus === 'UNPAID' && member.email?.endsWith('@example.test')));
+  assert.ok(db.getAllMembers().some((member) => member.paymentStatus === 'PARTIAL' && member.email?.endsWith('@example.test')));
+  assert.deepEqual([...new Set(
+    db.getPayments()
+      .filter((payment) => payment.memberName.startsWith('DEMO - Member '))
+      .map((payment) => payment.paymentMethod)
+  )], ['Cash']);
+  await assert.rejects(db.seedDemoData(), /Demo records already exist/);
+
+  assert.equal(db.removeDemoData(), 120);
+  assert.equal(db.getDemoMemberCount(), 0);
+  assert.deepEqual(
+    db.getAllMembers().map((member) => member.id).sort(),
+    [...existingMemberIds].sort()
+  );
+  assert.equal(db.getPayments().length, existingPaymentCount);
+  assert.equal(db.getState().memberFeeLedger.length, existingLedgerCount);
+  assert.ok(db.getAttendance().every((entry) => !entry.memberName.startsWith('DEMO - Member ')));
 });

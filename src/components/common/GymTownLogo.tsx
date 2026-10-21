@@ -27,7 +27,7 @@ export const GymTownLogo: React.FC<GymTownLogoProps> = ({
   return (
     <div className={`inline-flex items-center gap-2.5 min-w-0 ${className}`}>
       <img
-        src="/logo.png"
+        src={`${import.meta.env.BASE_URL}logo.png`}
         alt={settings.gymName || 'The Gym Town'}
         className={`${currentSize.image} w-auto object-contain shrink-0`}
         onError={(event) => {

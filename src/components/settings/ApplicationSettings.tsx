@@ -10,6 +10,8 @@ import {
   RotateCcw,
   Check,
   FileText,
+  FlaskConical,
+  Trash2,
 } from 'lucide-react';
 import { db } from '../../db/storage';
 import { GymSettings, ReceptionistProfile } from '../../types';
@@ -30,9 +32,41 @@ export const ApplicationSettings: React.FC = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [restoreStatus, setRestoreStatus] = useState<string | null>(null);
+  const [demoBusy, setDemoBusy] = useState(false);
   const [activeTab, setActiveTab] = useState<'receptionist' | 'gym' | 'database' | 'audit'>('receptionist');
 
   const auditLogs = db.getState().auditLogs;
+  const demoMemberCount = db.getDemoMemberCount();
+
+  const handleAddDemoData = async () => {
+    if (!confirm('Add 120 clearly labeled demo members, sample payments, and attendance records? Existing records will not be changed.')) {
+      return;
+    }
+
+    setDemoBusy(true);
+    setRestoreStatus(null);
+    try {
+      const added = await db.seedDemoData();
+      setRestoreStatus(`Added ${added} demo members, sample payments, and attendance records. Search for "DEMO" to find them.`);
+    } catch (error) {
+      setRestoreStatus(`Unable to add demo data: ${error instanceof Error ? error.message : 'Unknown error.'}`);
+    } finally {
+      setDemoBusy(false);
+    }
+  };
+
+  const handleRemoveDemoData = () => {
+    if (!confirm(`Remove ${demoMemberCount} demo members and their related payments and attendance? Other records will be kept.`)) {
+      return;
+    }
+
+    try {
+      const removed = db.removeDemoData();
+      setRestoreStatus(`Removed ${removed} demo members and their related records. Other records were kept.`);
+    } catch (error) {
+      setRestoreStatus(`Unable to remove demo data: ${error instanceof Error ? error.message : 'Unknown error.'}`);
+    }
+  };
 
   const validatePhoneNumbers = (phones: Array<{ label: string; value: string }>) => {
     const invalidPhone = phones.find(({ value }) => value.trim() && !db.isValidPhoneNumber(value));
@@ -362,10 +396,51 @@ export const ApplicationSettings: React.FC = () => {
           </div>
 
           {restoreStatus && (
-            <div className="p-3 rounded-[6px] bg-[#1C1F23] border border-[#262A30] border-l-4 border-l-[#3DB88B] text-[#3DB88B] font-semibold">
+            <div role="status" className={`p-3 rounded-[6px] bg-[#1C1F23] border border-[#262A30] border-l-4 font-semibold ${
+              restoreStatus.startsWith('Unable to') || restoreStatus.startsWith('Demo records already')
+                ? 'border-l-[#E5484D] text-[#E5484D]'
+                : 'border-l-[#3DB88B] text-[#3DB88B]'
+            }`}>
               {restoreStatus}
             </div>
           )}
+
+          <div className="p-4 rounded-[6px] bg-[#1C1F23] border border-[#D9383A]/40 space-y-3">
+            <div className="flex items-start gap-2.5">
+              <FlaskConical className="w-4 h-4 mt-0.5 text-[#D9383A] shrink-0" />
+              <div>
+                <span className="font-semibold text-xs text-[#ECEAE6] block">Demo Data for Testing</span>
+                <p className="text-[11px] text-[#8B909A] mt-1">
+                  Adds 120 clearly labeled DEMO members with varied payment statuses and attendance. Existing records stay untouched. Demo phone numbers are fake; do not contact them.
+                </p>
+                <p className="text-[11px] text-[#8B909A] mt-1">
+                  Current demo members: <strong className="text-[#ECEAE6]">{demoMemberCount}</strong>
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleAddDemoData}
+                disabled={demoBusy || demoMemberCount > 0}
+                className="px-3.5 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] disabled:opacity-50 disabled:cursor-not-allowed text-[#ECEAE6] text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+              >
+                <FlaskConical className="w-3.5 h-3.5" />
+                <span>{demoBusy ? 'Adding demo data…' : demoMemberCount > 0 ? 'Demo data already added' : 'Add 120 Demo Members'}</span>
+              </button>
+              {demoMemberCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleRemoveDemoData}
+                  disabled={demoBusy}
+                  className="px-3.5 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#E5484D] border border-[#E5484D]/40 text-[#E5484D] hover:text-[#ECEAE6] disabled:opacity-50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Remove Demo Data</span>
+                </button>
+              )}
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-[6px] bg-[#1C1F23] border border-[#262A30] space-y-2">
