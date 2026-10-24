@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useEffect, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Cloud, CloudOff, LoaderCircle, LogOut, RefreshCw, ShieldCheck } from 'lucide-react';
 import { db } from '../../db/storage';
 import {
@@ -9,8 +9,11 @@ import {
   markSynced,
   readLastSyncedSnapshot,
   saveCloudSnapshot,
+  sendPasswordRecovery,
   signInToCloud,
   signOutOfCloud,
+  subscribeToCloudAuth,
+  updateCloudPassword,
   startCloudSync,
   subscribeCloudStatus,
   type CloudSnapshot,
@@ -21,14 +24,24 @@ type Session = NonNullable<Awaited<ReturnType<typeof getCurrentSession>>>;
 
 type SyncChoice = { remote: CloudSnapshot; local: Record<string, unknown> } | null;
 
+const isRecoveryRedirect = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const search = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  return search.get('type') === 'recovery' || hash.get('type') === 'recovery';
+};
+
 const hasBusinessRecords = (state: Record<string, unknown>): boolean => {
   const collections = ['members', 'membershipHistory', 'memberFeeLedger', 'attendance', 'payments', 'expenses', 'doorLogs', 'sales', 'stockPurchases', 'inventoryTransactions'];
   return collections.some((key) => Array.isArray(state[key]) && (state[key] as unknown[]).length > 0);
 };
 
-const LoginScreen: React.FC<{ onLogin: (email: string, password: string) => Promise<void>; error: string; loading: boolean }> = ({ onLogin, error, loading }) => {
+const LoginScreen: React.FC<{ onLogin: (email: string, password: string) => Promise<void>; onReset: (email: string) => Promise<void>; error: string; loading: boolean }> = ({ onLogin, onReset, error, loading }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
+  const [resetError, setResetError] = useState('');
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -53,7 +66,64 @@ const LoginScreen: React.FC<{ onLogin: (email: string, password: string) => Prom
           {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
           {loading ? 'Connecting…' : 'Sign in and sync'}
         </button>
+        <button type="button" disabled={resetBusy || !email.trim()} onClick={async () => {
+          setResetBusy(true);
+          setResetError('');
+          setResetSent(false);
+          try {
+            await onReset(email.trim());
+            setResetSent(true);
+          } catch (cause) {
+            setResetError(cause instanceof Error ? cause.message : 'Could not send password recovery email.');
+          } finally {
+            setResetBusy(false);
+          }
+        }} className="mt-3 w-full text-center text-xs font-semibold text-[#9BB3FF] hover:text-white disabled:cursor-not-allowed disabled:opacity-50">
+          {resetBusy ? 'Sending recovery email…' : 'Forgot password? Send recovery email'}
+        </button>
+        {resetSent && <p role="status" className="mt-2 text-xs text-[#9BB3FF]">If that account exists, a password recovery link has been sent. Check inbox and spam.</p>}
+        {resetError && <p role="alert" className="mt-2 text-xs text-[#FF9A84]">{resetError}</p>}
         <p className="mt-4 text-xs leading-relaxed text-[#8B96AE]">Your gym data is private to the signed-in Supabase account. Never put a service-role key in this app.</p>
+      </form>
+    </main>
+  );
+};
+
+const PasswordResetScreen: React.FC<{ onSave: (password: string) => Promise<void>; error: string; loading: boolean }> = ({ onSave, error, loading }) => {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formError, setFormError] = useState('');
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (password.length < 8) {
+      setFormError('Use a password with at least 8 characters.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setFormError('The passwords do not match.');
+      return;
+    }
+    setFormError('');
+    void onSave(password);
+  };
+
+  return (
+    <main className="min-h-screen bg-[#06070B] text-[#EEF1F9] flex items-center justify-center p-5">
+      <form onSubmit={submit} className="w-full max-w-md rounded-2xl border border-[#1D293F] bg-[#0B1220] p-7 shadow-2xl">
+        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl border border-[#263755] bg-[#15295A] text-[#C3D2FF]"><ShieldCheck className="h-6 w-6" /></div>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7D9DFF]">Account recovery</p>
+        <h1 className="mt-2 text-2xl font-bold">Set a new password</h1>
+        <p className="mt-2 text-sm text-[#8B96AE]">Choose a new password for your Supabase owner account.</p>
+        <label className="mt-6 block text-sm font-medium" htmlFor="new-cloud-password">New password</label>
+        <input id="new-cloud-password" autoComplete="new-password" type="password" minLength={8} required value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-lg border border-[#263755] bg-[#06070B] px-3 py-2.5 text-sm text-[#EEF1F9] outline-none focus:border-[#3D6BFF] focus:ring-2 focus:ring-[#3D6BFF]/40" />
+        <label className="mt-4 block text-sm font-medium" htmlFor="confirm-cloud-password">Confirm new password</label>
+        <input id="confirm-cloud-password" autoComplete="new-password" type="password" minLength={8} required value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className="mt-2 w-full rounded-lg border border-[#263755] bg-[#06070B] px-3 py-2.5 text-sm text-[#EEF1F9] outline-none focus:border-[#3D6BFF] focus:ring-2 focus:ring-[#3D6BFF]/40" />
+        {(formError || error) && <p role="alert" className="mt-4 rounded-lg border border-[#FF6A4D]/30 bg-[#FF6A4D]/10 p-3 text-sm text-[#FF9A84]">{formError || error}</p>}
+        <button type="submit" disabled={loading} className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-[#3D6BFF] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#315AE0] disabled:cursor-wait disabled:opacity-60">
+          {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+          {loading ? 'Updating password…' : 'Set password and continue'}
+        </button>
       </form>
     </main>
   );
@@ -77,6 +147,8 @@ export const CloudBootstrap: React.FC<{ children: React.ReactNode }> = ({ childr
   const [loading, setLoading] = useState(Boolean(cloudConfigured));
   const [error, setError] = useState('');
   const [choice, setChoice] = useState<SyncChoice>(null);
+  const [recovering, setRecovering] = useState(false);
+  const recoveryRef = useRef(false);
   const [status, setStatus] = useState(getCloudStatus());
 
   useEffect(() => subscribeCloudStatus(setStatus), []);
@@ -150,10 +222,29 @@ export const CloudBootstrap: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     if (!cloudConfigured) return;
     let active = true;
+    let unsubscribeAuth: () => void = () => {};
+    void subscribeToCloudAuth((event, nextSession) => {
+      if (!active || event !== 'PASSWORD_RECOVERY' || !nextSession) return;
+      recoveryRef.current = true;
+      setRecovering(true);
+      setSession(nextSession);
+      setLoading(false);
+    }).then((unsubscribe) => {
+      if (active) unsubscribeAuth = unsubscribe;
+      else unsubscribe();
+    }).catch((cause: unknown) => {
+      console.warn('Could not subscribe to Supabase auth events.', cause);
+    });
     void getCurrentSession().then((existing) => {
       if (!active) return;
       if (existing) {
         setSession(existing);
+        if (recoveryRef.current || isRecoveryRedirect()) {
+          recoveryRef.current = true;
+          setRecovering(true);
+          setLoading(false);
+          return;
+        }
         void activateSession(existing);
       } else {
         setLoading(false);
@@ -163,7 +254,10 @@ export const CloudBootstrap: React.FC<{ children: React.ReactNode }> = ({ childr
       setLoading(false);
       setError(cause instanceof Error ? cause.message : 'Could not read the saved Supabase session.');
     });
-    return () => { active = false; };
+    return () => {
+      active = false;
+      unsubscribeAuth();
+    };
   }, [activateSession]);
 
   const login = async (email: string, password: string) => {
@@ -174,6 +268,25 @@ export const CloudBootstrap: React.FC<{ children: React.ReactNode }> = ({ childr
       await activateSession(nextSession);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Sign-in failed. Check the email and password.');
+      setLoading(false);
+    }
+  };
+
+  const requestPasswordRecovery = async (email: string) => {
+    await sendPasswordRecovery(email);
+  };
+
+  const completePasswordRecovery = async (password: string) => {
+    setLoading(true);
+    setError('');
+    try {
+      const updatedSession = await updateCloudPassword(password);
+      recoveryRef.current = false;
+      setRecovering(false);
+      window.history.replaceState(null, '', window.location.pathname);
+      await activateSession(updatedSession);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not update password. Request a new recovery link.');
       setLoading(false);
     }
   };
@@ -219,11 +332,14 @@ export const CloudBootstrap: React.FC<{ children: React.ReactNode }> = ({ childr
   if (!cloudConfigured) {
     return <>{children}<SyncBadge status="local-only" localOnly /></>;
   }
+  if (recovering) {
+    return <PasswordResetScreen onSave={completePasswordRecovery} error={error} loading={loading} />;
+  }
   if (loading && !ready) {
     return <main className="min-h-screen bg-[#06070B] text-[#C3D2FF] flex items-center justify-center gap-3"><LoaderCircle className="h-5 w-5 animate-spin" />Connecting to secure gym storage…</main>;
   }
   if (!session) {
-    return <LoginScreen onLogin={login} error={error} loading={loading} />;
+    return <LoginScreen onLogin={login} onReset={requestPasswordRecovery} error={error} loading={loading} />;
   }
   if (choice && !ready) {
     return (
@@ -243,7 +359,7 @@ export const CloudBootstrap: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   }
   if (!ready) {
-    return <LoginScreen onLogin={login} error={error || 'Cloud initialization did not finish.'} loading={loading} />;
+    return <LoginScreen onLogin={login} onReset={requestPasswordRecovery} error={error || 'Cloud initialization did not finish.'} loading={loading} />;
   }
   return <>{children}<SyncBadge status={status} email={session.user.email || undefined} onSignOut={() => void signOut()} /></>;
 };

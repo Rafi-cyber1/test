@@ -72,6 +72,15 @@ export const markSynced = (snapshot: Record<string, unknown>) => {
   }
 };
 
+export const subscribeToCloudAuth = async (
+  listener: (event: string, session: Session | null) => void
+): Promise<() => void> => {
+  const client = await getSupabase();
+  if (!client) return () => undefined;
+  const { data } = client.auth.onAuthStateChange((event, session) => listener(event, session));
+  return () => data.subscription.unsubscribe();
+};
+
 export const getCurrentSession = async (): Promise<Session | null> => {
   const client = await getSupabase();
   if (!client) return null;
@@ -87,6 +96,25 @@ export const signInToCloud = async (email: string, password: string): Promise<Se
   if (error) throw error;
   if (!data.session) throw new Error('Sign-in did not return a session.');
   return data.session;
+};
+
+export const sendPasswordRecovery = async (email: string): Promise<void> => {
+  const client = await getSupabase();
+  if (!client) throw new Error('Cloud sync is not configured.');
+  const { error } = await client.auth.resetPasswordForEmail(email, {
+    redirectTo: typeof window === 'undefined' ? undefined : window.location.origin,
+  });
+  if (error) throw error;
+};
+
+export const updateCloudPassword = async (password: string): Promise<Session> => {
+  const client = await getSupabase();
+  if (!client) throw new Error('Cloud sync is not configured.');
+  const { data, error } = await client.auth.updateUser({ password });
+  if (error) throw error;
+  const session = await getCurrentSession();
+  if (!session) throw new Error('Your reset session expired. Request another recovery email.');
+  return session;
 };
 
 export const signOutOfCloud = async (): Promise<void> => {
