@@ -34,6 +34,10 @@ const BLOOD_GROUPS = new Set<BloodGroup>(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 
 const INVALID_PHONE_NUMBER_ERROR =
   'Enter a valid phone number with exactly 11 digits, or 12 digits including Pakistan country code 92.';
 const DEMO_MEMBER_EMAIL_PATTERN = /^demo\.member\.\d{3}@example\.test$/;
+const DEMO_GIVEN_NAMES = ['Ayaan', 'Hamza', 'Zara', 'Hassan', 'Ayesha', 'Ali', 'Maira', 'Usman', 'Hira', 'Bilal', 'Noor', 'Saad'];
+const DEMO_FAMILY_NAMES = ['Khan', 'Ahmed', 'Malik', 'Sheikh', 'Raza', 'Hussain', 'Siddiqui', 'Qureshi', 'Javed', 'Iqbal'];
+const DEMO_PARENT_NAMES = ['Imran', 'Kashif', 'Nadeem', 'Farooq', 'Asif', 'Tariq', 'Rashid', 'Yasir'];
+const DEMO_EMERGENCY_NAMES = ['Sana', 'Fatima', 'Usman', 'Areeba', 'Omar', 'Nadia', 'Saima', 'Danish'];
 
 const normalizePhoneNumber = (phone: string): string => {
   let digits = phone.replace(/\D/g, '');
@@ -791,6 +795,10 @@ class DatabaseManager {
 
     for (let index = 1; index <= 120; index += 1) {
       const memberNumber = index.toString().padStart(3, '0');
+      const givenName = DEMO_GIVEN_NAMES[(index * 7) % DEMO_GIVEN_NAMES.length];
+      const familyName = DEMO_FAMILY_NAMES[(index * 13 + Math.floor(index / DEMO_GIVEN_NAMES.length)) % DEMO_FAMILY_NAMES.length];
+      const parentName = DEMO_PARENT_NAMES[index % DEMO_PARENT_NAMES.length];
+      const emergencyName = DEMO_EMERGENCY_NAMES[(index * 3) % DEMO_EMERGENCY_NAMES.length];
       const plan = plans[index % plans.length] || DEFAULT_PLANS[1];
       const paymentMethod: PaymentMethod = 'Cash';
       const expiryOffset = index % 10 === 0 ? -7 : index % 10 === 1 ? 2 : 30;
@@ -799,13 +807,15 @@ class DatabaseManager {
       const registration = new Date(`${todayString}T00:00:00Z`);
       registration.setUTCDate(registration.getUTCDate() - (index % 90));
       const registrationDate = formatDate(registration);
-      const phone = `0300${(1000 + index).toString().padStart(7, '0')}`;
+      // Deliberately invalid dialing prefixes keep demo contacts from reaching real people.
+      const phone = `00000${(100000 + index).toString()}`;
+      const emergencyPhone = `00001${(200000 + index).toString()}`;
       const fee = plan.price;
       const paidAmount = index % 4 === 0 ? 0 : index % 4 === 1 ? Math.floor(fee / 2) : fee;
 
       const member = this.addMember({
-        fullName: `DEMO - Member ${memberNumber}`,
-        fatherName: `Demo Parent ${memberNumber}`,
+        fullName: `DEMO - ${givenName} ${familyName}`,
+        fatherName: `DEMO - ${parentName} ${familyName}`,
         mobileNumber: phone,
         whatsappNumber: phone,
         email: `demo.member.${memberNumber}@example.test`,
@@ -816,9 +826,9 @@ class DatabaseManager {
         planName: plan.name,
         startDate: registrationDate,
         expiryDate: formatDate(expiry),
-        emergencyContactName: `Demo Contact ${memberNumber}`,
-        emergencyContactPhone: `0300${(9000 + index).toString().padStart(7, '0')}`,
-        notes: 'DEMO DATA ONLY — do not contact this number.',
+        emergencyContactName: `DEMO - ${emergencyName} ${familyName}`,
+        emergencyContactPhone: emergencyPhone,
+        notes: 'SYNTHETIC DEMO DATA ONLY — contact numbers use invalid prefixes and are not callable.',
         totalFee: fee,
         paidAmount,
         admissionFee: plan.id.startsWith('plan_admission') ? 2000 : 0,
@@ -868,7 +878,7 @@ class DatabaseManager {
     this.state.notifications = this.state.notifications.filter((entry) => !demoMemberIds.has(entry.memberId));
     this.state.sales = this.state.sales.filter((entry) => !entry.memberId || !demoMemberIds.has(entry.memberId));
     this.state.auditLogs = this.state.auditLogs.filter((entry) =>
-      !entry.details.includes('DEMO - Member ')
+      !entry.details.includes('DEMO - ')
     );
     this.addAuditLog('SYSTEM', 'Demo Dataset Removed', `Removed ${demoMembers.length} demo member profiles and their related records.`);
     this.persist();
