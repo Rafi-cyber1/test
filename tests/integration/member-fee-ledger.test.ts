@@ -311,17 +311,22 @@ test('demo dataset adds 120 linked test profiles and can be removed without dele
 
   assert.equal(added, 120);
   assert.equal(db.getDemoMemberCount(), 120);
+  const demoMembers = db.getAllMembers().filter((member) => member.email?.endsWith('@example.test'));
+  assert.equal(new Set(demoMembers.map((member) => member.fullName)).size, 120);
+  assert.ok(demoMembers.every((member) => member.fullName.startsWith('DEMO - ')));
+  assert.ok(demoMembers.every((member) => member.mobileNumber.startsWith('00000')));
+  assert.ok(demoMembers.every((member) => member.emergencyContactPhone?.startsWith('00001')));
   assert.equal(
-    db.getAllMembers().filter((member) => member.fullName.startsWith('DEMO - Member ')).length,
+    db.getAllMembers().filter((member) => member.fullName.startsWith('DEMO - ')).length,
     120
   );
   assert.ok(db.getPayments().length > existingPaymentCount);
-  assert.ok(db.getAttendance().some((entry) => entry.memberName.startsWith('DEMO - Member ')));
+  assert.ok(db.getAttendance().some((entry) => entry.memberName.startsWith('DEMO - ')));
   assert.ok(db.getAllMembers().some((member) => member.paymentStatus === 'UNPAID' && member.email?.endsWith('@example.test')));
   assert.ok(db.getAllMembers().some((member) => member.paymentStatus === 'PARTIAL' && member.email?.endsWith('@example.test')));
   assert.deepEqual([...new Set(
     db.getPayments()
-      .filter((payment) => payment.memberName.startsWith('DEMO - Member '))
+      .filter((payment) => payment.memberName.startsWith('DEMO - '))
       .map((payment) => payment.paymentMethod)
   )], ['Cash']);
   await assert.rejects(db.seedDemoData(), /Demo records already exist/);
@@ -334,5 +339,5 @@ test('demo dataset adds 120 linked test profiles and can be removed without dele
   );
   assert.equal(db.getPayments().length, existingPaymentCount);
   assert.equal(db.getState().memberFeeLedger.length, existingLedgerCount);
-  assert.ok(db.getAttendance().every((entry) => !entry.memberName.startsWith('DEMO - Member ')));
+  assert.ok(db.getAttendance().every((entry) => !entry.memberName.startsWith('DEMO - ')));
 });
