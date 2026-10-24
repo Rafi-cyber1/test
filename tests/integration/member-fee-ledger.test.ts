@@ -28,6 +28,17 @@ test('phone validation requires 11 local digits or a Pakistan country-coded numb
   assert.equal(db.isValidPhoneNumber('030012345678'), false);
 });
 
+test('cloud snapshot restore validates, replaces state, and updates local cache', () => {
+  const originalState = JSON.parse(JSON.stringify(db.getState())) as ReturnType<typeof db.getState>;
+  const cloudState = { ...originalState, members: [], attendance: [], payments: [] };
+
+  db.replaceStateFromCloud(cloudState);
+  assert.equal(db.getAllMembers().length, 0);
+  assert.equal(JSON.parse(localStorage.getItem('tgt_db_data') || '{}').members.length, 0);
+  assert.throws(() => db.replaceStateFromCloud({ members: [] }), /missing required member or plan data/);
+  db.replaceStateFromCloud(originalState);
+});
+
 test('member fee ledger lifecycle: enrollment, payment, idempotency, next cycle, and validation', async (t) => {
   const today = new Date().toISOString().slice(0, 10);
   const expiry = new Date(`${today}T00:00:00Z`);

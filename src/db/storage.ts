@@ -27,6 +27,7 @@ import {
   BloodGroup,
 } from '../types';
 import { appStorage } from './appStorage';
+import { queueCloudSnapshot } from '../services/cloudSync';
 
 const STORAGE_PREFIX = 'tgt_db_';
 const CLEAN_V2_FLAG = 'tgt_db_clean_v2';
@@ -716,6 +717,7 @@ class DatabaseManager {
   private persist(): void {
     try {
       appStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify(this.state));
+      queueCloudSnapshot(this.state as unknown as Record<string, unknown>);
     } catch (error) {
       console.error('Storage persistence failed', error);
       throw new Error('Unable to save application data. Check available browser storage and try again.', { cause: error });
@@ -772,6 +774,54 @@ class DatabaseManager {
   // --- GETTERS ---
   public getState(): DatabaseState {
     return this.state;
+  }
+
+  public replaceStateFromCloud(snapshot: Record<string, unknown>): void {
+    const candidate = snapshot as Partial<DatabaseState>;
+    if (!Array.isArray(candidate.members) || !Array.isArray(candidate.plans)) {
+      throw new Error('Cloud snapshot is missing required member or plan data.');
+    }
+
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      ...(candidate.settings || {}),
+      receptionistProfile: candidate.settings?.receptionistProfile
+        || DEFAULT_SETTINGS.receptionistProfile,
+    };
+    const currentUser: UserAccount = {
+      ...this.state.currentUser,
+      fullName: settings.receptionistProfile?.name || this.state.currentUser.fullName,
+    };
+
+    this.state = {
+      ...this.state,
+      ...candidate,
+      members: candidate.members,
+      plans: candidate.plans,
+      membershipHistory: candidate.membershipHistory || [],
+      memberFeeLedger: candidate.memberFeeLedger || [],
+      attendance: candidate.attendance || [],
+      payments: candidate.payments || [],
+      expenses: candidate.expenses || [],
+      doorLogs: candidate.doorLogs || [],
+      notifications: candidate.notifications || [],
+      users: [currentUser],
+      auditLogs: candidate.auditLogs || [],
+      settings,
+      currentUser,
+      products: candidate.products || DEFAULT_PRODUCTS,
+      sales: candidate.sales || [],
+      stockPurchases: candidate.stockPurchases || [],
+      inventoryTransactions: candidate.inventoryTransactions || [],
+      suppliers: candidate.suppliers || DEFAULT_SUPPLIERS,
+    };
+    this.recomputeLedgerBalances(this.state);
+    try {
+      appStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify(this.state));
+    } catch (error) {
+      throw new Error('Cloud data loaded, but the local cache could not be updated.', { cause: error });
+    }
+    this.notify();
   }
 
   public getMembers(): Member[] {
