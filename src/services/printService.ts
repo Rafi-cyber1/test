@@ -9,12 +9,12 @@ export const printDocument = async (target: PrintTarget): Promise<void> => {
       }
       window.print();
     };
-    const desktopStorage = (window as Window & {
-      gymTownStorage?: { print?: () => Promise<void> };
-    }).gymTownStorage;
-    if (desktopStorage?.print) {
+    const desktopPrint = (window as Window & {
+      gymTownPrint?: () => Promise<void>;
+    }).gymTownPrint;
+    if (desktopPrint) {
       try {
-        await desktopStorage.print();
+        await desktopPrint();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         if (!/printing is not supported/i.test(message)) throw error;

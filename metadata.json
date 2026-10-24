@@ -1,6 +1,6 @@
 {
   "name": "The Gym Town - Enterprise Desktop Gym Management System",
-  "description": "Production Windows desktop gym management system with SQLite persistence, manual attendance, WhatsApp receipts & alerts, and PKR financial accounting for Hyderabad front desk.",
+  "description": "Production Windows desktop gym management system with local browser storage, manual attendance, WhatsApp receipts & alerts, and PKR financial accounting for Hyderabad front desk.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
