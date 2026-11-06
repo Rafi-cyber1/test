@@ -11,6 +11,8 @@ npm install
 npm run dev
 ```
 
+A fresh install starts with **no demo members and an empty inventory** — the only pre-configured data is the membership plan price list (Cardio / Muscle Building, admission + monthly). Add members, products, and suppliers from the app itself.
+
 The browser app stores its data in that browser's `localStorage`. Data is local to the browser profile and is not synchronized between computers. Use **Settings → Backup & Restore** to export or restore a JSON backup.
 
 ## Desktop app

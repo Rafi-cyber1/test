@@ -33,7 +33,6 @@ const CLEAN_V2_FLAG = 'tgt_db_clean_v2';
 const BLOOD_GROUPS = new Set<BloodGroup>(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
 const INVALID_PHONE_NUMBER_ERROR =
   'Enter a valid phone number with exactly 11 digits, or 12 digits including Pakistan country code 92.';
-const DEMO_MEMBER_EMAIL_PATTERN = /^demo\.member\.\d{3}@example\.test$/;
 
 const normalizePhoneNumber = (phone: string): string => {
   let digits = phone.replace(/\D/g, '');
@@ -129,256 +128,23 @@ const DEFAULT_PLANS: MembershipPlan[] = [
   },
 ];
 
-// Default Gym Inventory Products Catalog
-const DEFAULT_PRODUCTS: Product[] = [
-  // Bottled Water
-  {
-    id: 'prd_water_500',
-    code: 'WAT-01',
-    name: 'Aquafina Mineral Water 500ml',
-    category: 'Bottled Water',
-    purchasePrice: 40,
-    sellingPrice: 70,
-    stockQuantity: 48,
-    minStockLevel: 15,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Bottle',
-    description: 'Chilled mineral drinking water bottle.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_water_1500',
-    code: 'WAT-02',
-    name: 'Nestle Pure Life 1.5L Big Bottle',
-    category: 'Bottled Water',
-    purchasePrice: 75,
-    sellingPrice: 120,
-    stockQuantity: 24,
-    minStockLevel: 8,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Bottle',
-    description: '1.5 Liter large hydration bottle.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Energy Drinks
-  {
-    id: 'prd_sting_300',
-    code: 'ENG-01',
-    name: 'Sting Energy Berry Blast 300ml',
-    category: 'Energy Drinks',
-    purchasePrice: 90,
-    sellingPrice: 130,
-    stockQuantity: 36,
-    minStockLevel: 12,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Bottle',
-    description: 'Pre-workout instant caffeinated energy boost.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_redbull_250',
-    code: 'ENG-02',
-    name: 'Red Bull Energy Drink Can 250ml',
-    category: 'Energy Drinks',
-    purchasePrice: 380,
-    sellingPrice: 480,
-    stockQuantity: 18,
-    minStockLevel: 6,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Can',
-    description: 'Premium Austrian taurine energy drink.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Protein Shakes
-  {
-    id: 'prd_shake_whey_choc',
-    code: 'SHK-01',
-    name: 'Whey Protein Shake (Double Choc)',
-    category: 'Protein Shakes',
-    purchasePrice: 220,
-    sellingPrice: 400,
-    stockQuantity: 30,
-    minStockLevel: 10,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Scoop/Glass',
-    description: '25g cold milk whey isolate post-workout shake.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_shake_gainer_banana',
-    code: 'SHK-02',
-    name: 'Mass Gainer Shake (Banana Cream)',
-    category: 'Protein Shakes',
-    purchasePrice: 240,
-    sellingPrice: 420,
-    stockQuantity: 20,
-    minStockLevel: 8,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Scoop/Glass',
-    description: 'High calorie mass builder shake with oats and banana.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Protein Bars
-  {
-    id: 'prd_bar_muscletech',
-    code: 'BAR-01',
-    name: 'MuscleTech NitroTech Protein Bar 60g',
-    category: 'Protein Bars',
-    purchasePrice: 320,
-    sellingPrice: 450,
-    stockQuantity: 16,
-    minStockLevel: 6,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Bar',
-    description: '22g protein crunch bar with low sugar.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Snacks
-  {
-    id: 'prd_snack_nuts',
-    code: 'SNK-01',
-    name: 'Roasted Almond & Peanut Energy Pack',
-    category: 'Snacks',
-    purchasePrice: 110,
-    sellingPrice: 180,
-    stockQuantity: 25,
-    minStockLevel: 8,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Pack',
-    description: 'Natural roasted salted gym endurance nuts.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Supplements
-  {
-    id: 'prd_supp_creatine',
-    code: 'SUP-01',
-    name: 'Creatine Monohydrate Pure 5g Shot',
-    category: 'Supplements',
-    purchasePrice: 80,
-    sellingPrice: 160,
-    stockQuantity: 50,
-    minStockLevel: 15,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Scoop',
-    description: 'Micronized German creatine for explosive strength.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_supp_preworkout',
-    code: 'SUP-02',
-    name: 'C4 High Energy Pre-Workout Shot',
-    category: 'Supplements',
-    purchasePrice: 140,
-    sellingPrice: 260,
-    stockQuantity: 40,
-    minStockLevel: 10,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Scoop',
-    description: 'Beta-alanine and caffeine pump formula.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Gym Accessories
-  {
-    id: 'prd_acc_shaker',
-    code: 'ACC-01',
-    name: 'The Gym Town Heavy Shaker 700ml',
-    category: 'Gym Accessories',
-    purchasePrice: 450,
-    sellingPrice: 850,
-    stockQuantity: 12,
-    minStockLevel: 4,
-    supplierName: 'IronGrip Gym Accessories Wholesale',
-    unit: 'Piece',
-    description: 'BPA-free wire blender shaker with gym town insignia.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_acc_straps',
-    code: 'ACC-02',
-    name: 'Heavy Duty Weightlifting Wrist Straps',
-    category: 'Gym Accessories',
-    purchasePrice: 650,
-    sellingPrice: 1100,
-    stockQuantity: 10,
-    minStockLevel: 3,
-    supplierName: 'IronGrip Gym Accessories Wholesale',
-    unit: 'Pair',
-    description: 'Cotton padded deadlift and rowing wrist straps.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Other
-  {
-    id: 'prd_oth_towel',
-    code: 'OTH-01',
-    name: 'Gym Town Microfiber Workout Towel',
-    category: 'Other',
-    purchasePrice: 350,
-    sellingPrice: 600,
-    stockQuantity: 15,
-    minStockLevel: 5,
-    supplierName: 'IronGrip Gym Accessories Wholesale',
-    unit: 'Piece',
-    description: 'Quick dry sweat towel with clip.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+// Older builds seeded a demo inventory catalog, a supplier directory, and 120
+// demo members. Production builds start completely empty; these legacy markers
+// exist only so data created by those older builds can be cleaned up on load.
+const LEGACY_DEMO_PRODUCT_IDS = new Set<string>([
+  'prd_water_500', 'prd_water_1500', 'prd_sting_300', 'prd_redbull_250',
+  'prd_shake_whey_choc', 'prd_shake_gainer_banana', 'prd_bar_muscletech',
+  'prd_snack_nuts', 'prd_supp_creatine', 'prd_supp_preworkout',
+  'prd_acc_shaker', 'prd_acc_straps', 'prd_oth_towel',
+]);
 
-// Default Suppliers Directory
-const DEFAULT_SUPPLIERS: Supplier[] = [
-  {
-    id: 'sup_01',
-    name: 'Sindh Beverage & Water Traders',
-    contactPerson: 'Tariq Mehmood',
-    phone: '+92 300 3981245',
-    city: 'Hyderabad',
-    address: 'Station Road, Saddar, Hyderabad',
-    categoriesSupplied: ['Bottled Water', 'Energy Drinks', 'Snacks'],
-  },
-  {
-    id: 'sup_02',
-    name: 'Pakistan Sports Nutrition',
-    contactPerson: 'Asad Farooq',
-    phone: '+92 321 8291044',
-    city: 'Karachi / Hyderabad',
-    address: 'Auto Bhan Commercial Hub, Hyderabad',
-    categoriesSupplied: ['Protein Shakes', 'Supplements', 'Protein Bars'],
-  },
-  {
-    id: 'sup_03',
-    name: 'IronGrip Gym Accessories Wholesale',
-    contactPerson: 'Rashid Ali',
-    phone: '+92 333 4910283',
-    city: 'Hyderabad Hub',
-    address: 'Latifabad Unit 7, Hyderabad',
-    categoriesSupplied: ['Gym Accessories', 'Other'],
-  },
-];
+const LEGACY_DEMO_SUPPLIERS = new Map<string, string>([
+  ['sup_01', 'Sindh Beverage & Water Traders'],
+  ['sup_02', 'Pakistan Sports Nutrition'],
+  ['sup_03', 'IronGrip Gym Accessories Wholesale'],
+]);
+
+const LEGACY_DEMO_MEMBER_EMAIL_PATTERN = /^demo\.member\.\d{3}@example\.test$/;
 
 // Male Reception Desk Officer Account (Editable in Settings)
 const DEFAULT_USERS: UserAccount[] = [
@@ -434,6 +200,7 @@ class DatabaseManager {
 
   constructor() {
     this.state = this.loadState();
+    this.purgeLegacyDemoRecords();
     this.recomputeStatuses();
   }
 
@@ -591,13 +358,10 @@ class DatabaseManager {
           : [];
         const plansToUse = [...DEFAULT_PLANS, ...customPlans];
 
-        const productsToUse = Array.isArray(parsed.products) && parsed.products.length > 0
-          ? parsed.products
-          : DEFAULT_PRODUCTS;
-
-        const suppliersToUse = Array.isArray(parsed.suppliers) && parsed.suppliers.length > 0
-          ? parsed.suppliers
-          : DEFAULT_SUPPLIERS;
+        // The inventory starts empty for a real gym. An existing (even empty)
+        // array is always respected so deleted products never come back.
+        const productsToUse: Product[] = Array.isArray(parsed.products) ? parsed.products : [];
+        const suppliersToUse: Supplier[] = Array.isArray(parsed.suppliers) ? parsed.suppliers : [];
 
         const membersToUse: Member[] = Array.isArray(parsed.members)
           ? parsed.members.map((member: Member) => ({
@@ -692,11 +456,11 @@ class DatabaseManager {
       settings: DEFAULT_SETTINGS,
       currentUser: initialCurrentUser,
       lastBackupDate: new Date().toISOString(),
-      products: DEFAULT_PRODUCTS,
+      products: [],
       sales: [],
       stockPurchases: [],
       inventoryTransactions: [],
-      suppliers: DEFAULT_SUPPLIERS,
+      suppliers: [],
     };
 
     try {
@@ -778,107 +542,75 @@ class DatabaseManager {
     return this.state.members;
   }
 
-  public async seedDemoData(): Promise<number> {
-    if (this.state.members.some((member) => DEMO_MEMBER_EMAIL_PATTERN.test(member.email || ''))) {
-      throw new Error('Demo records already exist. Remove them before adding the demo dataset again.');
+  /**
+   * Older builds shipped a demo dataset (120 demo members, a 13-product demo
+   * inventory, and a demo supplier list). Production builds start empty, so any
+   * records created by those builds are removed here. Real records and any demo
+   * product/supplier that has transactions against it are always preserved.
+   */
+  private purgeLegacyDemoRecords(): boolean {
+    const demoMemberIds = new Set(
+      this.state.members
+        .filter((member) => LEGACY_DEMO_MEMBER_EMAIL_PATTERN.test(member.email || ''))
+        .map((member) => member.id)
+    );
+
+    const sales = this.state.sales || [];
+    const stockPurchases = this.state.stockPurchases || [];
+    const inventoryTransactions = this.state.inventoryTransactions || [];
+
+    const usedProductIds = new Set<string>([
+      ...sales.flatMap((sale) => sale.items.map((item) => item.productId)),
+      ...stockPurchases.flatMap((purchase) => purchase.items.map((item) => item.productId)),
+      ...inventoryTransactions.map((entry) => entry.productId),
+    ]);
+    const usedSupplierNames = new Set(stockPurchases.map((purchase) => purchase.supplierName));
+
+    const demoProductIds = new Set(
+      (this.state.products || [])
+        .filter((product) => LEGACY_DEMO_PRODUCT_IDS.has(product.id) && !usedProductIds.has(product.id))
+        .map((product) => product.id)
+    );
+    const demoSupplierIds = new Set(
+      (this.state.suppliers || [])
+        .filter((supplier) =>
+          LEGACY_DEMO_SUPPLIERS.get(supplier.id) === supplier.name
+          && !usedSupplierNames.has(supplier.name))
+        .map((supplier) => supplier.id)
+    );
+
+    if (demoMemberIds.size === 0 && demoProductIds.size === 0 && demoSupplierIds.size === 0) {
+      return false;
     }
 
-    const today = new Date();
-    const todayString = formatDate(today);
-    const plans = this.state.plans.filter((plan) => plan.isActive);
-    const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-    const paymentMethods: PaymentMethod[] = ['Cash'];
-
-    for (let index = 1; index <= 120; index += 1) {
-      const memberNumber = index.toString().padStart(3, '0');
-      const plan = plans[index % plans.length] || DEFAULT_PLANS[1];
-      const paymentMethod: PaymentMethod = 'Cash';
-      const expiryOffset = index % 10 === 0 ? -7 : index % 10 === 1 ? 2 : 30;
-      const expiry = new Date(`${todayString}T00:00:00Z`);
-      expiry.setUTCDate(expiry.getUTCDate() + expiryOffset);
-      const registration = new Date(`${todayString}T00:00:00Z`);
-      registration.setUTCDate(registration.getUTCDate() - (index % 90));
-      const registrationDate = formatDate(registration);
-      const phone = `0300${(1000 + index).toString().padStart(7, '0')}`;
-      const fee = plan.price;
-      const paidAmount = index % 4 === 0 ? 0 : index % 4 === 1 ? Math.floor(fee / 2) : fee;
-
-      const member = this.addMember({
-        fullName: `DEMO - Member ${memberNumber}`,
-        fatherName: `Demo Parent ${memberNumber}`,
-        mobileNumber: phone,
-        whatsappNumber: phone,
-        email: `demo.member.${memberNumber}@example.test`,
-        gender: index % 2 === 0 ? 'Male' : 'Female',
-        bloodGroup: bloodGroups[index % bloodGroups.length],
-        registrationDate,
-        planId: plan.id,
-        planName: plan.name,
-        startDate: registrationDate,
-        expiryDate: formatDate(expiry),
-        emergencyContactName: `Demo Contact ${memberNumber}`,
-        emergencyContactPhone: `0300${(9000 + index).toString().padStart(7, '0')}`,
-        notes: 'DEMO DATA ONLY — do not contact this number.',
-        totalFee: fee,
-        paidAmount,
-        admissionFee: plan.id.startsWith('plan_admission') ? 2000 : 0,
-        monthlyFee: plan.id.startsWith('plan_admission') ? fee - 2000 : fee,
-        billingMonths: 1,
-      }, `DEMO-TGT-${memberNumber}-X`);
-
-      const initialPayment = this.state.payments.find((payment) => payment.memberId === member.id);
-      if (initialPayment) {
-        initialPayment.paymentMethod = paymentMethod;
-        const ledgerPayment = this.state.memberFeeLedger.find((entry) => entry.paymentId === initialPayment.id);
-        if (ledgerPayment) ledgerPayment.paymentMethod = paymentMethod;
-      }
-
-      if (member.paidAmount > 0 && member.status !== 'EXPIRED' && index % 3 !== 0) {
-        this.recordAttendance({
-          memberId: member.id,
-          rollNumber: member.rollNumber,
-          memberName: member.fullName,
-          method: 'MANUAL',
-          accessStatus: 'GRANTED',
-          notes: 'Demo attendance record for testing.',
-        });
-      }
-
-      await new Promise<void>((resolve) => setTimeout(resolve, 1));
+    if (demoMemberIds.size > 0) {
+      this.state.members = this.state.members.filter((member) => !demoMemberIds.has(member.id));
+      this.state.membershipHistory = this.state.membershipHistory.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.memberFeeLedger = this.state.memberFeeLedger.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.attendance = this.state.attendance.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.payments = this.state.payments.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.doorLogs = this.state.doorLogs.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.notifications = this.state.notifications.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.sales = sales.filter((entry) => !entry.memberId || !demoMemberIds.has(entry.memberId));
+      this.state.auditLogs = this.state.auditLogs.filter((entry) => !entry.details.includes('DEMO - Member '));
     }
 
-    this.addAuditLog('SYSTEM', 'Demo Dataset Added', 'Added 120 clearly labeled demo member profiles for testing.');
-    this.persist();
-    return 120;
-  }
+    if (demoProductIds.size > 0) {
+      this.state.products = (this.state.products || []).filter((product) => !demoProductIds.has(product.id));
+      this.state.inventoryTransactions = inventoryTransactions.filter((entry) => !demoProductIds.has(entry.productId));
+    }
 
-  public removeDemoData(): number {
-    const demoMembers = this.state.members.filter((member) =>
-      DEMO_MEMBER_EMAIL_PATTERN.test(member.email || '')
+    if (demoSupplierIds.size > 0) {
+      this.state.suppliers = (this.state.suppliers || []).filter((supplier) => !demoSupplierIds.has(supplier.id));
+    }
+
+    this.addAuditLog(
+      'SYSTEM',
+      'Demo Records Removed',
+      `Removed ${demoMemberIds.size} demo members, ${demoProductIds.size} demo products, and ${demoSupplierIds.size} demo suppliers left over from a previous build.`
     );
-    if (demoMembers.length === 0) return 0;
-
-    const demoMemberIds = new Set(demoMembers.map((member) => member.id));
-    this.state.members = this.state.members.filter((member) => !demoMemberIds.has(member.id));
-    this.state.membershipHistory = this.state.membershipHistory.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.memberFeeLedger = this.state.memberFeeLedger.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.attendance = this.state.attendance.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.payments = this.state.payments.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.doorLogs = this.state.doorLogs.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.notifications = this.state.notifications.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.sales = this.state.sales.filter((entry) => !entry.memberId || !demoMemberIds.has(entry.memberId));
-    this.state.auditLogs = this.state.auditLogs.filter((entry) =>
-      !entry.details.includes('DEMO - Member ')
-    );
-    this.addAuditLog('SYSTEM', 'Demo Dataset Removed', `Removed ${demoMembers.length} demo member profiles and their related records.`);
     this.persist();
-    return demoMembers.length;
-  }
-
-  public getDemoMemberCount(): number {
-    return this.state.members.filter((member) =>
-      DEMO_MEMBER_EMAIL_PATTERN.test(member.email || '')
-    ).length;
+    return true;
   }
 
   public getMemberById(id: string): Member | undefined {

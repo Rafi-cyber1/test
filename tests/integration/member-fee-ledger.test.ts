@@ -303,36 +303,125 @@ test('member fee ledger lifecycle: enrollment, payment, idempotency, next cycle,
   });
 });
 
-test('demo dataset adds 120 linked test profiles and can be removed without deleting real members', async () => {
-  const existingMemberIds = new Set(db.getAllMembers().map((member) => member.id));
-  const existingPaymentCount = db.getPayments().length;
-  const existingLedgerCount = db.getState().memberFeeLedger.length;
-  const added = await db.seedDemoData();
-
-  assert.equal(added, 120);
-  assert.equal(db.getDemoMemberCount(), 120);
-  assert.equal(
-    db.getAllMembers().filter((member) => member.fullName.startsWith('DEMO - Member ')).length,
-    120
+test('production database starts with an empty inventory, no suppliers, and no demo members', () => {
+  assert.deepEqual(db.getProducts(), []);
+  assert.deepEqual(db.getSuppliers(), []);
+  assert.deepEqual(db.getSales(), []);
+  assert.ok(
+    db.getAllMembers().every((member) => !/^demo\.member\.\d{3}@example\.test$/.test(member.email || ''))
   );
-  assert.ok(db.getPayments().length > existingPaymentCount);
-  assert.ok(db.getAttendance().some((entry) => entry.memberName.startsWith('DEMO - Member ')));
-  assert.ok(db.getAllMembers().some((member) => member.paymentStatus === 'UNPAID' && member.email?.endsWith('@example.test')));
-  assert.ok(db.getAllMembers().some((member) => member.paymentStatus === 'PARTIAL' && member.email?.endsWith('@example.test')));
-  assert.deepEqual([...new Set(
-    db.getPayments()
-      .filter((payment) => payment.memberName.startsWith('DEMO - Member '))
-      .map((payment) => payment.paymentMethod)
-  )], ['Cash']);
-  await assert.rejects(db.seedDemoData(), /Demo records already exist/);
+});
 
-  assert.equal(db.removeDemoData(), 120);
-  assert.equal(db.getDemoMemberCount(), 0);
-  assert.deepEqual(
-    db.getAllMembers().map((member) => member.id).sort(),
-    [...existingMemberIds].sort()
+test('demo members and the demo inventory left by an older build are removed when the app loads', async () => {
+  const baseMember = {
+    planId: 'plan_monthly',
+    planName: 'Cardio Only Monthly',
+    startDate: '2026-01-01',
+    expiryDate: '2026-02-01',
+    emergencyContactName: 'Contact',
+    emergencyContactPhone: '03007654321',
+    gender: 'Male',
+    bloodGroup: 'O+',
+    paymentStatus: 'PAID',
+    status: 'ACTIVE',
+    totalFee: 2000,
+    paidAmount: 2000,
+    balanceDue: 0,
+    archived: false,
+    updatedAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  const legacyState = {
+    members: [
+      {
+        ...baseMember,
+        id: 'mem_demo',
+        rollNumber: 'DEMO-TGT-001-X',
+        fullName: 'DEMO - Member 001',
+        mobileNumber: '03001000001',
+        whatsappNumber: '03001000001',
+        email: 'demo.member.001@example.test',
+        registrationDate: '2026-01-01',
+      },
+      {
+        ...baseMember,
+        id: 'mem_real',
+        rollNumber: 'the-gym-town-01',
+        fullName: 'Real Station Member',
+        mobileNumber: '03001234567',
+        whatsappNumber: '03001234567',
+        email: 'real.member@example.com',
+        registrationDate: '2026-01-01',
+      },
+    ],
+    plans: [],
+    membershipHistory: [],
+    memberFeeLedger: [
+      {
+        id: 'ledger_charge_demo',
+        memberId: 'mem_demo',
+        date: '2026-01-01',
+        description: 'Demo charge',
+        type: 'CHARGE',
+        amount: 2000,
+        paymentMethod: null,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        recordedBy: 'Demo',
+      },
+    ],
+    attendance: [],
+    payments: [],
+    expenses: [],
+    doorLogs: [],
+    notifications: [],
+    auditLogs: [],
+    settings: {},
+    products: [
+      {
+        id: 'prd_water_500',
+        code: 'WAT-01',
+        name: 'Aquafina Mineral Water 500ml',
+        category: 'Bottled Water',
+        purchasePrice: 40,
+        sellingPrice: 60,
+        stockQuantity: 120,
+        minStockLevel: 24,
+        isActive: true,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      },
+      {
+        id: 'prd_owner_whey',
+        code: 'OWN-01',
+        name: 'Owner Whey 2kg',
+        category: 'Supplements',
+        purchasePrice: 9000,
+        sellingPrice: 11000,
+        stockQuantity: 4,
+        minStockLevel: 1,
+        isActive: true,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      },
+    ],
+    sales: [],
+    stockPurchases: [],
+    inventoryTransactions: [],
+    suppliers: [
+      { id: 'sup_01', name: 'Sindh Beverage & Water Traders', phone: '+92 300 3981245' },
+      { id: 'sup_owner', name: 'Owner Supplier', phone: '+92 300 1234567' },
+    ],
+  };
+
+  localStorage.setItem('tgt_db_data', JSON.stringify(legacyState));
+  const reloaded: typeof import('../../src/db/storage') = await import('../../src/db/storage.ts?legacy-cleanup=1');
+
+  assert.deepEqual(reloaded.db.getAllMembers().map((member) => member.rollNumber), ['the-gym-town-01']);
+  assert.equal(reloaded.db.getState().memberFeeLedger.length, 0);
+  assert.deepEqual(reloaded.db.getProducts().map((product) => product.id), ['prd_owner_whey']);
+  assert.deepEqual(reloaded.db.getSuppliers().map((supplier) => supplier.id), ['sup_owner']);
+  assert.ok(
+    reloaded.db.getState().auditLogs.some((entry) => entry.action === 'Demo Records Removed'),
+    'cleanup should be recorded in the audit log'
   );
-  assert.equal(db.getPayments().length, existingPaymentCount);
-  assert.equal(db.getState().memberFeeLedger.length, existingLedgerCount);
-  assert.ok(db.getAttendance().every((entry) => !entry.memberName.startsWith('DEMO - Member ')));
 });

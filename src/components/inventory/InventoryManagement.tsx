@@ -422,7 +422,16 @@ export const InventoryManagement: React.FC = () => {
                 {filteredProducts.length === 0 ? (
                   <div className="h-48 flex flex-col items-center justify-center text-[#8B909A] text-xs">
                     <Package className="w-8 h-8 mb-2 stroke-[1.5] text-[#262A30]" />
-                    <p>No products found in this category.</p>
+                    {products.length === 0 ? (
+                      <>
+                        <p>Inventory is empty.</p>
+                        <p className="mt-1 text-[11px]">
+                          Use “Add New Product” to register the first item you sell at the counter.
+                        </p>
+                      </>
+                    ) : (
+                      <p>No products found in this category.</p>
+                    )}
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
