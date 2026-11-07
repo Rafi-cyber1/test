@@ -70,6 +70,12 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
 
   const allMembers = db.getMembers();
   const removedMembers = db.getAllMembers().filter((member) => member.archived);
+  const formatRemovalDate = (member: (typeof removedMembers)[number]) => {
+    if (member.removedAt) return member.removedAt.slice(0, 10);
+    const periods = member.membershipPeriods || [];
+    const lastPeriod = periods[periods.length - 1];
+    return lastPeriod?.endDate || member.updatedAt.slice(0, 10);
+  };
   const visibleMembers = showRemovedMembers ? removedMembers : allMembers;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -172,38 +178,38 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
   }).slice(0, 5);
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#0D0E10] text-[#ECEAE6]">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-app text-ink">
       {/* Toast Alert */}
       {toastMsg && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-[6px] bg-[#15171A] border border-[#262A30] border-l-4 border-l-[#3DB88B] text-xs font-semibold shadow-xl">
-          <Check className="w-4 h-4 text-[#3DB88B]" />
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-[6px] bg-panel border border-line border-l-4 border-l-ok text-xs font-semibold shadow-xl">
+          <Check className="w-4 h-4 text-ok" />
           <span>{toastMsg}</span>
         </div>
       )}
 
       {/* Top Search & Filter Bar */}
-      <div className="p-3.5 border-b border-[#262A30] bg-[#15171A] flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div className="p-3.5 border-b border-line bg-panel flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-2 flex-1 max-w-lg">
           <div className="relative flex-1">
-            <Search className="w-3.5 h-3.5 text-[#8B909A] absolute left-2.5 top-1/2 -translate-y-1/2 stroke-[1.5]" />
+            <Search className="w-3.5 h-3.5 text-muted absolute left-2.5 top-1/2 -translate-y-1/2 stroke-[1.5]" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, Roll #, mobile, or CNIC..."
-              className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] pl-8 pr-3 py-1.5 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+              className="w-full bg-raised border border-line rounded-[6px] pl-8 pr-3 py-1.5 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8B909A] hover:text-[#ECEAE6]"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
               >
                 <X className="w-3 h-3" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-1 bg-[#1C1F23] p-0.5 rounded-[6px] border border-[#262A30] text-xs">
+          <div className="flex items-center gap-1 bg-raised p-0.5 rounded-[6px] border border-line text-xs">
             {([
               { key: false, label: `Active Members (${allMembers.length})` },
               { key: true, label: `Removed Members (${removedMembers.length})` },
@@ -211,12 +217,12 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
               <button
                 key={String(tab.key)}
                 onClick={() => { setShowRemovedMembers(tab.key); setStatusFilter('ALL'); }}
-                className={`px-2.5 py-1 rounded-[4px] text-[11px] font-medium whitespace-nowrap ${showRemovedMembers === tab.key ? 'bg-[#D9383A] text-[#ECEAE6] font-semibold' : 'text-[#8B909A] hover:text-[#ECEAE6]'}`}
+                className={`px-2.5 py-1 rounded-[4px] text-[11px] font-medium whitespace-nowrap ${showRemovedMembers === tab.key ? 'bg-brand text-white font-semibold' : 'text-muted hover:text-ink'}`}
               >{tab.label}</button>
             ))}
           </div>
 
-          {!showRemovedMembers && <div className="flex items-center gap-1 bg-[#1C1F23] p-0.5 rounded-[6px] border border-[#262A30] text-xs">
+          {!showRemovedMembers && <div className="flex items-center gap-1 bg-raised p-0.5 rounded-[6px] border border-line text-xs">
             {(
               [
                 { key: 'ALL', label: `All (${allMembers.length})` },
@@ -231,8 +237,8 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                 onClick={() => setStatusFilter(tab.key)}
                 className={`px-2.5 py-1 rounded-[4px] text-[11px] font-medium transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === tab.key
-                    ? 'bg-[#D9383A] text-[#ECEAE6] font-semibold'
-                    : 'text-[#8B909A] hover:text-[#ECEAE6]'
+                    ? 'bg-brand text-white font-semibold'
+                    : 'text-muted hover:text-ink'
                 }`}
               >
                 {tab.label}
@@ -246,7 +252,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
           {!showRemovedMembers && allMembers.length > 0 && (
             <button
               onClick={() => setShowQuickRemoveModal(true)}
-              className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#8B909A] hover:text-[#E5484D] transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-semibold text-muted hover:text-bad transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <UserMinus className="w-3.5 h-3.5" />
               <span>Mark Member as Left</span>
@@ -256,17 +262,17 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
           {!showRemovedMembers && onOpenMonthlyRenewal && (
             <button
               onClick={() => onOpenMonthlyRenewal()}
-              className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#ECEAE6] hover:border-[#D9383A] transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-semibold text-ink hover:border-brand transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Renew Monthly Fee by Member Unique ID (the-gym-town-01)"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-[#D9383A]" />
+              <RefreshCw className="w-3.5 h-3.5 text-brand" />
               <span>Renew Fee</span>
             </button>
           )}
 
           {!showRemovedMembers && <button
             onClick={() => setShowNewModal(true)}
-            className="px-3.5 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold flex items-center gap-1.5 cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+            className="px-3.5 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer focus:ring-2 focus:ring-brand"
           >
             <UserPlus className="w-3.5 h-3.5 stroke-[1.5]" />
             <span>Enroll Member</span>
@@ -277,25 +283,26 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
       {/* Main Table: Sticky header, 44px rows, 1px dividers, row hover highlight */}
       <div className="flex-1 overflow-y-auto">
         <table className="w-full text-left border-collapse text-xs">
-          <thead className="sticky top-0 z-10 bg-[#1C1F23] border-b border-[#262A30] text-[#8B909A] text-[11px] uppercase tracking-wider">
+          <thead className="sticky top-0 z-10 bg-raised border-b border-line text-muted text-[11px] uppercase tracking-wider">
             <tr>
               <th className="py-2.5 px-4 font-semibold">Roll #</th>
               <th className="py-2.5 px-4 font-semibold">Member Name</th>
               <th className="py-2.5 px-4 font-semibold">Package Plan</th>
               <th className="py-2.5 px-4 font-semibold">Start Date</th>
               <th className="py-2.5 px-4 font-semibold">Expiry Date</th>
+              {showRemovedMembers && <th className="py-2.5 px-4 font-semibold">Removed On</th>}
               <th className="py-2.5 px-4 font-semibold text-right">Fee Status</th>
               <th className="py-2.5 px-4 font-semibold text-center">Status</th>
               <th className="py-2.5 px-4 font-semibold text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#262A30]">
+          <tbody className="divide-y divide-line">
             {filteredMembers.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-[#8B909A] text-xs">
-                  <Users className="w-8 h-8 mx-auto mb-2 text-[#262A30] stroke-[1.5]" />
-                  <p className="text-[#ECEAE6] font-medium">No members found</p>
-                  <p className="text-[11px] text-[#8B909A] mt-0.5">
+                <td colSpan={showRemovedMembers ? 9 : 8} className="py-12 text-center text-muted text-xs">
+                  <Users className="w-8 h-8 mx-auto mb-2 text-line-strong stroke-[1.5]" />
+                  <p className="text-ink font-medium">No members found</p>
+                  <p className="text-[11px] text-muted mt-0.5">
                     {searchQuery ? 'Try clearing your search query.' : showRemovedMembers ? 'No removed members.' : 'Click Enroll Member above to add your first gym member.'}
                   </p>
                 </td>
@@ -307,33 +314,38 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                 return (
                   <tr
                     key={m.id}
-                    className="h-11 hover:bg-[#1C1F23]/60 transition-colors cursor-pointer group"
+                    className="h-11 hover:bg-raised/60 transition-colors cursor-pointer group"
                     onClick={() => setActiveProfileMember(m)}
                   >
-                    <td className="py-2 px-4 font-mono font-bold text-[#ECEAE6] tabular-nums">
+                    <td className="py-2 px-4 font-mono font-bold text-ink tabular-nums">
                       {m.rollNumber}
                     </td>
                     <td className="py-2 px-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-[#1C1F23] border border-[#262A30] flex items-center justify-center shrink-0 text-[#ECEAE6] font-condensed font-bold text-xs tracking-wider">
+                        <div className="w-7 h-7 rounded-full bg-raised border border-line flex items-center justify-center shrink-0 text-ink font-condensed font-bold text-xs tracking-wider">
                           {m.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-semibold text-[#ECEAE6] group-hover:text-[#D9383A] transition-colors truncate">
+                          <div className="font-semibold text-ink group-hover:text-brand transition-colors truncate">
                             {m.fullName}
                           </div>
-                          <span className="font-mono text-[10px] text-[#8B909A]">{m.mobileNumber}</span>
+                          <span className="font-mono text-[10px] text-muted">{m.mobileNumber}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2 px-4 text-[#8B909A] truncate max-w-[140px]">{m.planName}</td>
-                    <td className="py-2 px-4 font-mono text-[#8B909A] tabular-nums">{m.startDate}</td>
-                    <td className="py-2 px-4 font-mono text-[#ECEAE6] tabular-nums">{m.expiryDate}</td>
+                    <td className="py-2 px-4 text-muted truncate max-w-[140px]">{m.planName}</td>
+                    <td className="py-2 px-4 font-mono text-muted tabular-nums">{m.startDate}</td>
+                    <td className="py-2 px-4 font-mono text-ink tabular-nums">{m.expiryDate}</td>
+                    {showRemovedMembers && (
+                      <td className="py-2 px-4 font-mono text-muted tabular-nums">
+                        {formatRemovalDate(m)}
+                      </td>
+                    )}
                     <td className="py-2 px-4 text-right font-mono tabular-nums">
                       {m.balanceDue > 0 ? (
-                        <span className="text-[#E5484D] font-bold">Due: Rs. {m.balanceDue.toLocaleString()}</span>
+                        <span className="text-bad font-bold">Due: Rs. {m.balanceDue.toLocaleString()}</span>
                       ) : (
-                        <span className="text-[#3DB88B] font-semibold">Cleared</span>
+                        <span className="text-ok font-semibold">Cleared</span>
                       )}
                     </td>
                     <td className="py-2 px-4 text-center">
@@ -366,7 +378,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                       <div className="flex items-center justify-end gap-1.5">
                         {!showRemovedMembers && <button
                           onClick={() => openEditMember(m)}
-                          className="p-1 text-[#8B909A] hover:text-[#ECEAE6] rounded-[4px] hover:bg-[#1C1F23] cursor-pointer"
+                          className="p-1 text-muted hover:text-ink rounded-[4px] hover:bg-raised cursor-pointer"
                           title="Edit member information"
                         ><UserRoundPen className="w-3.5 h-3.5" /></button>}
                         {showRemovedMembers && <button
@@ -376,12 +388,12 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                               reload();
                             }
                           }}
-                          className="px-2 py-1 rounded-[4px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-[11px] text-[#3DB88B] cursor-pointer flex items-center gap-1"
+                          className="px-2 py-1 rounded-[4px] bg-raised hover:bg-hover border border-line text-[11px] text-ok cursor-pointer flex items-center gap-1"
                         ><ArchiveRestore className="w-3 h-3" /> Restore</button>}
                         {!showRemovedMembers && <>
                         <button
                           onClick={() => setActiveProfileMember(m)}
-                          className="px-2 py-1 rounded-[4px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-[11px] text-[#ECEAE6] cursor-pointer"
+                          className="px-2 py-1 rounded-[4px] bg-raised hover:bg-hover border border-line text-[11px] text-ink cursor-pointer"
                         >
                           Profile
                         </button>
@@ -389,7 +401,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                         {onOpenMonthlyRenewal && (
                           <button
                             onClick={() => onOpenMonthlyRenewal(m.rollNumber)}
-                            className="px-2 py-1 rounded-[4px] bg-[#1C1F23] hover:bg-[#D9383A] hover:text-[#ECEAE6] border border-[#262A30] text-[11px] text-[#ECEAE6] font-semibold cursor-pointer transition-colors"
+                            className="px-2 py-1 rounded-[4px] bg-raised hover:bg-brand hover:text-ink border border-line text-[11px] text-ink font-semibold cursor-pointer transition-colors"
                             title={`Renew ${m.fullName} (${m.rollNumber})`}
                           >
                             Renew
@@ -399,7 +411,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                         {m.balanceDue > 0 && onOpenQuickPaymentForMember && (
                           <button
                             onClick={() => onOpenQuickPaymentForMember(m)}
-                            className="px-2 py-1 rounded-[4px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-[11px] font-semibold cursor-pointer"
+                            className="px-2 py-1 rounded-[4px] bg-brand hover:bg-brand-strong text-white text-[11px] font-semibold cursor-pointer"
                           >
                             Collect
                           </button>
@@ -407,7 +419,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
 
                         <button
                           onClick={() => setMemberToLeave(m)}
-                          className="p-1 text-[#8B909A] hover:text-[#E5484D] rounded-[4px] hover:bg-[#1C1F23] cursor-pointer transition-colors"
+                          className="p-1 text-muted hover:text-bad rounded-[4px] hover:bg-raised cursor-pointer transition-colors"
                           title="Mark member as left"
                         >
                           <UserMinus className="w-3.5 h-3.5 stroke-[1.5]" />
@@ -459,12 +471,12 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
 
       {editingMember && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4">
-          <form onSubmit={handleSaveMember} className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[8px] border border-[#262A30] bg-[#15171A] p-5 shadow-2xl">
-            <div className="mb-4 flex items-center justify-between border-b border-[#262A30] pb-3">
+          <form onSubmit={handleSaveMember} className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[8px] border border-line bg-panel p-5 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
               <h3 className="font-condensed text-base font-bold uppercase">Edit Member · {editingMember.rollNumber}</h3>
-              <button type="button" onClick={() => setEditingMember(null)} className="text-[#8B909A] hover:text-[#ECEAE6]" aria-label="Close edit member"><X className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setEditingMember(null)} className="text-muted hover:text-ink" aria-label="Close edit member"><X className="h-4 w-4" /></button>
             </div>
-            {editError && <p role="alert" className="mb-3 text-xs text-[#E5484D]">{editError}</p>}
+            {editError && <p role="alert" className="mb-3 text-xs text-bad">{editError}</p>}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {([
                 ['fullName', 'Full name'], ['mobileNumber', 'Phone number'], ['whatsappNumber', 'WhatsApp number'],
@@ -473,47 +485,47 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                 ['emergencyContactName', 'Emergency contact name'],
                 ['emergencyContactPhone', 'Emergency contact phone'], ['dateOfBirth', 'Date of birth'],
               ] as const).map(([field, label]) => (
-                <label key={field} className="text-[11px] text-[#8B909A]">{label}
+                <label key={field} className="text-[11px] text-muted">{label}
                   <input
                     type={field === 'registrationDate' || field === 'startDate' || field === 'dateOfBirth' ? 'date' : field === 'email' ? 'email' : 'text'}
                     value={editingMember[field] || ''}
                     onChange={(event) => setEditingMember({ ...editingMember, [field]: event.target.value })}
-                    className="mt-1 w-full rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]"
+                    className="mt-1 w-full rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink"
                   />
                 </label>
               ))}
-              <label className="text-[11px] text-[#8B909A]">Membership duration (months)
-                <input type="number" min="1" max="120" value={editDurationMonths} onChange={(event) => setEditDurationMonths(Math.max(1, Number(event.target.value)))} className="mt-1 w-full rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]" />
+              <label className="text-[11px] text-muted">Membership duration (months)
+                <input type="number" min="1" max="120" value={editDurationMonths} onChange={(event) => setEditDurationMonths(Math.max(1, Number(event.target.value)))} className="mt-1 w-full rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink" />
               </label>
-              <label className="text-[11px] text-[#8B909A]">Membership plan
+              <label className="text-[11px] text-muted">Membership plan
                 <select value={editingMember.planId} onChange={(event) => {
                   const plan = db.getPlans().find((candidate) => candidate.id === event.target.value);
                   if (plan) setEditingMember({ ...editingMember, planId: plan.id, planName: plan.name, monthlyFee: plan.price });
-                }} className="mt-1 w-full rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]">
+                }} className="mt-1 w-full rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink">
                   {!db.getPlans().some((plan) => plan.id === editingMember.planId) && <option value={editingMember.planId}>{editingMember.planName}</option>}
                   {db.getPlans().map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}
                 </select>
               </label>
-              <label className="text-[11px] text-[#8B909A]">Gender
-                <select value={editingMember.gender} onChange={(event) => setEditingMember({ ...editingMember, gender: event.target.value as Member['gender'] })} className="mt-1 w-full rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]">
+              <label className="text-[11px] text-muted">Gender
+                <select value={editingMember.gender} onChange={(event) => setEditingMember({ ...editingMember, gender: event.target.value as Member['gender'] })} className="mt-1 w-full rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink">
                   {['Male', 'Female', 'Other'].map((gender) => <option key={gender}>{gender}</option>)}
                 </select>
               </label>
-              <label className="text-[11px] text-[#8B909A]">Blood group
-                <select value={editingMember.bloodGroup || ''} onChange={(event) => setEditingMember({ ...editingMember, bloodGroup: (event.target.value || undefined) as BloodGroup | undefined })} className="mt-1 w-full rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]">
+              <label className="text-[11px] text-muted">Blood group
+                <select value={editingMember.bloodGroup || ''} onChange={(event) => setEditingMember({ ...editingMember, bloodGroup: (event.target.value || undefined) as BloodGroup | undefined })} className="mt-1 w-full rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink">
                   <option value="">Not recorded</option>{['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((group) => <option key={group}>{group}</option>)}
                 </select>
               </label>
-              <label className="text-[11px] text-[#8B909A] sm:col-span-2">Address
-                <textarea rows={2} value={editingMember.address || ''} onChange={(event) => setEditingMember({ ...editingMember, address: event.target.value })} className="mt-1 w-full rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]" />
+              <label className="text-[11px] text-muted sm:col-span-2">Address
+                <textarea rows={2} value={editingMember.address || ''} onChange={(event) => setEditingMember({ ...editingMember, address: event.target.value })} className="mt-1 w-full rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink" />
               </label>
-              <label className="text-[11px] text-[#8B909A] sm:col-span-2">Medical notes / other notes
-                <textarea rows={2} value={editingMember.medicalNotes || editingMember.notes || ''} onChange={(event) => setEditingMember({ ...editingMember, medicalNotes: event.target.value })} className="mt-1 w-full rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]" />
+              <label className="text-[11px] text-muted sm:col-span-2">Medical notes / other notes
+                <textarea rows={2} value={editingMember.medicalNotes || editingMember.notes || ''} onChange={(event) => setEditingMember({ ...editingMember, medicalNotes: event.target.value })} className="mt-1 w-full rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink" />
               </label>
             </div>
             <div className="mt-4 flex justify-end gap-2">
-              <button type="button" onClick={() => setEditingMember(null)} className="rounded-[6px] border border-[#262A30] px-3 py-2 text-xs text-[#8B909A]">Cancel</button>
-              <button type="submit" className="rounded-[6px] bg-[#D9383A] px-3 py-2 text-xs font-bold text-white">Save Changes</button>
+              <button type="button" onClick={() => setEditingMember(null)} className="rounded-[6px] border border-line px-3 py-2 text-xs text-muted">Cancel</button>
+              <button type="submit" className="rounded-[6px] bg-brand px-3 py-2 text-xs font-bold text-white">Save Changes</button>
             </div>
           </form>
         </div>
@@ -530,25 +542,25 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
       {/* Quick Leave Modal */}
       {showQuickRemoveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-md bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#262A30]">
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-md bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                 Find Member to Mark as Left
               </h3>
-              <button onClick={() => setShowQuickRemoveModal(false)} className="text-[#8B909A] hover:text-[#ECEAE6]">
+              <button onClick={() => setShowQuickRemoveModal(false)} className="text-muted hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-[#8B909A] absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={quickRemoveSearch}
                 onChange={(e) => setQuickRemoveSearch(e.target.value)}
                 placeholder="Search member to mark as left..."
                 autoFocus
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] pl-8 pr-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] pl-8 pr-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
 
@@ -556,11 +568,11 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
               {quickRemoveResults.map((m) => (
                 <div
                   key={m.id}
-                  className="p-2.5 rounded-[6px] bg-[#1C1F23] border border-[#262A30] flex items-center justify-between"
+                  className="p-2.5 rounded-[6px] bg-raised border border-line flex items-center justify-between"
                 >
                   <div>
-                    <div className="font-semibold text-xs text-[#ECEAE6]">{m.fullName}</div>
-                    <span className="font-mono text-[10px] text-[#8B909A]">{m.rollNumber} · {m.planName}</span>
+                    <div className="font-semibold text-xs text-ink">{m.fullName}</div>
+                    <span className="font-mono text-[10px] text-muted">{m.rollNumber} · {m.planName}</span>
                   </div>
 
                   <button
@@ -568,7 +580,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                       setShowQuickRemoveModal(false);
                       setMemberToLeave(m);
                     }}
-                    className="px-2.5 py-1 rounded-[4px] bg-[#E5484D] hover:bg-[#D1383C] text-[#ECEAE6] text-xs font-semibold cursor-pointer"
+                    className="px-2.5 py-1 rounded-[4px] bg-bad hover:bg-bad-strong text-white text-xs font-semibold cursor-pointer"
                   >
                     Mark Left
                   </button>
@@ -582,42 +594,42 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
       {/* Leave Confirmation Modal */}
       {memberToLeave && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-sm bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
+          <div className="w-full max-w-sm bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-[6px] bg-[#1C1F23] border border-[#E5484D]/40 flex items-center justify-center text-[#E5484D] shrink-0">
+              <div className="w-9 h-9 rounded-[6px] bg-raised border border-bad/40 flex items-center justify-center text-bad shrink-0">
                 <UserMinus className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+                <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                   Confirm Member Leaving
                 </h3>
-                <p className="text-xs text-[#8B909A] mt-0.5">
+                <p className="text-xs text-muted mt-0.5">
                   Mark {memberToLeave.fullName} ({memberToLeave.rollNumber}) as left? Their profile and history will be kept.
                 </p>
               </div>
             </div>
 
-            <div className="p-3 rounded-[6px] bg-[#1C1F23] border border-[#262A30] text-xs space-y-1">
+            <div className="p-3 rounded-[6px] bg-raised border border-line text-xs space-y-1">
               <div className="flex justify-between">
-                <span className="text-[#8B909A]">Plan:</span>
-                <span className="text-[#ECEAE6]">{memberToLeave.planName}</span>
+                <span className="text-muted">Plan:</span>
+                <span className="text-ink">{memberToLeave.planName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#8B909A]">Balance Due:</span>
-                <span className="font-mono text-[#E5484D]">Rs. {memberToLeave.balanceDue.toLocaleString()}</span>
+                <span className="text-muted">Balance Due:</span>
+                <span className="font-mono text-bad">Rs. {memberToLeave.balanceDue.toLocaleString()}</span>
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setMemberToLeave(null)}
-                className="px-3.5 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] text-xs font-semibold text-[#ECEAE6] cursor-pointer"
+                className="px-3.5 py-1.5 rounded-[6px] bg-raised hover:bg-hover text-xs font-semibold text-ink cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleLeaveMember(memberToLeave)}
-                className="px-4 py-1.5 rounded-[6px] bg-[#E5484D] hover:bg-[#D1383C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider cursor-pointer"
+                className="px-4 py-1.5 rounded-[6px] bg-bad hover:bg-bad-strong text-xs font-bold text-white uppercase tracking-wider cursor-pointer"
               >
                 Mark as Left
               </button>

@@ -51,40 +51,40 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenLicense, onToggleMaxim
   };
 
   return (
-    <div className="h-8 bg-[#0D0E10] border-b border-[#262A30] flex items-center justify-between px-3 select-none text-xs text-[#8B909A] z-50 shrink-0">
+    <div className="h-8 bg-app border-b border-line flex items-center justify-between px-3 select-none text-xs text-muted z-50 shrink-0">
       {/* Left: Brand & App Tag with Logo */}
       <div className="flex items-center gap-2">
         <GymTownLogo size="xs" />
-        <span className="font-condensed font-bold text-xs uppercase tracking-wider text-[#ECEAE6]">
+        <span className="font-condensed font-bold text-xs uppercase tracking-wider text-ink">
           The Gym Town
         </span>
-        <span className="text-[#262A30]">/</span>
-        <span className="text-[#8B909A] text-[11px] font-medium hidden sm:inline">
+        <span className="text-line-strong">/</span>
+        <span className="text-muted text-[11px] font-medium hidden sm:inline">
           Hyderabad District Station
         </span>
       </div>
 
       {/* Center: System Clock (Asia/Karachi) */}
-      <div className="hidden md:flex items-center gap-2 text-[#8B909A] font-mono text-[11px] tabular-nums">
-        <span className="text-[10px] uppercase text-[#8B909A]">PKT</span>
-        <span className="text-[#ECEAE6] font-medium">{karachiTime}</span>
-        <span className="text-[#262A30]">·</span>
-        <span className="text-[10px] text-[#8B909A]">Hyderabad (UTC+5)</span>
+      <div className="hidden md:flex items-center gap-2 text-muted font-mono text-[11px] tabular-nums">
+        <span className="text-[10px] uppercase text-muted">PKT</span>
+        <span className="text-ink font-medium">{karachiTime}</span>
+        <span className="text-line-strong">·</span>
+        <span className="text-[10px] text-muted">Hyderabad (UTC+5)</span>
       </div>
 
       {/* Right: Operator & Window Controls */}
       <div className="flex items-center gap-2">
         <button
           onClick={onOpenLicense}
-          className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] bg-[#15171A] border border-[#262A30] text-[10px] text-[#ECEAE6] hover:bg-[#1C1F23] transition-colors cursor-pointer"
+          className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] bg-panel border border-line text-[10px] text-ink hover:bg-raised transition-colors cursor-pointer"
           title="Click to view receptionist profile"
         >
-          <Shield className="w-3 h-3 text-[#D9383A] stroke-[1.5]" />
+          <Shield className="w-3 h-3 text-brand stroke-[1.5]" />
           <span className="font-medium">{db.getSettings().receptionistProfile?.name || 'Bilal Tariq'}</span>
         </button>
 
         {toastMessage && (
-          <span className="text-[10px] font-mono text-[#D9383A] bg-[#15171A] px-2 py-0.5 rounded-[4px] border border-[#262A30]">
+          <span className="text-[10px] font-mono text-brand bg-panel px-2 py-0.5 rounded-[4px] border border-line">
             {toastMessage}
           </span>
         )}
@@ -93,21 +93,21 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenLicense, onToggleMaxim
         <div className="flex items-center -mr-1 ml-1">
           <button
             onClick={handleMinimize}
-            className="w-7 h-7 flex items-center justify-center text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23] rounded-[4px] transition-colors"
+            className="w-7 h-7 flex items-center justify-center text-muted hover:text-ink hover:bg-raised rounded-[4px] transition-colors"
             title="Minimize"
           >
             <Minus className="w-3.5 h-3.5 stroke-[1.5]" />
           </button>
           <button
             onClick={handleToggleMax}
-            className="w-7 h-7 flex items-center justify-center text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23] rounded-[4px] transition-colors"
+            className="w-7 h-7 flex items-center justify-center text-muted hover:text-ink hover:bg-raised rounded-[4px] transition-colors"
             title={isMaximized ? 'Restore' : 'Maximize'}
           >
             {isMaximized ? <Maximize2 className="w-3 h-3 stroke-[1.5]" /> : <Square className="w-3 h-3 stroke-[1.5]" />}
           </button>
           <button
             onClick={handleClose}
-            className="w-7 h-7 flex items-center justify-center text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#E5484D] rounded-[4px] transition-colors"
+            className="w-7 h-7 flex items-center justify-center text-muted hover:text-ink hover:bg-bad rounded-[4px] transition-colors"
             title="Close"
           >
             <X className="w-3.5 h-3.5 stroke-[1.5]" />

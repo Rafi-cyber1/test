@@ -66,7 +66,7 @@ export default function App() {
   const unreadCount = expiringList.length + overdueMembers.length;
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#0D0E10] text-[#ECEAE6] overflow-hidden font-sans select-none">
+    <div className="flex flex-col h-screen w-screen bg-app text-ink overflow-hidden font-sans select-none">
       {/* 1. Custom Windows Desktop Title Bar */}
       <TitleBar onOpenLicense={() => setActiveTab('settings')} />
 
@@ -82,7 +82,7 @@ export default function App() {
         />
 
         {/* Viewport Workspace */}
-        <div className="flex-1 flex flex-col min-w-0 bg-[#0D0E10] overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 bg-app overflow-hidden">
           {/* Top Header Bar */}
           <HeaderBar
             currentTab={activeTab}

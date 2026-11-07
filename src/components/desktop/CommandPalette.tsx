@@ -83,33 +83,33 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-start justify-center pt-16 p-4">
-      <div className="w-full max-w-xl bg-[#1C1F23] border border-[#262A30] rounded-[8px] shadow-2xl overflow-hidden flex flex-col">
+      <div className="w-full max-w-xl bg-raised border border-line rounded-[8px] shadow-2xl overflow-hidden flex flex-col">
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-[#262A30] bg-[#15171A]">
-          <Search className="w-4 h-4 text-[#D9383A] shrink-0 stroke-[1.5]" />
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-line bg-panel">
+          <Search className="w-4 h-4 text-brand shrink-0 stroke-[1.5]" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search member unique ID, name, phone, or run command (Ctrl+K)..."
-            className="w-full bg-transparent text-xs text-[#ECEAE6] placeholder:text-[#8B909A] focus:outline-none"
+            className="w-full bg-transparent text-xs text-ink placeholder:text-muted focus:outline-none"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="text-[#8B909A] hover:text-[#ECEAE6] cursor-pointer">
+            <button onClick={() => setQuery('')} className="text-muted hover:text-ink cursor-pointer">
               <X className="w-4 h-4 stroke-[1.5]" />
             </button>
           )}
-          <span className="text-[10px] font-mono text-[#8B909A] bg-[#1C1F23] px-1.5 py-0.5 rounded-[4px] border border-[#262A30]">
+          <span className="text-[10px] font-mono text-muted bg-raised px-1.5 py-0.5 rounded-[4px] border border-line">
             ESC
           </span>
         </div>
 
         {/* Results List */}
-        <div className="max-h-96 overflow-y-auto p-2 divide-y divide-[#262A30]">
+        <div className="max-h-96 overflow-y-auto p-2 divide-y divide-line">
           {/* Quick Actions section */}
           <div className="pb-2">
-            <div className="text-[10px] font-bold tracking-wider text-[#8B909A] uppercase px-3 py-1">
+            <div className="text-[10px] font-bold tracking-wider text-muted uppercase px-3 py-1">
               Quick Front Desk Actions
             </div>
 
@@ -119,9 +119,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   onOpenMonthlyRenewal();
                   onClose();
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs text-[#ECEAE6] hover:bg-[#15171A] hover:text-[#D9383A] transition-colors text-left cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs text-ink hover:bg-panel hover:text-brand transition-colors text-left cursor-pointer"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-[#D9383A] stroke-[1.5]" />
+                <RefreshCw className="w-3.5 h-3.5 text-brand stroke-[1.5]" />
                 <span>Renew Monthly Fee (Enter Unique ID, e.g. the-gym-town-01)</span>
               </button>
             )}
@@ -131,9 +131,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 onOpenNewMember();
                 onClose();
               }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs text-[#ECEAE6] hover:bg-[#15171A] transition-colors text-left cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs text-ink hover:bg-panel transition-colors text-left cursor-pointer"
             >
-              <UserPlus className="w-3.5 h-3.5 text-[#ECEAE6] stroke-[1.5]" />
+              <UserPlus className="w-3.5 h-3.5 text-ink stroke-[1.5]" />
               <span>Enroll New Member (Rs. 4,000 Advance / Rs. 2,000 Regular)</span>
             </button>
 
@@ -142,9 +142,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 onNavigate('attendance');
                 onClose();
               }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs text-[#ECEAE6] hover:bg-[#15171A] transition-colors text-left cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs text-ink hover:bg-panel transition-colors text-left cursor-pointer"
             >
-              <CheckCircle className="w-3.5 h-3.5 text-[#3DB88B] stroke-[1.5]" />
+              <CheckCircle className="w-3.5 h-3.5 text-ok stroke-[1.5]" />
               <span>Manual Attendance Check-In Register</span>
             </button>
           </div>
@@ -152,13 +152,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           {/* Members matching query */}
           {filteredMembers.length > 0 && (
             <div className="py-2">
-              <div className="text-[10px] font-bold tracking-wider text-[#8B909A] uppercase px-3 py-1">
+              <div className="text-[10px] font-bold tracking-wider text-muted uppercase px-3 py-1">
                 Matched Members ({filteredMembers.length})
               </div>
               {filteredMembers.map((m) => (
                 <div
                   key={m.id}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs text-[#ECEAE6] hover:bg-[#15171A] transition-colors"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs text-ink hover:bg-panel transition-colors"
                 >
                   <div
                     onClick={() => {
@@ -167,22 +167,22 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     }}
                     className="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0"
                   >
-                    <span className="font-mono text-xs text-[#D9383A] bg-[#0D0E10] px-1.5 py-0.5 rounded-[4px] border border-[#262A30] font-bold">
+                    <span className="font-mono text-xs text-brand bg-app px-1.5 py-0.5 rounded-[4px] border border-line font-bold">
                       {m.rollNumber}
                     </span>
-                    <span className="font-semibold text-[#ECEAE6] truncate">{m.fullName}</span>
-                    <span className="text-[11px] text-[#8B909A] truncate">· {m.mobileNumber}</span>
+                    <span className="font-semibold text-ink truncate">{m.fullName}</span>
+                    <span className="text-[11px] text-muted truncate">· {m.mobileNumber}</span>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[11px] text-[#8B909A]">{m.planName}</span>
+                    <span className="text-[11px] text-muted">{m.planName}</span>
                     {onOpenMonthlyRenewal && (
                       <button
                         onClick={() => {
                           onOpenMonthlyRenewal(m.rollNumber);
                           onClose();
                         }}
-                        className="px-2 py-0.5 rounded-[4px] bg-[#1C1F23] hover:bg-[#D9383A] hover:text-[#ECEAE6] border border-[#262A30] text-[10px] font-semibold text-[#ECEAE6] transition-colors cursor-pointer"
+                        className="px-2 py-0.5 rounded-[4px] bg-raised hover:bg-brand hover:text-ink border border-line text-[10px] font-semibold text-ink transition-colors cursor-pointer"
                       >
                         Renew
                       </button>
@@ -195,7 +195,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
           {/* Navigation Commands */}
           <div className="pt-2">
-            <div className="text-[10px] font-bold tracking-wider text-[#8B909A] uppercase px-3 py-1">
+            <div className="text-[10px] font-bold tracking-wider text-muted uppercase px-3 py-1">
               Modules Navigation
             </div>
             {navigationCommands.map((cmd) => {
@@ -207,9 +207,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     onNavigate(cmd.tab);
                     onClose();
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-[6px] text-xs text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#15171A] transition-colors text-left cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-[6px] text-xs text-muted hover:text-ink hover:bg-panel transition-colors text-left cursor-pointer"
                 >
-                  <Icon className="w-3.5 h-3.5 text-[#8B909A] stroke-[1.5]" />
+                  <Icon className="w-3.5 h-3.5 text-muted stroke-[1.5]" />
                   <span>{cmd.label}</span>
                 </button>
               );

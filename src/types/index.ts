@@ -54,6 +54,8 @@ export interface Member {
   totalVisits?: number;
   photoUrl?: string;
   archived: boolean;
+  /** Set when the member is removed from the active directory (ISO timestamp). */
+  removedAt?: string;
   notes?: string;
   updatedAt: string;
 }

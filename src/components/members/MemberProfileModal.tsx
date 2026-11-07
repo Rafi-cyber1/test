@@ -180,14 +180,14 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
     <>
       <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-center justify-center p-4">
         {/* Modal Container */}
-        <div className="w-full max-w-4xl bg-[#15171A] border border-[#262A30] rounded-[8px] overflow-hidden flex flex-col max-h-[90vh] shadow-2xl">
+        <div className="w-full max-w-4xl bg-panel border border-line rounded-[8px] overflow-hidden flex flex-col max-h-[90vh] shadow-2xl">
           {/* Top Bar */}
-          <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between bg-[#1C1F23]">
+          <div className="p-3.5 border-b border-line flex items-center justify-between bg-raised">
             <div className="flex items-center gap-2">
-              <span className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+              <span className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                 Member Profile — {member.fullName}
               </span>
-              <span className="font-mono text-xs text-[#D9383A] bg-[#0D0E10] px-2 py-0.5 rounded-[4px] border border-[#262A30]">
+              <span className="font-mono text-xs text-brand bg-app px-2 py-0.5 rounded-[4px] border border-line">
                 {member.rollNumber}
               </span>
             </div>
@@ -195,21 +195,21 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setShowPrintCard(true)}
-                className="px-2.5 py-1 rounded-[4px] bg-[#15171A] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#ECEAE6] flex items-center gap-1 cursor-pointer"
+                className="px-2.5 py-1 rounded-[4px] bg-panel hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center gap-1 cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Card</span>
               </button>
               <button
                 onClick={handleSendWhatsApp}
-                className="px-2.5 py-1 rounded-[4px] bg-[#15171A] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#3DB88B] flex items-center gap-1 cursor-pointer"
+                className="px-2.5 py-1 rounded-[4px] bg-panel hover:bg-hover border border-line text-xs font-semibold text-ok flex items-center gap-1 cursor-pointer"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span>WhatsApp</span>
               </button>
               <button
                 onClick={onClose}
-                className="p-1 text-[#8B909A] hover:text-[#ECEAE6] rounded-[4px] ml-1 cursor-pointer"
+                className="p-1 text-muted hover:text-ink rounded-[4px] ml-1 cursor-pointer"
               >
                 <X className="w-4 h-4 stroke-[1.5]" />
               </button>
@@ -219,7 +219,7 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
           {/* Body: Left Column + Right Tabs Column */}
           <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
             {/* Left Column (260px): Avatar, Name, Plan, Status & Quick Stats */}
-            <div className="w-full md:w-[260px] p-5 border-r border-[#262A30] bg-[#15171A] flex flex-col justify-between shrink-0 overflow-y-auto">
+            <div className="w-full md:w-[260px] p-5 border-r border-line bg-panel flex flex-col justify-between shrink-0 overflow-y-auto">
               <div className="space-y-4">
                 {/* Avatar & Identifiers */}
                 <div className="flex flex-col items-center text-center">
@@ -227,16 +227,16 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                     <img
                       src={member.photoUrl}
                       alt={member.fullName}
-                      className="w-18 h-18 rounded-[8px] object-cover border border-[#262A30]"
+                      className="w-18 h-18 rounded-[8px] object-cover border border-line"
                     />
                   ) : (
-                    <div className="w-18 h-18 rounded-[8px] bg-[#1C1F23] border border-[#262A30] flex items-center justify-center text-[#ECEAE6] font-condensed text-2xl font-bold">
+                    <div className="w-18 h-18 rounded-[8px] bg-raised border border-line flex items-center justify-center text-ink font-condensed text-2xl font-bold">
                       {member.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}
                     </div>
                   )}
 
-                  <h3 className="font-bold text-sm text-[#ECEAE6] mt-2.5 leading-tight">{member.fullName}</h3>
-                  <span className="font-mono text-xs text-[#8B909A] mt-0.5">{member.rollNumber}</span>
+                  <h3 className="font-bold text-sm text-ink mt-2.5 leading-tight">{member.fullName}</h3>
+                  <span className="font-mono text-xs text-muted mt-0.5">{member.rollNumber}</span>
 
                   {/* Status Pill */}
                   <div className="mt-2">
@@ -249,39 +249,39 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                 </div>
 
                 {/* Plan Badge */}
-                <div className="p-3 rounded-[6px] bg-[#1C1F23] border border-[#262A30] text-xs space-y-1">
-                  <div className="text-[10px] uppercase font-bold tracking-wider text-[#8B909A]">Current Plan</div>
-                  <div className="font-semibold text-[#ECEAE6]">{member.planName}</div>
-                  <div className="text-[11px] text-[#8B909A] font-mono">
-                    Valid till: <strong className="text-[#ECEAE6]">{member.expiryDate}</strong>
+                <div className="p-3 rounded-[6px] bg-raised border border-line text-xs space-y-1">
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-muted">Current Plan</div>
+                  <div className="font-semibold text-ink">{member.planName}</div>
+                  <div className="text-[11px] text-muted font-mono">
+                    Valid till: <strong className="text-ink">{member.expiryDate}</strong>
                   </div>
                 </div>
 
                 {/* Quick Stats Strip */}
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1 border-b border-[#262A30]">
-                    <span className="text-[#8B909A]">Member Since:</span>
-                    <span className="font-mono text-[#ECEAE6] tabular-nums">{member.registrationDate || member.startDate}</span>
+                  <div className="flex justify-between py-1 border-b border-line">
+                    <span className="text-muted">Member Since:</span>
+                    <span className="font-mono text-ink tabular-nums">{member.registrationDate || member.startDate}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#262A30]">
-                    <span className="text-[#8B909A]">Duration:</span>
-                    <span className="font-mono text-[#ECEAE6]">{getMembershipDuration()}</span>
+                  <div className="flex justify-between py-1 border-b border-line">
+                    <span className="text-muted">Duration:</span>
+                    <span className="font-mono text-ink">{getMembershipDuration()}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#262A30]">
-                    <span className="text-[#8B909A]">Total Visits:</span>
-                    <span className="font-mono text-[#ECEAE6] font-bold tabular-nums">
+                  <div className="flex justify-between py-1 border-b border-line">
+                    <span className="text-muted">Total Visits:</span>
+                    <span className="font-mono text-ink font-bold tabular-nums">
                       {member.totalVisits || attendanceLogs.length}
                     </span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-[#262A30]">
-                    <span className="text-[#8B909A]">Lifetime Paid:</span>
-                    <span className="font-mono text-[#3DB88B] font-bold tabular-nums">
+                  <div className="flex justify-between py-1 border-b border-line">
+                    <span className="text-muted">Lifetime Paid:</span>
+                    <span className="font-mono text-ok font-bold tabular-nums">
                       Rs. {lifetimePaid.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-[#8B909A]">Outstanding Due:</span>
-                    <span className="font-mono text-[#E5484D] font-bold tabular-nums">
+                    <span className="text-muted">Outstanding Due:</span>
+                    <span className="font-mono text-bad font-bold tabular-nums">
                       Rs. {member.balanceDue.toLocaleString()}
                     </span>
                   </div>
@@ -292,7 +292,7 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
               {member.balanceDue > 0 && (
                 <button
                   onClick={() => setShowCollectFeeModal(true)}
-                  className="w-full mt-4 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold uppercase tracking-wider cursor-pointer"
+                  className="w-full mt-4 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider cursor-pointer"
                 >
                   Collect Due (Rs. {member.balanceDue})
                 </button>
@@ -300,9 +300,9 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
             </div>
 
             {/* Right Column: Underline Tabs & Content */}
-            <div className="flex-1 flex flex-col bg-[#0D0E10] overflow-hidden">
+            <div className="flex-1 flex flex-col bg-app overflow-hidden">
               {/* Underline Tabs Header */}
-              <div className="flex items-center gap-6 px-5 border-b border-[#262A30] bg-[#15171A]">
+              <div className="flex items-center gap-6 px-5 border-b border-line bg-panel">
                 {(
                   [
                     { key: 'overview', label: 'Overview' },
@@ -316,8 +316,8 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                     onClick={() => setActiveTab(tab.key)}
                     className={`py-3 text-xs font-semibold tracking-wide transition-all cursor-pointer border-b-2 ${
                       activeTab === tab.key
-                        ? 'border-[#D9383A] text-[#ECEAE6]'
-                        : 'border-transparent text-[#8B909A] hover:text-[#ECEAE6]'
+                        ? 'border-brand text-ink'
+                        : 'border-transparent text-muted hover:text-ink'
                     }`}
                   >
                     {tab.label}
@@ -330,100 +330,100 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                 {/* 1. OVERVIEW TAB */}
                 {activeTab === 'overview' && (
                   <div className="space-y-4 text-xs">
-                    <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-3">
-                      <span className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block">
+                    <div className="p-4 rounded-[8px] bg-panel border border-line space-y-3">
+                      <span className="text-[11px] uppercase tracking-wider text-muted font-semibold block">
                         Personal Information
                       </span>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">Mobile Phone</span>
-                          <span className="font-mono text-[#ECEAE6] font-medium">{member.mobileNumber}</span>
+                          <span className="text-muted block mb-0.5">Mobile Phone</span>
+                          <span className="font-mono text-ink font-medium">{member.mobileNumber}</span>
                         </div>
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">WhatsApp Number</span>
-                          <span className="font-mono text-[#ECEAE6] font-medium">{member.whatsappNumber}</span>
+                          <span className="text-muted block mb-0.5">WhatsApp Number</span>
+                          <span className="font-mono text-ink font-medium">{member.whatsappNumber}</span>
                         </div>
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">Father's Name</span>
-                          <span className="text-[#ECEAE6]">{member.fatherName || 'Not recorded'}</span>
+                          <span className="text-muted block mb-0.5">Father's Name</span>
+                          <span className="text-ink">{member.fatherName || 'Not recorded'}</span>
                         </div>
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">CNIC #</span>
-                          <span className="font-mono text-[#ECEAE6]">{member.cnic || 'Not recorded'}</span>
+                          <span className="text-muted block mb-0.5">CNIC #</span>
+                          <span className="font-mono text-ink">{member.cnic || 'Not recorded'}</span>
                         </div>
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">Gender</span>
-                          <span className="text-[#ECEAE6]">{member.gender}</span>
+                          <span className="text-muted block mb-0.5">Gender</span>
+                          <span className="text-ink">{member.gender}</span>
                         </div>
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">Blood Group</span>
-                          <span className="text-[#ECEAE6]">{member.bloodGroup || 'Not recorded'}</span>
+                          <span className="text-muted block mb-0.5">Blood Group</span>
+                          <span className="text-ink">{member.bloodGroup || 'Not recorded'}</span>
                         </div>
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">Address</span>
-                          <span className="text-[#ECEAE6]">{member.address || 'Hyderabad, Sindh'}</span>
+                          <span className="text-muted block mb-0.5">Address</span>
+                          <span className="text-ink">{member.address || 'Hyderabad, Sindh'}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-3">
-                      <span className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block">
+                    <div className="p-4 rounded-[8px] bg-panel border border-line space-y-3">
+                      <span className="text-[11px] uppercase tracking-wider text-muted font-semibold block">
                         Emergency Contact & Medical Notes
                       </span>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">Emergency Contact</span>
-                          <span className="text-[#ECEAE6]">{member.emergencyContactName || 'None'}</span>
+                          <span className="text-muted block mb-0.5">Emergency Contact</span>
+                          <span className="text-ink">{member.emergencyContactName || 'None'}</span>
                         </div>
                         <div>
-                          <span className="text-[#8B909A] block mb-0.5">Emergency Phone</span>
-                          <span className="font-mono text-[#ECEAE6]">{member.emergencyContactPhone || 'None'}</span>
+                          <span className="text-muted block mb-0.5">Emergency Phone</span>
+                          <span className="font-mono text-ink">{member.emergencyContactPhone || 'None'}</span>
                         </div>
                       </div>
                       {member.medicalNotes && (
-                        <div className="mt-2 text-[#E5AE4A] text-xs">
+                        <div className="mt-2 text-warn text-xs">
                           Medical notes: {member.medicalNotes}
                         </div>
                       )}
                     </div>
 
-                    <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-3">
+                    <div className="p-4 rounded-[8px] bg-panel border border-line space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold">
+                        <span className="text-[11px] uppercase tracking-wider text-muted font-semibold">
                           Membership History
                         </span>
-                        <span className="text-[10px] text-[#8B909A]">
+                        <span className="text-[10px] text-muted">
                           Original join: {member.registrationDate || member.startDate}
                         </span>
                       </div>
                       <div className="space-y-2">
                         {membershipPeriods.map((period, index) => (
                           <div key={period.id} className="flex items-start gap-2.5 text-[11px]">
-                            <Clock className="w-3.5 h-3.5 mt-0.5 text-[#D9383A] shrink-0" />
+                            <Clock className="w-3.5 h-3.5 mt-0.5 text-brand shrink-0" />
                             <div>
-                              <span className="text-[#ECEAE6] font-semibold">
+                              <span className="text-ink font-semibold">
                                 {index === 0 ? 'Joined' : 'Rejoined'}: {period.startDate}
                               </span>
                               {period.endDate && (
-                                <span className="text-[#8B909A]"> · Left: {period.endDate}</span>
+                                <span className="text-muted"> · Left: {period.endDate}</span>
                               )}
                               {!period.endDate && index === membershipPeriods.length - 1 && (
-                                <span className="text-[#3DB88B]"> · Current membership period</span>
+                                <span className="text-ok"> · Current membership period</span>
                               )}
                             </div>
                           </div>
                         ))}
                       </div>
                       {history.length > 0 && (
-                        <div className="pt-2 border-t border-[#262A30] space-y-1.5">
-                          <span className="text-[10px] uppercase tracking-wider text-[#8B909A] font-semibold">
+                        <div className="pt-2 border-t border-line space-y-1.5">
+                          <span className="text-[10px] uppercase tracking-wider text-muted font-semibold">
                             Plan Activity
                           </span>
                           {history.map((entry) => (
                             <div key={entry.id} className="flex justify-between gap-3 text-[10px]">
-                              <span className="text-[#ECEAE6]">{entry.actionType} · {entry.planName}</span>
-                              <span className="font-mono text-[#8B909A]">{entry.startDate} – {entry.expiryDate}</span>
+                              <span className="text-ink">{entry.actionType} · {entry.planName}</span>
+                              <span className="font-mono text-muted">{entry.startDate} – {entry.expiryDate}</span>
                             </div>
                           ))}
                         </div>
@@ -436,7 +436,7 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                 {activeTab === 'billing' && (
                   <div className="space-y-4 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold">
+                      <span className="text-[11px] uppercase tracking-wider text-muted font-semibold">
                         Lifetime Payment History
                       </span>
                       {member.balanceDue > 0 ? (
@@ -446,19 +446,19 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                             setCollectError(null);
                             setShowCollectFeeModal(true);
                           }}
-                          className="px-3 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold cursor-pointer"
+                          className="px-3 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold cursor-pointer"
                         >
                           + Collect Fee
                         </button>
                       ) : (
-                        <span className="text-[11px] text-[#3DB88B]">No outstanding balance</span>
+                        <span className="text-[11px] text-ok">No outstanding balance</span>
                       )}
                     </div>
 
-                    <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
+                    <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
                       <table className="w-full text-left border-collapse text-xs">
                         <thead>
-                          <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[10px] uppercase tracking-wider">
+                          <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                             <th className="py-2 px-3 font-semibold">Receipt #</th>
                             <th className="py-2 px-3 font-semibold">Date</th>
                             <th className="py-2 px-3 font-semibold text-right">Amount</th>
@@ -467,29 +467,29 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                             <th className="py-2 px-3 font-semibold text-right">Receipt</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#262A30]">
+                        <tbody className="divide-y divide-line">
                           {payments.length === 0 ? (
                             <tr>
-                              <td colSpan={6} className="py-6 text-center text-[#8B909A]">
+                              <td colSpan={6} className="py-6 text-center text-muted">
                                 No payment receipts found for this member.
                               </td>
                             </tr>
                           ) : (
                             payments.map((p) => (
-                              <tr key={p.id} className="h-10 hover:bg-[#1C1F23]/50">
-                                <td className="py-2 px-3 font-mono text-[#ECEAE6]">{p.receiptNumber}</td>
-                                <td className="py-2 px-3 font-mono text-[#8B909A]">
+                              <tr key={p.id} className="h-10 hover:bg-raised/50">
+                                <td className="py-2 px-3 font-mono text-ink">{p.receiptNumber}</td>
+                                <td className="py-2 px-3 font-mono text-muted">
                                   {p.createdAt ? p.createdAt.split('T')[0] : '—'}
                                 </td>
-                                <td className="py-2 px-3 text-right font-mono font-bold text-[#3DB88B] tabular-nums">
+                                <td className="py-2 px-3 text-right font-mono font-bold text-ok tabular-nums">
                                   Rs. {p.amount.toLocaleString()}
                                 </td>
                                 <td className="py-2 px-3 font-mono">{p.paymentMethod}</td>
-                                <td className="py-2 px-3 text-[#8B909A]">{p.receivedBy}</td>
+                                <td className="py-2 px-3 text-muted">{p.receivedBy}</td>
                                 <td className="py-2 px-3 text-right">
                                   <button
                                     onClick={() => setReceiptToPrint(p)}
-                                    className="p-1 text-[#8B909A] hover:text-[#ECEAE6] cursor-pointer"
+                                    className="p-1 text-muted hover:text-ink cursor-pointer"
                                     title="View / Print Receipt"
                                   >
                                     <Printer className="w-3.5 h-3.5" />
@@ -508,39 +508,39 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                 {activeTab === 'attendance' && (
                   <div className="space-y-4 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold">
+                      <span className="text-[11px] uppercase tracking-wider text-muted font-semibold">
                         Attendance & Turnstile Check-Ins ({attendanceLogs.length} total visits)
                       </span>
                     </div>
 
-                    <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
+                    <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
                       <table className="w-full text-left border-collapse text-xs">
                         <thead>
-                          <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[10px] uppercase tracking-wider">
+                          <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                             <th className="py-2 px-3 font-semibold">Date & Time</th>
                             <th className="py-2 px-3 font-semibold">Method</th>
                             <th className="py-2 px-3 font-semibold">Access Status</th>
                             <th className="py-2 px-3 font-semibold">Remarks</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#262A30]">
+                        <tbody className="divide-y divide-line">
                           {attendanceLogs.length === 0 ? (
                             <tr>
-                              <td colSpan={4} className="py-6 text-center text-[#8B909A]">
+                              <td colSpan={4} className="py-6 text-center text-muted">
                                 No attendance records logged yet for this member.
                               </td>
                             </tr>
                           ) : (
                             attendanceLogs.map((a) => (
-                              <tr key={a.id} className="h-10 hover:bg-[#1C1F23]/50">
-                                <td className="py-2 px-3 font-mono text-[#ECEAE6]">
+                              <tr key={a.id} className="h-10 hover:bg-raised/50">
+                                <td className="py-2 px-3 font-mono text-ink">
                                   {new Date(a.timestamp).toLocaleString()}
                                 </td>
-                                <td className="py-2 px-3 font-mono text-[#8B909A]">{a.method}</td>
+                                <td className="py-2 px-3 font-mono text-muted">{a.method}</td>
                                 <td className="py-2 px-3">
                                   <span className="status-pill-success">Granted</span>
                                 </td>
-                                <td className="py-2 px-3 text-[#8B909A]">{a.notes || '—'}</td>
+                                <td className="py-2 px-3 text-muted">{a.notes || '—'}</td>
                               </tr>
                             ))
                           )}
@@ -553,55 +553,55 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                 {/* 4. MEMBERSHIP ACTIONS TAB (RENEW / FREEZE / DELETE) */}
                 {activeTab === 'actions' && (
                   <div className="space-y-4 text-xs">
-                    <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] flex items-center justify-between">
+                    <div className="p-4 rounded-[8px] bg-panel border border-line flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold text-xs text-[#ECEAE6]">Renew Membership Plan</h4>
-                        <p className="text-[11px] text-[#8B909A] mt-0.5">
+                        <h4 className="font-semibold text-xs text-ink">Renew Membership Plan</h4>
+                        <p className="text-[11px] text-muted mt-0.5">
                           Extend validity and apply package fee with optional discount.
                         </p>
                       </div>
                       <button
                         onClick={() => setShowRenewModal(true)}
-                        className="px-3.5 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-semibold cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-semibold cursor-pointer"
                       >
                         Renew Plan
                       </button>
                     </div>
 
-                    <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] flex items-center justify-between">
+                    <div className="p-4 rounded-[8px] bg-panel border border-line flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold text-xs text-[#ECEAE6]">Freeze / Pause Membership</h4>
-                        <p className="text-[11px] text-[#8B909A] mt-0.5">
+                        <h4 className="font-semibold text-xs text-ink">Freeze / Pause Membership</h4>
+                        <p className="text-[11px] text-muted mt-0.5">
                           Temporarily suspend access due to medical leave or travel without losing days.
                         </p>
                       </div>
                       {member.status === 'FROZEN' ? (
                         <button
                           onClick={handleResume}
-                          className="px-3.5 py-1.5 rounded-[6px] bg-[#3DB88B] hover:bg-[#2E9E74] text-[#ECEAE6] text-xs font-semibold cursor-pointer"
+                          className="px-3.5 py-1.5 rounded-[6px] bg-ok hover:bg-[#2E9E74] text-white text-xs font-semibold cursor-pointer"
                         >
                           Resume Membership
                         </button>
                       ) : (
                         <button
                           onClick={() => setShowFreezeModal(true)}
-                          className="px-3.5 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-[#ECEAE6] text-xs font-semibold cursor-pointer"
+                          className="px-3.5 py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line text-ink text-xs font-semibold cursor-pointer"
                         >
                           Freeze
                         </button>
                       )}
                     </div>
 
-                    <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#E5484D]/40 flex items-center justify-between">
+                    <div className="p-4 rounded-[8px] bg-panel border border-bad/40 flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold text-xs text-[#E5484D]">Mark Member as Left</h4>
-                        <p className="text-[11px] text-[#8B909A] mt-0.5">
+                        <h4 className="font-semibold text-xs text-bad">Mark Member as Left</h4>
+                        <p className="text-[11px] text-muted mt-0.5">
                           Close this membership period while keeping the profile, attendance, and payment history.
                         </p>
                       </div>
                       <button
                         onClick={() => setShowLeaveModal(true)}
-                        className="px-3.5 py-1.5 rounded-[6px] bg-[#E5484D] hover:bg-[#D1383C] text-[#ECEAE6] text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-[6px] bg-bad hover:bg-bad-strong text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                       >
                         <UserMinus className="w-3.5 h-3.5" />
                         Mark as Left
@@ -618,27 +618,27 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
       {/* Slide-over Drawer / Modal: Collect Fee Inside Profile */}
       {showCollectFeeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-md bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#262A30]">
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-md bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                 Collect Fee — {member.fullName}
               </h3>
-              <button onClick={() => setShowCollectFeeModal(false)} className="text-[#8B909A] hover:text-[#ECEAE6]">
+              <button onClick={() => setShowCollectFeeModal(false)} className="text-muted hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleCollectFeeSubmit} className="space-y-3.5 text-xs">
-              {collectError && <p role="alert" className="text-[11px] text-[#E5484D]">{collectError}</p>}
-              <div className="p-3 rounded-[6px] bg-[#1C1F23] border border-[#262A30] space-y-1">
+              {collectError && <p role="alert" className="text-[11px] text-bad">{collectError}</p>}
+              <div className="p-3 rounded-[6px] bg-raised border border-line space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-[#8B909A]">Current Due:</span>
-                  <span className="font-mono text-[#E5484D] font-bold">Rs. {member.balanceDue.toLocaleString()}</span>
+                  <span className="text-muted">Current Due:</span>
+                  <span className="font-mono text-bad font-bold">Rs. {member.balanceDue.toLocaleString()}</span>
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Amount Received (PKR) *
                 </label>
                 <input
@@ -651,25 +651,25 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                     setCollectAmount(Number(e.target.value));
                     setCollectError(null);
                   }}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Payment Method
                 </label>
                 <select
                   value={collectMethod}
                   onChange={(e) => setCollectMethod(e.target.value as PaymentMethod)}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 >
                   <option value="Cash">Cash (Front Desk)</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Notes
                 </label>
                 <input
@@ -677,21 +677,21 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                   value={collectNotes}
                   onChange={(e) => setCollectNotes(e.target.value)}
                   placeholder="e.g. Cleared pending dues"
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#262A30] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-line flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowCollectFeeModal(false)}
-                  className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] text-xs font-semibold text-[#ECEAE6]"
+                  className="px-3 py-1.5 rounded-[6px] bg-raised text-xs font-semibold text-ink"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider"
+                  className="px-4 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white uppercase tracking-wider"
                 >
                   Confirm & Print
                 </button>
@@ -704,20 +704,20 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
       {/* Renew Modal */}
       {showRenewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-md bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#262A30]">
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-md bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                 Renew Membership — {member.fullName}
               </h3>
-              <button onClick={() => setShowRenewModal(false)} className="text-[#8B909A] hover:text-[#ECEAE6]">
+              <button onClick={() => setShowRenewModal(false)} className="text-muted hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleRenewSubmit} className="space-y-3.5 text-xs">
-              {renewError && <p role="alert" className="text-[11px] text-[#E5484D]">{renewError}</p>}
+              {renewError && <p role="alert" className="text-[11px] text-bad">{renewError}</p>}
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Select Plan Package
                 </label>
                 <select
@@ -727,7 +727,7 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                     const p = renewalPlans.find((pl) => pl.id === e.target.value);
                     if (p) setRenewPaidAmount(p.price + renewalLateFee - renewDiscount);
                   }}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 >
                   {renewalPlans.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -736,11 +736,11 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                   ))}
                 </select>
               </div>
-              {renewalLateFee > 0 && <p className="text-[11px] text-[#E5AE4A]">Overdue membership late fee: Rs. 500</p>}
+              {renewalLateFee > 0 && <p className="text-[11px] text-warn">Overdue membership late fee: Rs. 500</p>}
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Amount Paid (PKR)
                   </label>
                   <input
@@ -748,12 +748,12 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                     min="0"
                     value={renewPaidAmount}
                     onChange={(e) => setRenewPaidAmount(Number(e.target.value))}
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#ECEAE6]"
+                    className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-ink"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Discount (PKR)
                   </label>
                   <input
@@ -761,35 +761,35 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                     min="0"
                     value={renewDiscount}
                     onChange={(e) => setRenewDiscount(Number(e.target.value))}
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
+                    className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Payment Method
                 </label>
                 <select
                   value={renewMethod}
                   onChange={(e) => setRenewMethod(e.target.value as PaymentMethod)}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 >
                   <option value="Cash">Cash (Front Desk)</option>
                 </select>
               </div>
 
-              <div className="pt-3 border-t border-[#262A30] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-line flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowRenewModal(false)}
-                  className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] text-xs font-semibold text-[#ECEAE6]"
+                  className="px-3 py-1.5 rounded-[6px] bg-raised text-xs font-semibold text-ink"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider"
+                  className="px-4 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white uppercase tracking-wider"
                 >
                   Confirm Renewal
                 </button>
@@ -802,16 +802,16 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
       {/* Freeze Modal */}
       {showFreezeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-sm bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-sm bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Freeze Membership
             </h3>
-            <p className="text-xs text-[#8B909A]">
+            <p className="text-xs text-muted">
               Temporarily pause {member.fullName}'s membership validity.
             </p>
             <form onSubmit={handleFreezeSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Reason for Freeze
                 </label>
                 <input
@@ -819,7 +819,7 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                   required
                   value={freezeReason}
                   onChange={(e) => setFreezeReason(e.target.value)}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 />
               </div>
 
@@ -827,13 +827,13 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowFreezeModal(false)}
-                  className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] text-xs text-[#ECEAE6]"
+                  className="px-3 py-1.5 rounded-[6px] bg-raised text-xs text-ink"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-xs font-bold text-[#ECEAE6]"
+                  className="px-4 py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-bold text-ink"
                 >
                   Confirm Freeze
                 </button>
@@ -846,23 +846,23 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
       {/* Leave Confirmation Modal */}
       {showLeaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-sm bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-sm bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Mark Member as Left?
             </h3>
-            <p className="text-xs text-[#8B909A]">
+            <p className="text-xs text-muted">
               This will record today as the leave date for {member.fullName}. Their profile, roll number, attendance, and payment history will be retained for a future rejoin.
             </p>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowLeaveModal(false)}
-                className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] text-xs text-[#ECEAE6]"
+                className="px-3 py-1.5 rounded-[6px] bg-raised text-xs text-ink"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLeaveMember}
-                className="px-4 py-1.5 rounded-[6px] bg-[#E5484D] hover:bg-[#D1383C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider"
+                className="px-4 py-1.5 rounded-[6px] bg-bad hover:bg-bad-strong text-xs font-bold text-white uppercase tracking-wider"
               >
                 Confirm Leave
               </button>

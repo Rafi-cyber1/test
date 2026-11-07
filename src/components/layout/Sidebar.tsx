@@ -72,21 +72,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`bg-[#15171A] border-r border-[#262A30] flex flex-col justify-between transition-all duration-150 ease-out select-none ${
+      className={`bg-panel border-r border-line flex flex-col justify-between transition-all duration-150 ease-out select-none ${
         isCollapsed ? 'w-16' : 'w-[232px]'
       } shrink-0 relative h-full`}
     >
       <div className="flex-1 overflow-y-auto">
         {/* Logo Section: Top-left, height 32-36px, with 20px padding */}
-        <div className={`${isCollapsed ? 'p-2' : 'p-5 pb-4'} border-b border-[#262A30] flex items-center justify-between`}>
+        <div className={`${isCollapsed ? 'p-2' : 'p-5 pb-4'} border-b border-line flex items-center justify-between`}>
           {!isCollapsed ? (
             <div className="flex items-center gap-2.5 overflow-hidden">
               <GymTownLogo size="sm" showText={false} />
               <div className="flex flex-col min-w-0">
-                <span className="font-condensed text-base font-bold text-[#ECEAE6] tracking-[0.04em] uppercase truncate leading-none">
+                <span className="font-condensed text-base font-bold text-ink tracking-[0.04em] uppercase truncate leading-none">
                   THE GYM TOWN
                 </span>
-                <span className="text-[10px] text-[#8B909A] font-medium tracking-wider uppercase mt-1 truncate">
+                <span className="text-[10px] text-muted font-medium tracking-wider uppercase mt-1 truncate">
                   Hyderabad Station
                 </span>
               </div>
@@ -99,7 +99,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={onToggleCollapse}
-            className={`text-[#8B909A] hover:text-[#ECEAE6] p-1 rounded-[4px] hover:bg-[#1C1F23] transition-colors cursor-pointer ${
+            className={`text-muted hover:text-ink p-1 rounded-[4px] hover:bg-raised transition-colors cursor-pointer ${
               isCollapsed ? 'hidden' : 'block'
             }`}
             title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -110,10 +110,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Expand toggle when collapsed */}
         {isCollapsed && (
-          <div className="py-2 flex justify-center border-b border-[#262A30]">
+          <div className="py-2 flex justify-center border-b border-line">
             <button
               onClick={onToggleCollapse}
-              className="text-[#8B909A] hover:text-[#ECEAE6] p-1 rounded-[4px] hover:bg-[#1C1F23] transition-colors cursor-pointer"
+              className="text-muted hover:text-ink p-1 rounded-[4px] hover:bg-raised transition-colors cursor-pointer"
               title="Expand sidebar"
             >
               <ChevronRight className="w-4 h-4 stroke-[1.5]" />
@@ -126,7 +126,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {navGroups.map((grp) => (
             <div key={grp.group} className="space-y-0.5">
               {!isCollapsed && (
-                <div className="px-3 py-1 text-[10px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold">
+                <div className="px-3 py-1 text-[10px] uppercase tracking-[0.04em] text-muted font-semibold">
                   {grp.group}
                 </div>
               )}
@@ -141,18 +141,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onTabChange(item.id)}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs transition-all duration-150 cursor-pointer ${
                       isActive
-                        ? 'border-l-2 border-[#D9383A] bg-[#1C1F23] text-[#ECEAE6] font-semibold'
-                        : 'border-l-2 border-transparent text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23]/60 font-medium'
+                        ? 'border-l-2 border-brand bg-raised text-ink font-semibold'
+                        : 'border-l-2 border-transparent text-muted hover:text-ink hover:bg-raised/60 font-medium'
                     }`}
                     title={isCollapsed ? item.label : undefined}
                   >
-                    <Icon className={`w-[18px] h-[18px] shrink-0 stroke-[1.5] ${isActive ? 'text-[#D9383A]' : 'currentColor'}`} />
+                    <Icon className={`w-[18px] h-[18px] shrink-0 stroke-[1.5] ${isActive ? 'text-brand' : 'currentColor'}`} />
                     {!isCollapsed && (
                       <span className="truncate flex-1 text-left">{item.label}</span>
                     )}
 
                     {!isCollapsed && item.badge !== undefined && (
-                      <span className="font-mono text-[10px] font-semibold text-[#8B909A] bg-[#0D0E10] px-1.5 py-0.2 rounded-full border border-[#262A30] tabular-nums">
+                      <span className="font-mono text-[10px] font-semibold text-muted bg-app px-1.5 py-0.2 rounded-full border border-line tabular-nums">
                         {item.badge}
                       </span>
                     )}
@@ -171,21 +171,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer: Logged-in user + logout pinned at bottom */}
-      <div className="p-3 border-t border-[#262A30] bg-[#15171A] space-y-2 shrink-0">
+      <div className="p-3 border-t border-line bg-panel space-y-2 shrink-0">
         <button
           onClick={() => onTabChange('settings')}
-          className="w-full flex items-center gap-2.5 p-2 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] transition-all text-left cursor-pointer"
+          className="w-full flex items-center gap-2.5 p-2 rounded-[6px] bg-raised hover:bg-hover border border-line transition-all text-left cursor-pointer"
           title="Receptionist Profile & Station Settings"
         >
-          <div className="w-7 h-7 rounded-[4px] bg-[#0D0E10] border border-[#262A30] flex items-center justify-center shrink-0 text-[#ECEAE6] font-condensed font-bold text-xs tracking-wider">
+          <div className="w-7 h-7 rounded-[4px] bg-app border border-line flex items-center justify-center shrink-0 text-ink font-condensed font-bold text-xs tracking-wider">
             {receptionistName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-[#ECEAE6] truncate leading-tight">
+              <div className="text-xs font-semibold text-ink truncate leading-tight">
                 {receptionistName}
               </div>
-              <div className="text-[10px] text-[#8B909A] truncate mt-0.5">
+              <div className="text-[10px] text-muted truncate mt-0.5">
                 {receptionistShift}
               </div>
             </div>
@@ -193,12 +193,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         {!isCollapsed && (
-          <div className="px-2 py-1 flex items-center justify-between text-[10px] text-[#8B909A] font-mono">
+          <div className="px-2 py-1 flex items-center justify-between text-[10px] text-muted font-mono">
             <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3DB88B]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-ok" />
               <span>Desk 01 Active</span>
             </span>
-            <span className="text-[#8B909A]">PKT UTC+5</span>
+            <span className="text-muted">PKT UTC+5</span>
           </div>
         )}
       </div>

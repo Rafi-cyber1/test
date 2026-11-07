@@ -146,6 +146,9 @@ const LEGACY_DEMO_SUPPLIERS = new Map<string, string>([
 
 const LEGACY_DEMO_MEMBER_EMAIL_PATTERN = /^demo\.member\.\d{3}@example\.test$/;
 
+/** Address stored by earlier builds; replaced by the real station address. */
+const LEGACY_GYM_ADDRESS = 'Auto Bhan Road, Near Citizen Colony, Saddar';
+
 // Male Reception Desk Officer Account (Editable in Settings)
 const DEFAULT_USERS: UserAccount[] = [
   {
@@ -162,7 +165,7 @@ const DEFAULT_USERS: UserAccount[] = [
 const DEFAULT_SETTINGS: GymSettings = {
   gymName: 'The Gym Town',
   tagline: 'Strength & Conditioning Club | IronCore Arena',
-  address: 'Auto Bhan Road, Near Citizen Colony, Saddar',
+  address: 'Hyder Chowk, Near Opposite Sultan Fast Food',
   city: 'Hyderabad, Sindh, Pakistan',
   phone: '+92 22 2781 440',
   whatsapp: '+92 301 8392011',
@@ -334,6 +337,11 @@ class DatabaseManager {
           receptionistProfile: parsed.settings?.receptionistProfile || DEFAULT_SETTINGS.receptionistProfile,
         };
 
+        const addressReplaced = !settings.address || settings.address.trim() === LEGACY_GYM_ADDRESS;
+        if (addressReplaced) {
+          settings.address = DEFAULT_SETTINGS.address;
+        }
+
         const receptionistName = settings.receptionistProfile?.name || 'Bilal Tariq';
         const currentUser: UserAccount = {
           id: 'usr_reception',
@@ -382,11 +390,13 @@ class DatabaseManager {
             : record;
         });
         if (attendanceToUse.some((record, index) => record !== storedAttendance[index])
-          || JSON.stringify(parsed.plans) !== JSON.stringify(plansToUse)) {
+          || JSON.stringify(parsed.plans) !== JSON.stringify(plansToUse)
+          || addressReplaced) {
           appStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify({
             ...parsed,
             attendance: attendanceToUse,
             plans: plansToUse,
+            settings,
           }));
         }
 
@@ -949,6 +959,7 @@ class DatabaseManager {
       registrationDate: member.registrationDate,
       membershipPeriods,
       archived: false,
+      removedAt: undefined,
       totalFee,
       paidAmount,
       balanceDue,
@@ -1079,6 +1090,7 @@ class DatabaseManager {
     }
     member.membershipPeriods = membershipPeriods;
     member.archived = true;
+    member.removedAt = new Date().toISOString();
     member.updatedAt = new Date().toISOString();
     this.addAuditLog('MEMBERS', 'Member Left', `Marked ${member.fullName} (${member.rollNumber}) as left; profile history retained`);
     this.persist();
@@ -1090,6 +1102,7 @@ class DatabaseManager {
     if (!member || !member.archived) return false;
 
     member.archived = false;
+    member.removedAt = undefined;
     const today = formatDate(new Date());
     if (member.expiryDate >= today) {
       const periods = member.membershipPeriods?.length

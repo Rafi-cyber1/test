@@ -113,25 +113,25 @@ export const ApplicationSettings: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#0D0E10] text-[#ECEAE6]">
+    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-app text-ink">
       {/* Top Header */}
-      <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-[8px] bg-panel border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-[#ECEAE6]">
+            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
               Station Settings & Administration
             </h2>
-            <span className="font-mono text-xs text-[#8B909A] bg-[#1C1F23] px-2 py-0.5 rounded-[4px] border border-[#262A30]">
+            <span className="font-mono text-xs text-muted bg-raised px-2 py-0.5 rounded-[4px] border border-line">
               Hyderabad Desk 01
             </span>
           </div>
-          <p className="text-xs text-[#8B909A] mt-1">
+          <p className="text-xs text-muted mt-1">
             Manage your Front Desk Receptionist profile, gym location details (Hyderabad, Sindh), and JSON database backup.
           </p>
         </div>
 
         {saveSuccess && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#1C1F23] border border-[#262A30] border-l-4 border-l-[#3DB88B] text-[#3DB88B] text-xs font-semibold">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-raised border border-line border-l-4 border-l-ok text-ok text-xs font-semibold">
             <Check className="w-3.5 h-3.5" />
             <span>Settings Saved</span>
           </div>
@@ -139,7 +139,7 @@ export const ApplicationSettings: React.FC = () => {
       </div>
 
       {/* Underline Tabs */}
-      <div className="flex items-center gap-6 px-1 border-b border-[#262A30]">
+      <div className="flex items-center gap-6 px-1 border-b border-line">
         {(
           [
             { key: 'receptionist', label: 'Receptionist Profile' },
@@ -153,8 +153,8 @@ export const ApplicationSettings: React.FC = () => {
             onClick={() => setActiveTab(tab.key)}
             className={`py-2.5 text-xs font-semibold tracking-wide transition-all cursor-pointer border-b-2 ${
               activeTab === tab.key
-                ? 'border-[#D9383A] text-[#ECEAE6]'
-                : 'border-transparent text-[#8B909A] hover:text-[#ECEAE6]'
+                ? 'border-brand text-ink'
+                : 'border-transparent text-muted hover:text-ink'
             }`}
           >
             {tab.label}
@@ -164,24 +164,24 @@ export const ApplicationSettings: React.FC = () => {
 
       {/* Tab 1: Receptionist Profile */}
       {activeTab === 'receptionist' && (
-        <form onSubmit={handleSaveReceptionist} className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-4 max-w-2xl text-xs">
+        <form onSubmit={handleSaveReceptionist} className="p-5 rounded-[8px] bg-panel border border-line space-y-4 max-w-2xl text-xs">
           {phoneError && (
-            <div role="alert" className="rounded-[6px] border border-[#E5484D]/40 bg-[#E5484D]/10 p-2.5 text-xs text-[#E5484D]">
+            <div role="alert" className="rounded-[6px] border border-bad/40 bg-bad/10 p-2.5 text-xs text-bad">
               {phoneError}
             </div>
           )}
           <div className="space-y-1">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Front Desk Officer Profile
             </h3>
-            <p className="text-[#8B909A] text-[11px]">
+            <p className="text-muted text-[11px]">
               This name appears on all receipts, turnstile logs, and attendance audits.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Officer Full Name *
               </label>
               <input
@@ -189,12 +189,12 @@ export const ApplicationSettings: React.FC = () => {
                 required
                 value={receptionist.name}
                 onChange={(e) => setReceptionist({ ...receptionist, name: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Contact Phone
               </label>
               <input
@@ -205,42 +205,42 @@ export const ApplicationSettings: React.FC = () => {
                   setReceptionist({ ...receptionist, phone: e.target.value });
                   setPhoneError(null);
                 }}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
-              <span className="mt-1 block text-[10px] text-[#8B909A]">11 digits, or 12 digits with country code 92.</span>
+              <span className="mt-1 block text-[10px] text-muted">11 digits, or 12 digits with country code 92.</span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Work Shift Timing
               </label>
               <input
                 type="text"
                 value={receptionist.shift}
                 onChange={(e) => setReceptionist({ ...receptionist, shift: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Counter ID / Gate
               </label>
               <input
                 type="text"
                 value={receptionist.counterId}
                 onChange={(e) => setReceptionist({ ...receptionist, counterId: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#262A30] flex justify-end">
+          <div className="pt-3 border-t border-line flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+              className="px-4 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-brand"
             >
               Save Officer Profile
             </button>
@@ -250,24 +250,24 @@ export const ApplicationSettings: React.FC = () => {
 
       {/* Tab 2: Gym Details & Location */}
       {activeTab === 'gym' && (
-        <form onSubmit={handleSaveGymSettings} className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-4 max-w-2xl text-xs">
+        <form onSubmit={handleSaveGymSettings} className="p-5 rounded-[8px] bg-panel border border-line space-y-4 max-w-2xl text-xs">
           {phoneError && (
-            <div role="alert" className="rounded-[6px] border border-[#E5484D]/40 bg-[#E5484D]/10 p-2.5 text-xs text-[#E5484D]">
+            <div role="alert" className="rounded-[6px] border border-bad/40 bg-bad/10 p-2.5 text-xs text-bad">
               {phoneError}
             </div>
           )}
           <div className="space-y-1">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Gym Facility Information
             </h3>
-            <p className="text-[#8B909A] text-[11px]">
+            <p className="text-muted text-[11px]">
               Hyderabad District center branding and contact info printed on customer receipts.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Gym Name *
               </label>
               <input
@@ -275,38 +275,38 @@ export const ApplicationSettings: React.FC = () => {
                 required
                 value={settings.gymName}
                 onChange={(e) => setSettings({ ...settings, gymName: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 City / Region
               </label>
               <input
                 type="text"
                 value={settings.city}
                 onChange={(e) => setSettings({ ...settings, city: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+            <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
               Address
             </label>
             <input
               type="text"
               value={settings.address}
               onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-              className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+              className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Official Contact Phone
               </label>
               <input
@@ -317,12 +317,12 @@ export const ApplicationSettings: React.FC = () => {
                   setSettings({ ...settings, phone: e.target.value });
                   setPhoneError(null);
                 }}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 WhatsApp Hotline
               </label>
               <input
@@ -333,15 +333,15 @@ export const ApplicationSettings: React.FC = () => {
                   setSettings({ ...settings, whatsapp: e.target.value });
                   setPhoneError(null);
                 }}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#262A30] flex justify-end">
+          <div className="pt-3 border-t border-line flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+              className="px-4 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-brand"
             >
               Update Gym Info
             </button>
@@ -351,56 +351,56 @@ export const ApplicationSettings: React.FC = () => {
 
       {/* Tab 3: Database Backup & Restore */}
       {activeTab === 'database' && (
-        <div className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-5 max-w-2xl text-xs">
+        <div className="p-5 rounded-[8px] bg-panel border border-line space-y-5 max-w-2xl text-xs">
           <div>
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Database Protection & Backup Snapshot
             </h3>
-            <p className="text-[#8B909A] text-[11px] mt-0.5">
+            <p className="text-muted text-[11px] mt-0.5">
               Export all members, attendance records, inventory stock, sales invoices, and ledger receipts to a secure JSON file.
             </p>
           </div>
 
           {restoreStatus && (
-            <div role="status" className={`p-3 rounded-[6px] bg-[#1C1F23] border border-[#262A30] border-l-4 font-semibold ${
+            <div role="status" className={`p-3 rounded-[6px] bg-raised border border-line border-l-4 font-semibold ${
               restoreStatus.startsWith('Unable to')
-                ? 'border-l-[#E5484D] text-[#E5484D]'
-                : 'border-l-[#3DB88B] text-[#3DB88B]'
+                ? 'border-l-bad text-bad'
+                : 'border-l-ok text-ok'
             }`}>
               {restoreStatus}
             </div>
           )}
 
-          <div className="p-4 rounded-[6px] bg-[#1C1F23] border border-[#262A30] space-y-1.5">
-            <span className="font-semibold text-xs text-[#ECEAE6] block">Fresh station data</span>
-            <p className="text-[11px] text-[#8B909A]">
+          <div className="p-4 rounded-[6px] bg-raised border border-line space-y-1.5">
+            <span className="font-semibold text-xs text-ink block">Fresh station data</span>
+            <p className="text-[11px] text-muted">
               This installation ships with no demo members and an empty inventory. Every member, sale, and
               stock item you see from now on is real station data.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-[6px] bg-[#1C1F23] border border-[#262A30] space-y-2">
-              <span className="font-semibold text-xs text-[#ECEAE6] block">Export Backup JSON</span>
-              <p className="text-[11px] text-[#8B909A]">
+            <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2">
+              <span className="font-semibold text-xs text-ink block">Export Backup JSON</span>
+              <p className="text-[11px] text-muted">
                 Download complete snapshot to local disk.
               </p>
               <button
                 type="button"
                 onClick={handleExportBackup}
-                className="w-full mt-2 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#ECEAE6] flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full mt-2 py-2 rounded-[6px] bg-panel hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export JSON Backup</span>
               </button>
             </div>
 
-            <div className="p-4 rounded-[6px] bg-[#1C1F23] border border-[#262A30] space-y-2">
-              <span className="font-semibold text-xs text-[#ECEAE6] block">Restore from Backup</span>
-              <p className="text-[11px] text-[#8B909A]">
+            <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2">
+              <span className="font-semibold text-xs text-ink block">Restore from Backup</span>
+              <p className="text-[11px] text-muted">
                 Load an existing backup JSON file into database.
               </p>
-              <label className="w-full mt-2 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#ECEAE6] flex items-center justify-center gap-1.5 cursor-pointer">
+              <label className="w-full mt-2 py-2 rounded-[6px] bg-panel hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 cursor-pointer">
                 <Upload className="w-3.5 h-3.5" />
                 <span>Choose Backup File</span>
                 <input type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
@@ -408,15 +408,15 @@ export const ApplicationSettings: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#262A30] flex items-center justify-between">
+          <div className="pt-4 border-t border-line flex items-center justify-between">
             <div>
-              <span className="font-semibold text-xs text-[#E5484D] block">Clear All Records</span>
-              <span className="text-[11px] text-[#8B909A]">Reset members and transactions to zero for a clean start.</span>
+              <span className="font-semibold text-xs text-bad block">Clear All Records</span>
+              <span className="text-[11px] text-muted">Reset members and transactions to zero for a clean start.</span>
             </div>
             <button
               type="button"
               onClick={handleClearAllData}
-              className="px-3.5 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#E5484D] hover:text-[#ECEAE6] border border-[#E5484D]/40 text-[#E5484D] text-xs font-semibold transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-[6px] bg-raised hover:bg-bad hover:text-ink border border-bad/40 text-bad text-xs font-semibold transition-colors cursor-pointer"
             >
               Clear Database
             </button>
@@ -426,18 +426,18 @@ export const ApplicationSettings: React.FC = () => {
 
       {/* Tab 4: System Audit Log */}
       {activeTab === 'audit' && (
-        <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
-          <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+        <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
+          <div className="p-3.5 border-b border-line flex items-center justify-between">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Audit Log Ledger ({auditLogs.length})
             </h3>
-            <span className="text-xs text-[#8B909A]">Immutable security trail</span>
+            <span className="text-xs text-muted">Immutable security trail</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[10px] uppercase tracking-wider">
+                <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                   <th className="py-2.5 px-4 font-semibold">Timestamp</th>
                   <th className="py-2.5 px-4 font-semibold">Module</th>
                   <th className="py-2.5 px-4 font-semibold">Action</th>
@@ -445,18 +445,18 @@ export const ApplicationSettings: React.FC = () => {
                   <th className="py-2.5 px-4 font-semibold">Operator</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#262A30]">
+              <tbody className="divide-y divide-line">
                 {auditLogs.slice(0, 80).map((log) => (
-                  <tr key={log.id} className="h-11 hover:bg-[#1C1F23]/50 transition-colors">
-                    <td className="py-2 px-4 font-mono text-[#8B909A] text-[11px]">
+                  <tr key={log.id} className="h-11 hover:bg-raised/50 transition-colors">
+                    <td className="py-2 px-4 font-mono text-muted text-[11px]">
                       {log.timestamp.split('T')[0]} {log.timestamp.split('T')[1]?.substring(0, 5)}
                     </td>
                     <td className="py-2 px-4">
                       <span className="status-pill-neutral text-[10px]">{log.module}</span>
                     </td>
-                    <td className="py-2 px-4 font-medium text-[#ECEAE6]">{log.action}</td>
-                    <td className="py-2 px-4 text-[#8B909A] truncate max-w-md">{log.details}</td>
-                    <td className="py-2 px-4 text-[#8B909A] font-mono">{log.username}</td>
+                    <td className="py-2 px-4 font-medium text-ink">{log.action}</td>
+                    <td className="py-2 px-4 text-muted truncate max-w-md">{log.details}</td>
+                    <td className="py-2 px-4 text-muted font-mono">{log.username}</td>
                   </tr>
                 ))}
               </tbody>

@@ -177,35 +177,35 @@ export const SmartAttendance: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#0D0E10] text-[#ECEAE6]">
+    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-app text-ink">
       {/* Top Header */}
-      <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-[8px] bg-panel border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-[#ECEAE6]">
+            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
               Manual Attendance Check-In Register
             </h2>
-            <span className="font-mono text-xs text-[#3DB88B] bg-[#1C1F23] px-2 py-0.5 rounded-[4px] border border-[#262A30]">
+            <span className="font-mono text-xs text-ok bg-raised px-2 py-0.5 rounded-[4px] border border-line">
               {todayRecords.length} Today
             </span>
           </div>
-          <p className="text-xs text-[#8B909A] mt-1">
+          <p className="text-xs text-muted mt-1">
             Fast counter check-in by Member Roll #, Full Name, or WhatsApp contact.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-[#8B909A] bg-[#1C1F23] px-3 py-1.5 rounded-[6px] border border-[#262A30]">
-          <Calendar className="w-3.5 h-3.5 text-[#D9383A]" />
+        <div className="flex items-center gap-2 text-xs font-mono text-muted bg-raised px-3 py-1.5 rounded-[6px] border border-line">
+          <Calendar className="w-3.5 h-3.5 text-brand" />
           <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
       </div>
 
-      <div className="flex gap-1 border-b border-[#262A30]">
+      <div className="flex gap-1 border-b border-line">
         {([
           { key: 'manual', label: 'Manual Attendance' },
           { key: 'monthly', label: 'Monthly Attendance' },
         ] as const).map((tab) => (
-          <button key={tab.key} type="button" onClick={() => setActiveView(tab.key)} className={`border-b-2 px-3 py-2 text-xs font-semibold ${activeView === tab.key ? 'border-[#D9383A] text-[#ECEAE6]' : 'border-transparent text-[#8B909A] hover:text-[#ECEAE6]'}`}>
+          <button key={tab.key} type="button" onClick={() => setActiveView(tab.key)} className={`border-b-2 px-3 py-2 text-xs font-semibold ${activeView === tab.key ? 'border-brand text-ink' : 'border-transparent text-muted hover:text-ink'}`}>
             {tab.label}
           </button>
         ))}
@@ -213,26 +213,26 @@ export const SmartAttendance: React.FC = () => {
 
       {activeView === 'manual' && <>
       {/* Check-in Input Bar */}
-      <div className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-3">
-        <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block">
+      <div className="p-5 rounded-[8px] bg-panel border border-line space-y-3">
+        <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block">
           Scan or Type Roll # / Mobile Number
         </label>
         <form onSubmit={handleManualSubmit} className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#8B909A] absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
+            <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="e.g. TGT-2026-0001, 0001, or 03001234567..."
-              className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] pl-9 pr-4 py-2 text-xs font-mono text-[#ECEAE6] placeholder:text-[#8B909A] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+              className="w-full bg-raised border border-line rounded-[6px] pl-9 pr-4 py-2 text-xs font-mono text-ink placeholder:text-muted focus:ring-2 focus:ring-brand focus:outline-none"
               autoFocus
             />
           </div>
 
           <button
             type="submit"
-            className="px-5 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 focus:ring-2 focus:ring-[#D9383A]"
+            className="px-5 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 focus:ring-2 focus:ring-brand"
           >
             <CheckCircle className="w-4 h-4" />
             <span>Check In</span>
@@ -241,22 +241,22 @@ export const SmartAttendance: React.FC = () => {
 
         {/* Real-time suggestions */}
         {suggestions.length > 0 && (
-          <div className="border border-[#262A30] rounded-[6px] bg-[#1C1F23] divide-y divide-[#262A30] overflow-hidden mt-2">
+          <div className="border border-line rounded-[6px] bg-raised divide-y divide-line overflow-hidden mt-2">
             {suggestions.map((m) => (
               <div
                 key={m.id}
                 onClick={() => handleCheckInMember(m)}
-                className="p-2.5 flex items-center justify-between hover:bg-[#262A30]/50 transition-colors cursor-pointer"
+                className="p-2.5 flex items-center justify-between hover:bg-hover/50 transition-colors cursor-pointer"
               >
                 <div>
-                  <div className="font-semibold text-xs text-[#ECEAE6]">{m.fullName}</div>
-                  <span className="font-mono text-[10px] text-[#8B909A]">
+                  <div className="font-semibold text-xs text-ink">{m.fullName}</div>
+                  <span className="font-mono text-[10px] text-muted">
                     {m.rollNumber} · {m.mobileNumber} · {m.planName}
                   </span>
                 </div>
                 <button
                   type="button"
-                  className="px-2.5 py-1 rounded-[4px] bg-[#15171A] hover:bg-[#D9383A] hover:text-[#ECEAE6] border border-[#262A30] text-[11px] font-medium text-[#ECEAE6] transition-colors"
+                  className="px-2.5 py-1 rounded-[4px] bg-panel hover:bg-brand hover:text-ink border border-line text-[11px] font-medium text-ink transition-colors"
                 >
                   Check In
                 </button>
@@ -271,8 +271,8 @@ export const SmartAttendance: React.FC = () => {
             role={lastCheckInResult.status === 'SUCCESS' ? 'status' : 'alert'}
             className={`p-3 rounded-[6px] border text-xs font-medium flex items-center gap-2 ${
               lastCheckInResult.status === 'SUCCESS'
-                ? 'bg-[#1C1F23] border-[#262A30] border-l-4 border-l-[#3DB88B] text-[#3DB88B]'
-                : 'bg-[#1C1F23] border-[#262A30] border-l-4 border-l-[#E5484D] text-[#E5484D]'
+                ? 'bg-raised border-line border-l-4 border-l-ok text-ok'
+                : 'bg-raised border-line border-l-4 border-l-bad text-bad'
             }`}
           >
             {lastCheckInResult.status === 'SUCCESS' ? (
@@ -286,18 +286,18 @@ export const SmartAttendance: React.FC = () => {
       </div>
 
       {/* Today Attendance Log Table */}
-      <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
-        <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between">
-          <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+      <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
+        <div className="p-3.5 border-b border-line flex items-center justify-between">
+          <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
             Today's Check-In Records ({todayRecords.length})
           </h3>
-          <span className="text-xs text-[#8B909A]">Real-time desk arrivals</span>
+          <span className="text-xs text-muted">Real-time desk arrivals</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[10px] uppercase tracking-wider">
+              <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                 <th className="py-2 px-4 font-semibold">Time</th>
                 <th className="py-2 px-4 font-semibold">Roll #</th>
                 <th className="py-2 px-4 font-semibold">Member Name</th>
@@ -306,22 +306,22 @@ export const SmartAttendance: React.FC = () => {
                 <th className="py-2 px-4 font-semibold">Notes / Reason</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#262A30]">
+            <tbody className="divide-y divide-line">
               {todayRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[#8B909A]">
+                  <td colSpan={6} className="py-8 text-center text-muted">
                     No members checked in yet today. Use the counter search bar above to log check-ins.
                   </td>
                 </tr>
               ) : (
                 todayRecords.map((rec) => (
-                  <tr key={rec.id} className="h-11 hover:bg-[#1C1F23]/50 transition-colors">
-                    <td className="py-2 px-4 font-mono text-[#8B909A] text-[11px] tabular-nums">
+                  <tr key={rec.id} className="h-11 hover:bg-raised/50 transition-colors">
+                    <td className="py-2 px-4 font-mono text-muted text-[11px] tabular-nums">
                       {new Date(rec.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </td>
-                    <td className="py-2 px-4 font-mono font-bold text-[#ECEAE6]">{rec.rollNumber}</td>
-                    <td className="py-2 px-4 font-semibold text-[#ECEAE6]">{rec.memberName}</td>
-                    <td className="py-2 px-4 font-mono text-[#8B909A]">{rec.method}</td>
+                    <td className="py-2 px-4 font-mono font-bold text-ink">{rec.rollNumber}</td>
+                    <td className="py-2 px-4 font-semibold text-ink">{rec.memberName}</td>
+                    <td className="py-2 px-4 font-mono text-muted">{rec.method}</td>
                     <td className="py-2 px-4 text-center">
                       {rec.accessStatus === 'GRANTED' ? (
                         <span className="status-pill-success">Approved</span>
@@ -329,7 +329,7 @@ export const SmartAttendance: React.FC = () => {
                         <span className="status-pill-danger">Blocked</span>
                       )}
                     </td>
-                    <td className="py-2 px-4 text-[#8B909A]">{rec.denialReason || rec.notes || 'Routine check-in'}</td>
+                    <td className="py-2 px-4 text-muted">{rec.denialReason || rec.notes || 'Routine check-in'}</td>
                   </tr>
                 ))
               )}
@@ -341,17 +341,17 @@ export const SmartAttendance: React.FC = () => {
 
       {activeView === 'monthly' && (
         <section className="space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-3 rounded-[8px] border border-[#262A30] bg-[#15171A] p-4">
+          <div className="flex flex-wrap items-end justify-between gap-3 rounded-[8px] border border-line bg-panel p-4">
             <div>
-              <h3 className="flex items-center gap-2 font-condensed text-sm font-bold uppercase"><CalendarDays className="h-4 w-4 text-[#D9383A]" /> Monthly Attendance</h3>
-              <p className="mt-1 text-xs text-[#8B909A]">Present days are read from recorded check-ins; past unrecorded days are shown as absent.</p>
+              <h3 className="flex items-center gap-2 font-condensed text-sm font-bold uppercase"><CalendarDays className="h-4 w-4 text-brand" /> Monthly Attendance</h3>
+              <p className="mt-1 text-xs text-muted">Present days are read from recorded check-ins; past unrecorded days are shown as absent.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <label className="text-[11px] text-[#8B909A]">Month
-                <input type="month" value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)} className="mt-1 block rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]" />
+              <label className="text-[11px] text-muted">Month
+                <input type="month" value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)} className="mt-1 block rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink" />
               </label>
-              <label className="text-[11px] text-[#8B909A]">Member
-                <select value={selectedMemberId} onChange={(event) => setSelectedMemberId(event.target.value)} className="mt-1 block min-w-52 rounded-[6px] border border-[#262A30] bg-[#0D0E10] px-3 py-2 text-xs text-[#ECEAE6]">
+              <label className="text-[11px] text-muted">Member
+                <select value={selectedMemberId} onChange={(event) => setSelectedMemberId(event.target.value)} className="mt-1 block min-w-52 rounded-[6px] border border-line bg-app px-3 py-2 text-xs text-ink">
                   <option value="ALL">All active members</option>
                   {allMembers.map((member) => <option key={member.id} value={member.id}>{member.rollNumber} — {member.fullName}{member.archived ? ' (Removed)' : ''}</option>)}
                 </select>
@@ -366,23 +366,23 @@ export const SmartAttendance: React.FC = () => {
             </div>
           )}
 
-          <div className="overflow-x-auto rounded-[8px] border border-[#262A30] bg-[#15171A]">
+          <div className="overflow-x-auto rounded-[8px] border border-line bg-panel">
             <table className="w-full min-w-max border-collapse text-[10px]">
-              <thead className="sticky top-0 bg-[#1C1F23] text-[#8B909A]">
-                <tr><th className="sticky left-0 z-10 bg-[#1C1F23] p-2 text-left">Member</th>{monthDays.map((day) => <th key={day} className="min-w-8 p-2 text-center">{day}</th>)}</tr>
+              <thead className="sticky top-0 bg-raised text-muted">
+                <tr><th className="sticky left-0 z-10 bg-raised p-2 text-left">Member</th>{monthDays.map((day) => <th key={day} className="min-w-8 p-2 text-center">{day}</th>)}</tr>
               </thead>
-              <tbody className="divide-y divide-[#262A30]">
+              <tbody className="divide-y divide-line">
                 {monthlyAttendance.map(({ member, days }) => (
                   <tr key={member.id}>
-                    <th className="sticky left-0 bg-[#15171A] p-2 text-left font-medium text-[#ECEAE6]">{member.fullName}<span className="block font-mono text-[9px] text-[#8B909A]">{member.rollNumber}{member.archived ? ' · Removed' : ''}</span></th>
-                    {days.map(({ day, state }) => <td key={day} title={`${day}: ${state.replace('_', ' ')}`} className={`p-1 text-center font-bold ${state === 'PRESENT' ? 'text-[#3DB88B]' : state === 'ABSENT' ? 'text-[#E5484D]' : 'text-[#8B909A]'}`}>{state === 'PRESENT' ? 'P' : state === 'ABSENT' ? 'A' : '—'}</td>)}
+                    <th className="sticky left-0 bg-panel p-2 text-left font-medium text-ink">{member.fullName}<span className="block font-mono text-[9px] text-muted">{member.rollNumber}{member.archived ? ' · Removed' : ''}</span></th>
+                    {days.map(({ day, state }) => <td key={day} title={`${day}: ${state.replace('_', ' ')}`} className={`p-1 text-center font-bold ${state === 'PRESENT' ? 'text-ok' : state === 'ABSENT' ? 'text-bad' : 'text-muted'}`}>{state === 'PRESENT' ? 'P' : state === 'ABSENT' ? 'A' : '—'}</td>)}
                   </tr>
                 ))}
-                {monthlyAttendance.length === 0 && <tr><td colSpan={daysInMonth + 1} className="p-8 text-center text-[#8B909A]">No members to display.</td></tr>}
+                {monthlyAttendance.length === 0 && <tr><td colSpan={daysInMonth + 1} className="p-8 text-center text-muted">No members to display.</td></tr>}
               </tbody>
             </table>
           </div>
-          <div className="flex gap-4 text-[11px] text-[#8B909A]"><span className="text-[#3DB88B]">P Present</span><span className="text-[#E5484D]">A Absent</span><span>— Not Marked</span></div>
+          <div className="flex gap-4 text-[11px] text-muted"><span className="text-ok">P Present</span><span className="text-bad">A Absent</span><span>— Not Marked</span></div>
         </section>
       )}
     </div>

@@ -13,8 +13,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      // Apply the saved theme before the first paint so the app never flashes.
+      try {
+        if (localStorage.getItem('tgt_theme') === 'light') {
+          document.documentElement.classList.add('light');
+        }
+      } catch (error) {
+        /* storage unavailable — keep the dark default */
+      }
+    </script>
   </head>
-  <body class="bg-[#0D0E10] text-[#ECEAE6] antialiased">
+  <body class="bg-app text-ink antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

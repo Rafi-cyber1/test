@@ -77,7 +77,9 @@ ${targetMember.expiryDate ? `📅 *Membership Valid Till:* ${targetMember.expiry
 *Address:* ${settings.address}, ${settings.city}
 *Helpline:* ${settings.phone}
 
-Thank you for being part of THE GYM TOWN family! Stay consistent and train hard! 💪`;
+Thank you for being part of THE GYM TOWN family! Stay consistent and train hard! 💪
+━━━━━━━━━━━━━━━━━━━━
+Software created by CRYONIX`;
 
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(receiptMessage)}`;
     window.open(waUrl, '_blank');
@@ -104,36 +106,36 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="w-full max-w-md bg-[#1C1F23] border border-[#262A30] rounded-[8px] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[95vh]">
+      <div className="w-full max-w-md bg-raised border border-line rounded-[8px] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[95vh]">
         {/* Top Control Bar (Hidden when printing) */}
-        <div className="p-3.5 border-b border-[#262A30] bg-[#15171A] flex items-center justify-between no-print">
+        <div className="p-3.5 border-b border-line bg-panel flex items-center justify-between no-print">
           <div>
-            <h3 className="text-xs font-bold text-[#ECEAE6] flex items-center gap-2">
+            <h3 className="text-xs font-bold text-ink flex items-center gap-2">
               <span>Receipt Issued: {payment.receiptNumber}</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-[4px] bg-[#0D0E10] text-[#3DB88B] border border-[#262A30]">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-[4px] bg-app text-ok border border-line">
                 Rs. {payment.amount.toLocaleString()}
               </span>
             </h3>
-            <p className="text-[11px] text-[#8B909A] mt-0.5">
-              Member: <strong className="text-[#ECEAE6]">{payment.memberName}</strong> ({payment.rollNumber})
+            <p className="text-[11px] text-muted mt-0.5">
+              Member: <strong className="text-ink">{payment.memberName}</strong> ({payment.rollNumber})
             </p>
           </div>
           <button
             onClick={onClose}
             aria-label="Close receipt"
-            className="p-1 text-[#8B909A] hover:text-[#ECEAE6] rounded-[4px] hover:bg-[#1C1F23] transition-colors cursor-pointer"
+            className="p-1 text-muted hover:text-ink rounded-[4px] hover:bg-raised transition-colors cursor-pointer"
           >
             <X className="w-4 h-4 stroke-[1.5]" />
           </button>
         </div>
 
         {/* Quick Action Buttons for Receptionist */}
-        <div className="p-3 bg-[#15171A] border-b border-[#262A30] grid grid-cols-2 gap-2 no-print">
+        <div className="p-3 bg-panel border-b border-line grid grid-cols-2 gap-2 no-print">
           <button
             onClick={handlePrint}
-            className="flex items-center justify-center gap-1.5 py-2 px-3 bg-[#1C1F23] hover:bg-[#262A30] text-[#ECEAE6] rounded-[6px] text-xs font-semibold border border-[#262A30] transition-colors cursor-pointer"
+            className="flex items-center justify-center gap-1.5 py-2 px-3 bg-raised hover:bg-hover text-ink rounded-[6px] text-xs font-semibold border border-line transition-colors cursor-pointer"
           >
-            <Printer className="w-3.5 h-3.5 text-[#8B909A]" />
+            <Printer className="w-3.5 h-3.5 text-muted" />
             <span>Print Receipt</span>
           </button>
 
@@ -141,13 +143,13 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
             onClick={handleSendWhatsAppReceipt}
             className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-[6px] text-xs font-semibold transition-all cursor-pointer ${
               whatsappSent
-                ? 'bg-[#3DB88B]/20 text-[#3DB88B] border border-[#3DB88B]/40'
-                : 'bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6]'
+                ? 'bg-ok/20 text-ok border border-ok/40'
+                : 'bg-brand hover:bg-brand-strong text-white'
             }`}
           >
             {whatsappSent ? (
               <>
-                <Check className="w-3.5 h-3.5 text-[#3DB88B]" />
+                <Check className="w-3.5 h-3.5 text-ok" />
                 <span>Sent on WhatsApp</span>
               </>
             ) : (
@@ -159,8 +161,8 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
           </button>
         </div>
 
-        <div className="px-3 py-2 bg-[#15171A] border-b border-[#262A30] flex items-center justify-between text-[11px] no-print">
-          <span className="text-[#8B909A]">Thermal paper width</span>
+        <div className="px-3 py-2 bg-panel border-b border-line flex items-center justify-between text-[11px] no-print">
+          <span className="text-muted">Thermal paper width</span>
           <div className="flex gap-1">
             {([58, 80] as const).map((width) => (
               <button
@@ -170,8 +172,8 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
                 aria-pressed={paperWidth === width}
                 className={`px-2.5 py-1 rounded border ${
                   paperWidth === width
-                    ? 'border-[#D9383A] text-[#ECEAE6]'
-                    : 'border-[#262A30] text-[#8B909A]'
+                    ? 'border-brand text-ink'
+                    : 'border-line text-muted'
                 }`}
               >
                 {width}mm
@@ -181,20 +183,20 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
         </div>
 
         {/* Combined One-Tap Action */}
-        <div className="px-3 pt-2 pb-1 bg-[#15171A] no-print flex items-center justify-between text-[11px] text-[#8B909A]">
+        <div className="px-3 pt-2 pb-1 bg-panel no-print flex items-center justify-between text-[11px] text-muted">
           <span className="truncate">
             {memberPhone ? `Member Mobile: ${memberPhone}` : 'No phone saved on profile'}
           </span>
           <button
             onClick={handlePrintAndSend}
-            className="text-[#D9383A] hover:underline font-semibold cursor-pointer shrink-0 ml-2"
+            className="text-brand hover:underline font-semibold cursor-pointer shrink-0 ml-2"
           >
             Print & Send Both &rarr;
           </button>
         </div>
 
         {/* Thermal Receipt Paper Viewport */}
-        <div className="p-4 sm:p-6 bg-[#0D0E10] flex justify-center overflow-y-auto max-h-[60vh]">
+        <div className="p-4 sm:p-6 bg-app flex justify-center overflow-y-auto max-h-[60vh]">
           <div
             id="receipt-area"
             className={`w-[80mm] max-w-full box-border bg-white text-black p-2 font-mono text-[10px] leading-tight shadow-xl print-receipt print-receipt--${paperWidth}`}
@@ -203,9 +205,12 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
             <style>{`@media print { @page { size: ${paperWidth}mm 200mm; margin: 0; } }`}</style>
             <header className="text-center pb-2 border-b border-black border-dashed">
               <img
-                src={`${import.meta.env.BASE_URL}logo.png`}
+                src={`${import.meta.env.BASE_URL}logo-print.svg`}
                 alt={settings.gymName || 'The Gym Town'}
-                className="receipt-logo mx-auto mb-1 h-8 max-w-full object-contain"
+                className="receipt-logo mx-auto mb-1 h-10 max-w-full object-contain"
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
+                }}
               />
               <div className="font-extrabold text-sm uppercase">{settings.gymName}</div>
               <div>{settings.address}</div>
@@ -248,24 +253,31 @@ Thank you for being part of THE GYM TOWN family! Stay consistent and train hard!
             <div className="py-2 border-b border-black border-dashed">
               PAYMENT METHOD: {payment.paymentMethod.toUpperCase()}
             </div>
+
+            <div className="py-2 border-b border-black border-dashed">
+              <div className="font-bold">LATE FEE / PENALTY NOTICE</div>
+              <div>Rs. 500 penalty is charged when the monthly fee is paid after its due date.</div>
+              <div>Pay on or before the due date to avoid the penalty.</div>
+            </div>
             <footer className="pt-2 text-[9px] leading-snug">
               <div className="font-bold mb-1">IMPORTANT TERMS</div>
               <div>1. Membership fees are non-refundable.</div>
-              <div>2. Late payment charge: Rs. 500 when membership payment is overdue.</div>
+              <div>2. Late payment penalty: Rs. 500 applies when the monthly fee is paid after the due date.</div>
               <div>3. Accepted payment method: CASH ONLY.</div>
             </footer>
             <div className="pt-2 text-center text-[9px]">Thank you for your payment.</div>
+            <div className="pt-1 text-center text-[9px] font-bold">Software created by CRYONIX</div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-[#15171A] border-t border-[#262A30] flex items-center justify-between no-print">
-          <span className="text-[11px] text-[#8B909A]">
+        <div className="p-3 bg-panel border-t border-line flex items-center justify-between no-print">
+          <span className="text-[11px] text-muted">
             {paperWidth}mm thermal receipt · Auto-print enabled
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-[#ECEAE6] text-xs font-semibold cursor-pointer"
+            className="px-4 py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line text-ink text-xs font-semibold cursor-pointer"
           >
             Done
           </button>

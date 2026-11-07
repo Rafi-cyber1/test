@@ -425,3 +425,41 @@ test('demo members and the demo inventory left by an older build are removed whe
     'cleanup should be recorded in the audit log'
   );
 });
+
+test('removing a member records the removal date and restoring clears it', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const member = db.addMember({
+    fullName: 'Removal Date Member',
+    mobileNumber: '03007778888',
+    whatsappNumber: '03007778888',
+    gender: 'Male',
+    bloodGroup: 'B+',
+    registrationDate: today,
+    planId: 'plan_monthly',
+    planName: 'Cardio Only Monthly',
+    startDate: today,
+    expiryDate: today,
+    emergencyContactName: 'Contact',
+    emergencyContactPhone: '03007654321',
+    totalFee: 2000,
+    paidAmount: 0,
+    monthlyFee: 2000,
+    admissionFee: 0,
+    billingMonths: 1,
+  }, 'REMOVED-DATE-001');
+
+  assert.equal(member.removedAt, undefined);
+  assert.equal(db.leaveMember(member.id), true);
+  const removed = db.getMemberById(member.id);
+  assert.ok(removed?.removedAt, 'removal timestamp should be stored');
+  assert.equal(removed?.removedAt?.slice(0, 10), today);
+  assert.equal(removed?.archived, true);
+
+  assert.equal(db.restoreMember(member.id), true);
+  assert.equal(db.getMemberById(member.id)?.removedAt, undefined);
+  assert.equal(db.getMemberById(member.id)?.archived, false);
+});
+
+test('station address defaults to Hyder Chowk for new and migrated installs', () => {
+  assert.equal(db.getSettings().address, 'Hyder Chowk, Near Opposite Sultan Fast Food');
+});

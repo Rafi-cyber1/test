@@ -214,18 +214,18 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/75 backdrop-blur-[2px]">
-        <div className="w-[520px] max-w-full bg-[#1C1F23] border border-[#262A30] rounded-[8px] overflow-hidden flex flex-col shadow-2xl max-h-[92vh]">
+        <div className="w-[520px] max-w-full bg-raised border border-line rounded-[8px] overflow-hidden flex flex-col shadow-2xl max-h-[92vh]">
           {/* Header */}
-          <div className="p-4 border-b border-[#262A30] bg-[#15171A] flex items-center justify-between">
+          <div className="p-4 border-b border-line bg-panel flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-[6px] bg-[#D9383A]/10 border border-[#D9383A]/30 flex items-center justify-center text-[#D9383A]">
+              <div className="w-7 h-7 rounded-[6px] bg-brand/10 border border-brand/30 flex items-center justify-center text-brand">
                 <RefreshCw className="w-4 h-4 stroke-[1.5]" />
               </div>
               <div>
-                <h2 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-[#ECEAE6]">
+                <h2 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-ink">
                   Monthly Fee Renewal
                 </h2>
-                <span className="text-[11px] text-[#8B909A]">
+                <span className="text-[11px] text-muted">
                   Enter Member Unique ID (e.g. the-gym-town-01)
                 </span>
               </div>
@@ -233,7 +233,7 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
 
             <button
               onClick={onClose}
-              className="p-1 text-[#8B909A] hover:text-[#ECEAE6] rounded-[4px] hover:bg-[#1C1F23] transition-colors cursor-pointer"
+              className="p-1 text-muted hover:text-ink rounded-[4px] hover:bg-raised transition-colors cursor-pointer"
             >
               <X className="w-4 h-4 stroke-[1.5]" />
             </button>
@@ -242,13 +242,13 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
           {/* Form Content */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
             {/* Step 1: Unique ID Lookup Bar */}
-            <div className="p-3.5 rounded-[6px] bg-[#15171A] border border-[#262A30] space-y-2">
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block">
+            <div className="p-3.5 rounded-[6px] bg-panel border border-line space-y-2">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block">
                 Member Unique ID / Roll # *
               </label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Search className="w-3.5 h-3.5 text-[#8B909A] absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
+                  <Search className="w-3.5 h-3.5 text-muted absolute left-3 top-1/2 -translate-y-1/2 stroke-[1.5]" />
                   <input
                     type="text"
                     value={uniqueIdInput}
@@ -260,21 +260,21 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                       }
                     }}
                     placeholder="e.g. the-gym-town-01 or 01..."
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] pl-9 pr-3 py-2 text-xs font-mono font-bold text-[#ECEAE6] placeholder:text-[#8B909A] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-raised border border-line rounded-[6px] pl-9 pr-3 py-2 text-xs font-mono font-bold text-ink placeholder:text-muted focus:ring-2 focus:ring-brand focus:outline-none"
                     autoFocus
                   />
                 </div>
                 <button
                   type="button"
                   onClick={() => handleLookupMember()}
-                  className="px-4 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0"
+                  className="px-4 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0"
                 >
                   Verify ID
                 </button>
               </div>
 
               {searchError && (
-                <div className="flex items-center gap-1.5 text-[11px] text-[#E5484D] pt-1">
+                <div className="flex items-center gap-1.5 text-[11px] text-bad pt-1">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>{searchError}</span>
                 </div>
@@ -284,35 +284,35 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
             {/* Step 2: Member Details Display Card */}
             {selectedMember ? (
               <form onSubmit={handleSubmitRenewal} className="space-y-4">
-                {renewalError && <p role="alert" className="text-[11px] text-[#E5484D]">{renewalError}</p>}
-                <div className="p-3.5 rounded-[6px] bg-[#15171A] border border-[#262A30] space-y-2.5">
+                {renewalError && <p role="alert" className="text-[11px] text-bad">{renewalError}</p>}
+                <div className="p-3.5 rounded-[6px] bg-panel border border-line space-y-2.5">
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-[#ECEAE6]">
+                        <span className="font-bold text-sm text-ink">
                           {selectedMember.fullName}
                         </span>
-                        <span className="font-mono text-[11px] text-[#D9383A] bg-[#0D0E10] px-2 py-0.5 rounded-[4px] border border-[#262A30] font-bold">
+                        <span className="font-mono text-[11px] text-brand bg-app px-2 py-0.5 rounded-[4px] border border-line font-bold">
                           {selectedMember.rollNumber}
                         </span>
                       </div>
-                      <div className="font-mono text-[11px] text-[#8B909A] mt-0.5">
+                      <div className="font-mono text-[11px] text-muted mt-0.5">
                         {selectedMember.mobileNumber} Â· Current Plan: {selectedMember.planName}
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] uppercase text-[#8B909A] font-semibold block">
+                      <span className="text-[10px] uppercase text-muted font-semibold block">
                         Current Expiry
                       </span>
-                      <span className="font-mono text-xs font-bold text-[#E5AE4A] tabular-nums">
+                      <span className="font-mono text-xs font-bold text-warn tabular-nums">
                         {selectedMember.expiryDate}
                       </span>
                     </div>
                   </div>
 
                   {selectedMember.balanceDue > 0 && (
-                    <div className="p-2 rounded-[4px] bg-[#E5484D]/10 border border-[#E5484D]/25 text-[#E5484D] flex justify-between items-center text-[11px]">
+                    <div className="p-2 rounded-[4px] bg-bad/10 border border-bad/25 text-bad flex justify-between items-center text-[11px]">
                       <span>Previous Pending Balance:</span>
                       <strong className="font-mono font-bold">
                         Rs. {selectedMember.balanceDue.toLocaleString()}
@@ -324,13 +324,13 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                 {/* Step 3: Renewal Package & Fee Selection */}
                 <div className="space-y-3">
                   <div>
-                    <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                    <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                       Renewal Membership Plan *
                     </label>
                     <select
                       value={selectedPlanId}
                       onChange={(e) => handlePlanChange(e.target.value)}
-                      className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-semibold text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none cursor-pointer"
+                      className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-semibold text-ink focus:ring-2 focus:ring-brand focus:outline-none cursor-pointer"
                     >
                       {renewalPlans.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -343,7 +343,7 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                   {/* Fee & Discount Grid */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                      <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                         Amount Paid (PKR) *
                       </label>
                       <input
@@ -356,12 +356,12 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                           setAmountPaid(Number(e.target.value));
                           setRenewalError(null);
                         }}
-                        className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                        className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                      <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                         Discount (PKR)
                       </label>
                       <input
@@ -378,17 +378,17 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                             setAmountPaid(Math.max(0, activePlan.price + lateFee - d));
                           }
                         }}
-                        className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                        className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                       />
                     </div>
                   </div>
                   {selectedMember && selectedMember.expiryDate < new Date().toISOString().slice(0, 10) && (
-                    <p className="text-[11px] text-[#E5AE4A]">Overdue membership late fee: Rs. 500</p>
+                    <p className="text-[11px] text-warn">Overdue membership late fee: Rs. 500</p>
                   )}
 
                   {/* Payment Method */}
                   <div>
-                    <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                    <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                       Payment Mode
                     </label>
                     <div className="grid grid-cols-4 gap-2">
@@ -400,8 +400,8 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                             onClick={() => setPaymentMethod(method)}
                             className={`py-1.5 rounded-[6px] border text-[11px] font-semibold text-center cursor-pointer transition-colors ${
                               paymentMethod === method
-                                ? 'bg-[#D9383A] border-[#D9383A] text-[#ECEAE6]'
-                                : 'bg-[#15171A] border-[#262A30] text-[#8B909A] hover:text-[#ECEAE6]'
+                                ? 'bg-brand border-brand text-white'
+                                : 'bg-panel border-line text-muted hover:text-ink'
                             }`}
                           >
                             {method}
@@ -412,19 +412,19 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                   </div>
 
                   {/* Projected Expiry Preview */}
-                  <div className="p-3 rounded-[6px] bg-[#0D0E10] border border-[#262A30] flex items-center justify-between text-xs">
-                    <span className="text-[#8B909A] flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#3DB88B]" />
+                  <div className="p-3 rounded-[6px] bg-app border border-line flex items-center justify-between text-xs">
+                    <span className="text-muted flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-ok" />
                       <span>New Valid Expiry Date:</span>
                     </span>
-                    <strong className="font-mono text-[#3DB88B] text-sm tabular-nums">
+                    <strong className="font-mono text-ok text-sm tabular-nums">
                       {computeProjectedExpiry()}
                     </strong>
                   </div>
 
                   {/* Remarks */}
                   <div>
-                    <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                    <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                       Renewal Notes (Optional)
                     </label>
                     <input
@@ -432,7 +432,7 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="e.g. Cleared at front desk..."
-                      className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-1.5 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                      className="w-full bg-panel border border-line rounded-[6px] px-3 py-1.5 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                     />
                   </div>
 
@@ -441,14 +441,14 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                     <button
                       type="button"
                       onClick={onClose}
-                      className="flex-1 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#262A30] border border-[#262A30] text-[#8B909A] hover:text-[#ECEAE6] font-semibold text-xs cursor-pointer transition-colors"
+                      className="flex-1 py-2 rounded-[6px] bg-panel hover:bg-hover border border-line text-muted hover:text-ink font-semibold text-xs cursor-pointer transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={isSuccess}
-                      className="flex-1 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                      className="flex-1 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     >
                       <CheckCircle className="w-4 h-4" />
                       <span>Confirm Renewal</span>
@@ -457,9 +457,9 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                 </div>
               </form>
             ) : (
-              <div className="py-8 text-center text-[#8B909A] space-y-2">
-                <UserCheck className="w-8 h-8 mx-auto text-[#262A30] stroke-[1.5]" />
-                <p className="font-medium text-[#ECEAE6]">No Member Selected</p>
+              <div className="py-8 text-center text-muted space-y-2">
+                <UserCheck className="w-8 h-8 mx-auto text-line-strong stroke-[1.5]" />
+                <p className="font-medium text-ink">No Member Selected</p>
                 <p className="text-[11px] max-w-xs mx-auto">
                   Type the member's unique ID above (e.g. <strong>the-gym-town-01</strong>) and click <strong>Verify ID</strong> to load their renewal profile.
                 </p>
