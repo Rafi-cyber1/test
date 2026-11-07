@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-The header has a **Dark / Light theme toggle** (Ice Blue `#168BFF` accent) and the choice is remembered per browser. Printed receipts use a black-on-white logo so they stay readable on thermal paper.
+The header has a **Dark / Light theme toggle** (Ice Blue `#168BFF` accent) and the choice is remembered per browser. Printed receipts use the original brand logo with a transparent background.
 
 A fresh install starts with **no demo members and an empty inventory** — the only pre-configured data is the membership plan price list (Cardio / Muscle Building, admission + monthly). Add members, products, and suppliers from the app itself.
 

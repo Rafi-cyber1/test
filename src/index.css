@@ -111,11 +111,6 @@
   font-family: var(--font-mono);
 }
 
-/* Logo swaps between the white/red mark (dark UI) and the black mark (light UI). */
-.logo-on-light { display: none; }
-html.light .logo-on-dark { display: none; }
-html.light .logo-on-light { display: block; }
-
 /* Brand-colored text needs a darker shade on light backgrounds for contrast. */
 html.light .text-brand { color: var(--accent-hover); }
 html.light .text-ok { color: var(--success); }

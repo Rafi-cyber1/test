@@ -204,10 +204,8 @@ Software created by CRYONIX`;
           >
             <style>{`@media print { @page { size: ${paperWidth}mm 200mm; margin: 0; } }`}</style>
             <header className="text-center pb-2 border-b border-black border-dashed">
-              {/* Same brand logo as the app; this copy has its dark background baked
-                  in so the white/red lettering stays visible on thermal paper. */}
               <img
-                src={`${import.meta.env.BASE_URL}logo-receipt.png`}
+                src={`${import.meta.env.BASE_URL}logo.png`}
                 alt={settings.gymName || 'The Gym Town'}
                 className="receipt-logo mx-auto mb-1 h-10 max-w-full object-contain"
                 onError={(event) => {
@@ -258,13 +256,13 @@ Software created by CRYONIX`;
 
             <div className="py-2 border-b border-black border-dashed">
               <div className="font-bold">LATE FEE / PENALTY NOTICE</div>
-              <div>Rs. 500 penalty is charged when the monthly fee is paid after its due date.</div>
+              <div>A penalty is charged when the monthly fee is paid after its due date.</div>
               <div>Pay on or before the due date to avoid the penalty.</div>
             </div>
             <footer className="pt-2 text-[9px] leading-snug">
               <div className="font-bold mb-1">IMPORTANT TERMS</div>
               <div>1. Membership fees are non-refundable.</div>
-              <div>2. Late payment penalty: Rs. 500 applies when the monthly fee is paid after the due date.</div>
+              <div>2. Late payment penalty applies when the monthly fee is paid after the due date.</div>
               <div>3. Accepted payment method: CASH ONLY.</div>
             </footer>
             <div className="pt-2 text-center text-[9px]">Thank you for your payment.</div>
