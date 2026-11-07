@@ -463,3 +463,141 @@ test('removing a member records the removal date and restoring clears it', () =>
 test('station address defaults to Hyder Chowk for new and migrated installs', () => {
   assert.equal(db.getSettings().address, 'Hyder Chowk, Near Opposite Sultan Fast Food');
 });
+
+test('full backup round-trips members, inventory, POS sales, expenses and the fee ledger', async () => {
+  db.clearAllData();
+  const today = new Date().toISOString().slice(0, 10);
+  const expiry = new Date(`${today}T00:00:00Z`);
+  expiry.setUTCDate(expiry.getUTCDate() + 30);
+
+  const member = db.addMember({
+    fullName: 'Backup Round Trip',
+    mobileNumber: '03001234001',
+    whatsappNumber: '03001234001',
+    gender: 'Male',
+    bloodGroup: 'O+',
+    registrationDate: today,
+    planId: 'plan_monthly',
+    planName: 'Cardio Only Monthly',
+    startDate: today,
+    expiryDate: expiry.toISOString().slice(0, 10),
+    emergencyContactName: 'Contact',
+    emergencyContactPhone: '03007654321',
+    totalFee: 2000,
+    paidAmount: 500,
+    monthlyFee: 2000,
+    admissionFee: 0,
+    billingMonths: 1,
+  }, 'BACKUP-TRIP-001');
+
+  const product = db.addProduct({
+    code: 'BK-01',
+    name: 'Backup Protein Shake',
+    category: 'Protein Shakes',
+    purchasePrice: 500,
+    sellingPrice: 800,
+    stockQuantity: 10,
+    minStockLevel: 2,
+    isActive: true,
+  });
+  db.recordSale({ items: [{ productId: product.id, quantity: 3 }], paymentMethod: 'Cash' });
+  db.recordExpense({
+    title: 'Electricity',
+    category: 'Electricity',
+    amount: 3000,
+    paymentMethod: 'Cash',
+    date: today,
+  });
+
+  const backup = db.exportBackupJson();
+  const parsedBackup = JSON.parse(backup);
+  assert.equal(parsedBackup.counts.products, 1);
+  assert.equal(parsedBackup.counts.sales, 1);
+  assert.equal(parsedBackup.database.products.length, 1);
+  assert.equal(parsedBackup.database.sales.length, 1);
+  assert.equal(parsedBackup.database.expenses.length, 1);
+  assert.equal(parsedBackup.database.memberFeeLedger.length > 0, true);
+
+  db.clearAllData();
+  assert.equal(db.getMembers().length, 0);
+  assert.equal(db.getProducts().length, 0);
+  assert.equal(db.getSales().length, 0);
+  assert.equal(db.getExpenses().length, 0);
+  assert.equal(db.getState().memberFeeLedger.length, 0);
+
+  const result = db.restoreBackupJson(backup);
+  assert.equal(result.success, true, result.message);
+  assert.match(result.message, /1 members/);
+  assert.match(result.message, /1 products/);
+
+  assert.equal(db.getMembers().length, 1);
+  assert.equal(db.getProducts().length, 1);
+  assert.equal(db.getProducts()[0].stockQuantity, 7);
+  assert.equal(db.getSales().length, 1);
+  assert.equal(db.getSales()[0].totalAmount, 2400);
+  assert.equal(db.getExpenses().length, 1);
+  assert.equal(db.getPayments().length, 1);
+  assert.equal(db.getMemberById(member.id)?.balanceDue, 1500);
+  const stockMovements = db.getInventoryTransactions(product.id);
+  assert.equal(stockMovements.length > 0, true);
+
+  // A reload must keep the restored balances (this used to wipe outstanding dues).
+  const reloaded: typeof import('../../src/db/storage') = await import('../../src/db/storage.ts?backup-reload=1');
+  assert.equal(reloaded.db.getMembers().length, 1);
+  assert.equal(reloaded.db.getProducts()[0].stockQuantity, 7);
+  assert.equal(reloaded.db.getSales().length, 1);
+  assert.equal(reloaded.db.getMemberById(member.id)?.balanceDue, 1500);
+  assert.equal(reloaded.db.getMemberById(member.id)?.totalFee, 2000);
+});
+
+test('legacy backups without a fee ledger still restore the outstanding balance', () => {
+  const legacyBackup = {
+    database: {
+      members: [{
+        id: 'mem_legacy_backup',
+        rollNumber: 'LEGACY-001',
+        fullName: 'Legacy Backup Member',
+        mobileNumber: '03001234999',
+        whatsappNumber: '03001234999',
+        gender: 'Male',
+        bloodGroup: 'A+',
+        registrationDate: '2026-01-01',
+        planId: 'plan_monthly',
+        planName: 'Cardio Only Monthly',
+        startDate: '2026-01-01',
+        expiryDate: '2026-02-01',
+        emergencyContactName: 'Contact',
+        emergencyContactPhone: '03007654321',
+        status: 'ACTIVE',
+        paymentStatus: 'PARTIAL',
+        totalFee: 6000,
+        paidAmount: 1000,
+        balanceDue: 5000,
+        archived: false,
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      }],
+      payments: [{
+        id: 'pay_legacy',
+        receiptNumber: 'REC-2026-0001',
+        memberId: 'mem_legacy_backup',
+        rollNumber: 'LEGACY-001',
+        memberName: 'Legacy Backup Member',
+        amount: 1000,
+        paymentMethod: 'Cash',
+        paymentType: 'MEMBERSHIP',
+        receivedBy: 'Front Desk',
+        createdAt: '2026-01-01 10:00:00',
+      }],
+      settings: { address: 'Some Old Address' },
+    },
+  };
+
+  const result = db.restoreBackupJson(JSON.stringify(legacyBackup));
+  assert.equal(result.success, true, result.message);
+  const restored = db.getMemberById('mem_legacy_backup');
+  assert.equal(restored?.totalFee, 6000);
+  assert.equal(restored?.paidAmount, 1000);
+  assert.equal(restored?.balanceDue, 5000);
+  assert.equal(db.getSettings().address, 'Some Old Address');
+  assert.equal(db.getProducts().length, 0);
+});

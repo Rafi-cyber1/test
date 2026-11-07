@@ -33,6 +33,7 @@ export const ApplicationSettings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'receptionist' | 'gym' | 'database' | 'audit'>('receptionist');
 
   const auditLogs = db.getState().auditLogs;
+  const backupCounts = db.getBackupCounts();
 
   const validatePhoneNumbers = (phones: Array<{ label: string; value: string }>) => {
     const invalidPhone = phones.find(({ value }) => value.trim() && !db.isValidPhoneNumber(value));
@@ -103,11 +104,11 @@ export const ApplicationSettings: React.FC = () => {
   const handleClearAllData = () => {
     if (
       confirm(
-        'Are you sure you want to clear all data? This will remove all registered members, attendance logs, and payments for a clean slate.'
+        'Clear ALL records? This removes members, fee ledger, receipts, attendance, expenses, inventory products, POS sales, stock purchases, and suppliers. Plans and station settings are kept. Export a backup first if you may need this data.'
       )
     ) {
       db.clearAllData();
-      setRestoreStatus('All data cleared. Database is 100% fresh with zero records.');
+      setRestoreStatus('All operational records cleared. Plans and station settings were kept.');
       setTimeout(() => setRestoreStatus(null), 4000);
     }
   };
@@ -357,7 +358,10 @@ export const ApplicationSettings: React.FC = () => {
               Database Protection & Backup Snapshot
             </h3>
             <p className="text-muted text-[11px] mt-0.5">
-              Export all members, attendance records, inventory stock, sales invoices, and ledger receipts to a secure JSON file.
+              One JSON file with <strong className="text-ink">everything</strong>: members &amp; removed members, plans,
+              fee ledger, receipts, attendance, expenses, inventory products, POS sales, stock purchases, suppliers,
+              notifications, station settings, and the audit trail. Restoring it brings every module back exactly as
+              it was.
             </p>
           </div>
 
@@ -371,19 +375,43 @@ export const ApplicationSettings: React.FC = () => {
             </div>
           )}
 
-          <div className="p-4 rounded-[6px] bg-raised border border-line space-y-1.5">
-            <span className="font-semibold text-xs text-ink block">Fresh station data</span>
-            <p className="text-[11px] text-muted">
-              This installation ships with no demo members and an empty inventory. Every member, sale, and
-              stock item you see from now on is real station data.
-            </p>
+          <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold text-xs text-ink block">What the next backup will contain</span>
+              <span className="text-[10px] font-mono text-muted">schema v3 · full database</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {[
+                { label: 'Members', value: backupCounts.members },
+                { label: 'Removed members', value: backupCounts.removedMembers },
+                { label: 'Plans', value: backupCounts.plans },
+                { label: 'Fee ledger entries', value: backupCounts.ledgerEntries },
+                { label: 'Receipts / payments', value: backupCounts.payments },
+                { label: 'Attendance', value: backupCounts.attendance },
+                { label: 'Expenses', value: backupCounts.expenses },
+                { label: 'Inventory products', value: backupCounts.products },
+                { label: 'POS sales', value: backupCounts.sales },
+                { label: 'Stock purchases', value: backupCounts.stockPurchases },
+                { label: 'Suppliers', value: backupCounts.suppliers },
+                { label: 'Notifications', value: backupCounts.notifications },
+                { label: 'Audit log entries', value: backupCounts.auditLogs },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center justify-between gap-2 rounded-[4px] border border-line bg-panel px-2 py-1.5"
+                >
+                  <span className="text-[10px] text-muted truncate">{item.label}</span>
+                  <span className="font-mono text-[11px] font-bold text-ink tabular-nums">{item.value}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2">
-              <span className="font-semibold text-xs text-ink block">Export Backup JSON</span>
+              <span className="font-semibold text-xs text-ink block">Export Full Backup JSON</span>
               <p className="text-[11px] text-muted">
-                Download complete snapshot to local disk.
+                Downloads members + inventory + sales + fees in a single file.
               </p>
               <button
                 type="button"
@@ -391,14 +419,14 @@ export const ApplicationSettings: React.FC = () => {
                 className="w-full mt-2 py-2 rounded-[6px] bg-panel hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Export JSON Backup</span>
+                <span>Export Full Backup</span>
               </button>
             </div>
 
             <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2">
               <span className="font-semibold text-xs text-ink block">Restore from Backup</span>
               <p className="text-[11px] text-muted">
-                Load an existing backup JSON file into database.
+                Replaces the current data with the full contents of the chosen file.
               </p>
               <label className="w-full mt-2 py-2 rounded-[6px] bg-panel hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 cursor-pointer">
                 <Upload className="w-3.5 h-3.5" />
@@ -411,12 +439,15 @@ export const ApplicationSettings: React.FC = () => {
           <div className="pt-4 border-t border-line flex items-center justify-between">
             <div>
               <span className="font-semibold text-xs text-bad block">Clear All Records</span>
-              <span className="text-[11px] text-muted">Reset members and transactions to zero for a clean start.</span>
+              <span className="text-[11px] text-muted">
+                Removes members, fees, receipts, attendance, expenses, inventory, sales, purchases, and suppliers.
+                Plans and station settings are kept.
+              </span>
             </div>
             <button
               type="button"
               onClick={handleClearAllData}
-              className="px-3.5 py-1.5 rounded-[6px] bg-raised hover:bg-bad hover:text-ink border border-bad/40 text-bad text-xs font-semibold transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-[6px] bg-raised hover:bg-bad hover:text-white border border-bad/40 text-bad text-xs font-semibold transition-colors cursor-pointer"
             >
               Clear Database
             </button>

@@ -15,7 +15,7 @@ The header has a **Dark / Light theme toggle** (Ice Blue `#168BFF` accent) and t
 
 A fresh install starts with **no demo members and an empty inventory** — the only pre-configured data is the membership plan price list (Cardio / Muscle Building, admission + monthly). Add members, products, and suppliers from the app itself.
 
-The browser app stores its data in that browser's `localStorage`. Data is local to the browser profile and is not synchronized between computers. Use **Settings → Backup & Restore** to export or restore a JSON backup.
+The browser app stores its data in that browser's `localStorage`. Data is local to the browser profile and is not synchronized between computers. Use **Settings → Backup & Restore** to export or restore a JSON backup. The backup file is a *full* snapshot — members, plans, fee ledger, receipts, attendance, expenses, **inventory products, POS sales, stock purchases, suppliers**, notifications, station settings, and the audit trail — and restoring it brings every one of those modules back (older member-only backups are still accepted).
 
 ## Desktop app
 

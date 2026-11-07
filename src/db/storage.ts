@@ -29,6 +29,7 @@ import {
 import { appStorage } from './appStorage';
 
 const STORAGE_PREFIX = 'tgt_db_';
+const BACKUP_SCHEMA_VERSION = 3;
 const CLEAN_V2_FLAG = 'tgt_db_clean_v2';
 const BLOOD_GROUPS = new Set<BloodGroup>(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
 const INVALID_PHONE_NUMBER_ERROR =
@@ -2296,56 +2297,182 @@ class DatabaseManager {
 
   // --- BACKUP & RESTORE & FRESH START ---
 
+  /**
+   * What a backup file holds — shown on the Settings screen so the operator can
+   * see that the snapshot covers every module, not only members.
+   */
+  public getBackupCounts(state: DatabaseState = this.state): {
+    members: number;
+    removedMembers: number;
+    plans: number;
+    ledgerEntries: number;
+    payments: number;
+    attendance: number;
+    expenses: number;
+    products: number;
+    sales: number;
+    stockPurchases: number;
+    suppliers: number;
+    notifications: number;
+    auditLogs: number;
+  } {
+    return {
+      members: state.members.length,
+      removedMembers: state.members.filter((member) => member.archived).length,
+      plans: state.plans.length,
+      ledgerEntries: state.memberFeeLedger.length,
+      payments: state.payments.length,
+      attendance: state.attendance.length,
+      expenses: state.expenses.length,
+      products: (state.products || []).length,
+      sales: (state.sales || []).length,
+      stockPurchases: (state.stockPurchases || []).length,
+      suppliers: (state.suppliers || []).length,
+      notifications: state.notifications.length,
+      auditLogs: state.auditLogs.length,
+    };
+  }
+
+  /**
+   * Wipes every operational record (members, fees, payments, attendance, POS,
+   * inventory, suppliers) for a brand-new station. Plans and station settings
+   * are configuration, so they are kept.
+   */
   public clearAllData(): void {
     this.state.members = [];
     this.state.membershipHistory = [];
+    this.state.memberFeeLedger = [];
     this.state.attendance = [];
     this.state.payments = [];
     this.state.expenses = [];
     this.state.doorLogs = [];
     this.state.notifications = [];
-    this.addAuditLog('SYSTEM', 'Clean Database Initialized', 'Cleared all member, attendance, and financial records for fresh start');
+    this.state.products = [];
+    this.state.sales = [];
+    this.state.stockPurchases = [];
+    this.state.inventoryTransactions = [];
+    this.state.suppliers = [];
+    this.addAuditLog(
+      'SYSTEM',
+      'Clean Database Initialized',
+      'Cleared members, fee ledger, payments, attendance, expenses, inventory, sales, purchases, and suppliers for a fresh start'
+    );
     this.persist();
   }
 
+  /**
+   * Complete JSON snapshot: members, plans, fee ledger, payments, attendance,
+   * expenses, inventory, POS sales, purchases, suppliers, notifications,
+   * settings, and the audit trail.
+   */
   public exportBackupJson(): string {
     const payload = {
       exportTimestamp: new Date().toISOString(),
       software: 'The Gym Town Enterprise Desktop - Hyderabad Desk',
-      version: '2.5.0-win64',
+      version: '3.0.0',
+      schemaVersion: BACKUP_SCHEMA_VERSION,
+      counts: this.getBackupCounts(),
       database: this.state,
     };
     this.state.lastBackupDate = new Date().toISOString();
-    this.addAuditLog('SYSTEM', 'Database Backup', 'Exported complete database JSON snapshot');
+    this.addAuditLog(
+      'SYSTEM',
+      'Database Backup',
+      `Exported full database snapshot (${this.state.members.length} members, ${(this.state.products || []).length} products, ${(this.state.sales || []).length} sales)`
+    );
     this.persist();
     return JSON.stringify(payload, null, 2);
   }
 
+  /**
+   * Restores every module from a backup file. Older backups that only carried
+   * members/payments are still accepted: their fee ledger is rebuilt from the
+   * membership history and payment records so balances are never lost.
+   */
   public restoreBackupJson(jsonString: string): { success: boolean; message: string } {
     try {
-      const parsed = JSON.parse(jsonString);
-      const data = parsed.database || parsed;
-      if (!data.members || !Array.isArray(data.members)) {
+      const parsed = JSON.parse(jsonString) as { database?: unknown } | unknown;
+      const data = (parsed && typeof parsed === 'object' && 'database' in parsed
+        ? (parsed as { database?: unknown }).database
+        : parsed) as Record<string, unknown> | null;
+
+      if (!data || typeof data !== 'object' || Array.isArray(data) || !Array.isArray(data.members)) {
         return { success: false, message: 'Invalid backup file structure. Missing members table.' };
       }
 
-      this.state = {
-        ...this.state,
-        members: data.members,
-        plans: data.plans || this.state.plans,
-        membershipHistory: data.membershipHistory || this.state.membershipHistory,
-        attendance: data.attendance || this.state.attendance,
-        payments: data.payments || this.state.payments,
-        expenses: data.expenses || this.state.expenses,
-        doorLogs: data.doorLogs || this.state.doorLogs,
-        notifications: data.notifications || this.state.notifications,
-        settings: data.settings || this.state.settings,
-        lastBackupDate: new Date().toISOString(),
+      const list = <T>(value: unknown, fallback: T[] = []): T[] =>
+        Array.isArray(value) ? (value as T[]) : fallback;
+
+      const members = data.members as Member[];
+      const membershipHistory = list<MembershipHistory>(data.membershipHistory);
+      const payments = list<PaymentRecord>(data.payments);
+      const ledger = Array.isArray(data.memberFeeLedger)
+        ? (data.memberFeeLedger as MemberFeeLedgerEntry[])
+        : this.createLegacyMemberFeeLedger(members, membershipHistory, payments);
+      const settings: GymSettings = {
+        ...DEFAULT_SETTINGS,
+        ...((data.settings as Partial<GymSettings>) || {}),
+        receptionistProfile: (data.settings as Partial<GymSettings>)?.receptionistProfile
+          || DEFAULT_SETTINGS.receptionistProfile,
       };
 
-      this.addAuditLog('SYSTEM', 'Database Restore', 'Successfully restored database from file backup');
-      this.persist();
-      return { success: true, message: `Successfully restored database (${data.members.length} members loaded).` };
+      // Best-effort safety copy of the current data before it is overwritten.
+      try {
+        appStorage.setItem(`${STORAGE_PREFIX}pre_restore`, JSON.stringify(this.state));
+      } catch {
+        /* not enough space — continue with the restore */
+      }
+
+      this.state = {
+        members,
+        plans: list<MembershipPlan>(data.plans).length > 0
+          ? list<MembershipPlan>(data.plans)
+          : DEFAULT_PLANS,
+        membershipHistory,
+        memberFeeLedger: ledger,
+        attendance: list<AttendanceRecord>(data.attendance),
+        payments,
+        expenses: list<ExpenseRecord>(data.expenses),
+        doorLogs: list<DoorAccessLog>(data.doorLogs),
+        notifications: list<WhatsAppNotification>(data.notifications),
+        users: list<UserAccount>(data.users).length > 0 ? list<UserAccount>(data.users) : this.state.users,
+        auditLogs: list<AuditLog>(data.auditLogs, this.state.auditLogs),
+        settings,
+        currentUser: {
+          ...this.state.currentUser,
+          fullName: settings.receptionistProfile?.name || this.state.currentUser.fullName,
+        },
+        lastBackupDate: new Date().toISOString(),
+        products: list<Product>(data.products),
+        sales: list<Sale>(data.sales),
+        stockPurchases: list<StockPurchase>(data.stockPurchases),
+        inventoryTransactions: list<InventoryTransaction>(data.inventoryTransactions),
+        suppliers: list<Supplier>(data.suppliers),
+      };
+
+      this.purgeLegacyDemoRecords();
+      this.recomputeLedgerBalances();
+      this.recomputeStatuses();
+
+      const counts = this.getBackupCounts();
+      this.addAuditLog(
+        'SYSTEM',
+        'Database Restore',
+        `Restored full database from file backup (${counts.members} members, ${counts.products} products, ${counts.sales} sales, ${counts.payments} receipts)`
+      );
+      try {
+        this.persist();
+      } catch (error) {
+        return {
+          success: false,
+          message: `Backup data is larger than this browser can store: ${error instanceof Error ? error.message : 'storage error'}`,
+        };
+      }
+
+      return {
+        success: true,
+        message: `Backup restored — ${counts.members} members (${counts.removedMembers} removed), ${counts.ledgerEntries} ledger entries, ${counts.payments} receipts, ${counts.attendance} attendance, ${counts.expenses} expenses, ${counts.products} products, ${counts.sales} sales, ${counts.stockPurchases} purchases, ${counts.suppliers} suppliers.`,
+      };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown parsing error';
       return { success: false, message: `Failed to restore database: ${msg}` };
