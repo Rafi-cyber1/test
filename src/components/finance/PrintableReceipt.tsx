@@ -204,8 +204,10 @@ Software created by CRYONIX`;
           >
             <style>{`@media print { @page { size: ${paperWidth}mm 200mm; margin: 0; } }`}</style>
             <header className="text-center pb-2 border-b border-black border-dashed">
+              {/* Same brand logo as the app; this copy has its dark background baked
+                  in so the white/red lettering stays visible on thermal paper. */}
               <img
-                src={`${import.meta.env.BASE_URL}logo-print.svg`}
+                src={`${import.meta.env.BASE_URL}logo-receipt.png`}
                 alt={settings.gymName || 'The Gym Town'}
                 className="receipt-logo mx-auto mb-1 h-10 max-w-full object-contain"
                 onError={(event) => {

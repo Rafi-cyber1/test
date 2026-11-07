@@ -26,7 +26,9 @@ export const GymTownLogo: React.FC<GymTownLogoProps> = ({
 
   return (
     <div className={`inline-flex items-center gap-2.5 min-w-0 ${className}`}>
-      {/* White/red mark on dark UI, black mark on light UI */}
+      {/* Original brand mark: transparent version on the dark UI and the same
+          artwork on its black background for the light UI, where white lettering
+          would otherwise disappear. */}
       <img
         src={`${import.meta.env.BASE_URL}logo.png`}
         alt={settings.gymName || 'The Gym Town'}
@@ -36,9 +38,9 @@ export const GymTownLogo: React.FC<GymTownLogoProps> = ({
         }}
       />
       <img
-        src={`${import.meta.env.BASE_URL}logo-print.svg`}
+        src={`${import.meta.env.BASE_URL}logo-receipt.png`}
         alt={settings.gymName || 'The Gym Town'}
-        className={`${currentSize.image} logo-on-light w-auto object-contain shrink-0`}
+        className={`${currentSize.image} logo-on-light w-auto object-contain rounded-[3px] shrink-0`}
         onError={(event) => {
           event.currentTarget.hidden = true;
         }}

@@ -357,7 +357,7 @@ export const MemberFeeLedger: React.FC<MemberFeeLedgerProps> = ({
           <div className="print-fee-record" aria-hidden="true">
             <header>
               <img
-                src={`${import.meta.env.BASE_URL}logo-print.svg`}
+                src={`${import.meta.env.BASE_URL}logo-receipt.png`}
                 alt={db.getSettings().gymName || 'THE GYM TOWN'}
                 style={{ height: '14mm', margin: '0 auto 3mm' }}
               />
