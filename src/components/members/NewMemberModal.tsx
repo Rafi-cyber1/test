@@ -15,9 +15,7 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
   onClose,
   onMemberCreated,
 }) => {
-  const plans = db.getPlans().filter(
-    (p) => p.isActive && (p.trainingType === 'CARDIO' || p.trainingType === 'MUSCLE_BUILDING')
-  );
+  const plans = db.getPlans().filter((p) => p.isActive);
   const nextRoll = db.generateNextRollNumber();
 
   const defaultPlan = plans.find((p) => p.id === 'plan_admission_advance') || plans[0];
@@ -276,6 +274,35 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
       return;
     }
 
+    // A custom plan created here is stored as a real plan so it can be reused
+    // for renewals and shows up under Plans & Fee Rates.
+    let resolvedPlanId = selectedPlan.id;
+    let resolvedPlanName = selectedPlan.name;
+    if (isCustomPlan) {
+      const planName = customPlanName.trim();
+      if (!planName) {
+        setFormError('Please enter a name for the custom plan');
+        return;
+      }
+      const months = Math.max(1, Math.min(36, Number(billingMonths) || 1));
+      const monthlyFeeValue = Number(regularFee) || 0;
+      const existingPlan = db.getPlans().find(
+        (plan) => plan.name.trim().toLowerCase() === planName.toLowerCase() && plan.price === monthlyFeeValue
+      );
+      const savedPlan = existingPlan || db.addPlan({
+        name: planName,
+        price: monthlyFeeValue,
+        durationDays: months * 30,
+        durationMonths: months,
+        description: `Custom plan created at member registration (${months} month${months === 1 ? '' : 's'})`,
+        isActive: true,
+        trainingType: 'CUSTOM',
+        features: [],
+      });
+      resolvedPlanId = savedPlan.id;
+      resolvedPlanName = savedPlan.name;
+    }
+
     const memberData = {
       fullName: fullName.trim(),
       fatherName: fatherName.trim() || undefined,
@@ -287,8 +314,8 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
       dateOfBirth: dateOfBirth || undefined,
       address: address.trim() || undefined,
       registrationDate: new Date().toISOString().split('T')[0],
-      planId: isCustomPlan ? `custom_${Date.now()}` : selectedPlan.id,
-      planName: isCustomPlan ? customPlanName.trim() || 'Custom Membership' : selectedPlan.name,
+      planId: resolvedPlanId,
+      planName: resolvedPlanName,
       startDate,
       expiryDate,
       emergencyContactName: emergencyName.trim() || 'Not Provided',
@@ -329,17 +356,17 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-[2px] transition-all">
       {/* 480px Right-side Slide-over Drawer */}
-      <div className="w-[480px] max-w-full bg-[#1C1F23] border-l border-[#262A30] h-full flex flex-col shadow-2xl">
+      <div className="w-[480px] max-w-full bg-raised border-l border-line h-full flex flex-col shadow-2xl">
         {/* Drawer Header */}
-        <div className="p-4 border-b border-[#262A30] flex items-center justify-between bg-[#15171A]">
+        <div className="p-4 border-b border-line flex items-center justify-between bg-panel">
           <div>
-            <h2 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-[#ECEAE6] flex items-center gap-2">
+            <h2 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-ink flex items-center gap-2">
               <span>{returningMember ? 'Rejoin Existing Member' : 'Enroll New Member'}</span>
-              <span className="font-mono text-xs text-[#D9383A] bg-[#0D0E10] px-2 py-0.5 rounded-[4px] border border-[#262A30]">
+              <span className="font-mono text-xs text-brand bg-app px-2 py-0.5 rounded-[4px] border border-line">
                 {rollNumber}
               </span>
             </h2>
-            <p className="text-[11px] text-[#8B909A] mt-0.5">
+            <p className="text-[11px] text-muted mt-0.5">
               {returningMember ? 'Existing roll number and full history retained' : 'Unique member roll number and editable fee breakdown'}
             </p>
           </div>
@@ -349,7 +376,7 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
               stopCamera();
               onClose();
             }}
-            className="p-1 text-[#8B909A] hover:text-[#ECEAE6] rounded-[4px] cursor-pointer"
+            className="p-1 text-muted hover:text-ink rounded-[4px] cursor-pointer"
           >
             <X className="w-4 h-4 stroke-[1.5]" />
           </button>
@@ -358,14 +385,14 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
         {/* Drawer Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
           {formError && (
-            <div role="alert" className="p-2.5 rounded-[6px] bg-[#15171A] border-l-4 border-l-[#E5484D] border-[#262A30] text-[#E5484D] flex items-center gap-2 text-xs font-medium">
+            <div role="alert" className="p-2.5 rounded-[6px] bg-panel border-l-4 border-l-bad border-line text-bad flex items-center gap-2 text-xs font-medium">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{formError}</span>
             </div>
           )}
 
           {duplicateWarning && (
-            <div className="p-2.5 rounded-[6px] bg-[#15171A] border-l-4 border-l-[#E5AE4A] border-[#262A30] text-[#E5AE4A] flex items-center gap-2 text-[11px]">
+            <div className="p-2.5 rounded-[6px] bg-panel border-l-4 border-l-warn border-line text-warn flex items-center gap-2 text-[11px]">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span>{duplicateWarning}</span>
             </div>
@@ -373,7 +400,7 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
 
           {/* Section 1: Package Selection Cards */}
           <div>
-            <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1.5">
+            <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1.5">
               Membership Plan Package *
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -386,17 +413,17 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                     onClick={() => handleSelectPlan(p)}
                     className={`p-2.5 rounded-[6px] border text-left transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#15171A] border-[#D9383A] text-[#ECEAE6]'
-                        : 'bg-[#15171A] border-[#262A30] text-[#8B909A] hover:text-[#ECEAE6]'
+                        ? 'bg-panel border-brand text-ink'
+                        : 'bg-panel border-line text-muted hover:text-ink'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-xs text-[#ECEAE6] truncate">{p.name}</span>
+                      <span className="font-semibold text-xs text-ink truncate">{p.name}</span>
                     </div>
-                    <div className="font-condensed text-base font-bold text-[#D9383A] tabular-nums mt-0.5">
+                    <div className="font-condensed text-base font-bold text-brand tabular-nums mt-0.5">
                       Rs. {p.price.toLocaleString()}
                     </div>
-                    <span className="text-[10px] text-[#8B909A] block mt-0.5">
+                    <span className="text-[10px] text-muted block mt-0.5">
                       {p.id.startsWith('plan_admission') ? 'Admission + first month' : 'Per month'} · Till {calculateExpiry(startDate, p)}
                     </span>
                   </button>
@@ -407,28 +434,75 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                 onClick={handleSelectCustomPlan}
                 className={`p-2.5 rounded-[6px] border text-left transition-all cursor-pointer ${
                   isCustomPlan
-                    ? 'bg-[#15171A] border-[#D9383A] text-[#ECEAE6]'
-                    : 'bg-[#15171A] border-[#262A30] text-[#8B909A] hover:text-[#ECEAE6]'
+                    ? 'bg-panel border-brand text-ink'
+                    : 'bg-panel border-line text-muted hover:text-ink'
                 }`}
               >
-                <span className="font-semibold text-xs text-[#ECEAE6]">Custom Plan</span>
-                <span className="text-[10px] text-[#8B909A] block mt-1">Set fee and number of months</span>
+                <span className="font-semibold text-xs text-ink">+ Create New Plan</span>
+                <span className="text-[10px] text-muted block mt-1">Make a custom plan right here</span>
               </button>
             </div>
+
+            {isCustomPlan && (
+              <div className="mt-2 p-3 rounded-[6px] border border-brand/40 bg-raised space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] uppercase tracking-wider text-muted font-semibold">
+                    New Custom Plan
+                  </span>
+                  <span className="text-[10px] font-semibold text-brand">
+                    Will be saved to Plans &amp; Fee Rates
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-medium">
+                    Plan Name *
+                    <input
+                      type="text"
+                      required
+                      value={customPlanName}
+                      onChange={(event) => setCustomPlanName(event.target.value)}
+                      placeholder="e.g. Student Evening Plan"
+                      className="mt-1 w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
+                    />
+                  </label>
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-medium">
+                    Duration (Months) *
+                    <input
+                      type="number"
+                      min="1"
+                      max="36"
+                      required
+                      value={billingMonths}
+                      onChange={(event) => {
+                        const months = Math.max(1, Math.min(36, Number(event.target.value) || 1));
+                        setBillingMonths(months);
+                        setPaidAmount((Number(admissionFee) || 0) + (Number(regularFee) || 0) * months);
+                      }}
+                      className="mt-1 w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink"
+                    />
+                  </label>
+                </div>
+                <p className="text-[10px] text-muted">
+                  Monthly fee is taken from <strong className="text-ink">Monthly Fee (PKR)</strong> below —
+                  Rs. {(Number(regularFee) || 0).toLocaleString()} × {billingMonths} month{billingMonths === 1 ? '' : 's'}.
+                  This plan stays available for future renewals.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Section 2: Member Core Information */}
-          <div className="p-3.5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-3">
-            <span className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block">
+          <div className="p-3.5 rounded-[8px] bg-panel border border-line space-y-3">
+            <span className="text-[11px] uppercase tracking-wider text-muted font-semibold block">
               Member Identification
             </span>
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="member-roll-number" className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block">
+                <label htmlFor="member-roll-number" className="text-[11px] uppercase tracking-wider text-muted font-medium block">
                   Member Unique ID / Roll # *
                 </label>
-                <span className="text-[10px] text-[#D9383A] font-mono font-bold">
+                <span className="text-[10px] text-brand font-mono font-bold">
                   Auto-formatted: the-gym-town-01
                 </span>
               </div>
@@ -442,12 +516,12 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                 onChange={(e) => setRollNumber(e.target.value)}
                 placeholder="the-gym-town-01"
                 readOnly={Boolean(returningMember)}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
 
             <div>
-              <label htmlFor="member-full-name" className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+              <label htmlFor="member-full-name" className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                 Full Name *
               </label>
               <input
@@ -457,13 +531,13 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Ali Raza"
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
               <div>
-                <label htmlFor="member-mobile-number" className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label htmlFor="member-mobile-number" className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Mobile (WhatsApp) *
                 </label>
                 <input
@@ -474,13 +548,13 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                   value={mobileNumber}
                   onChange={(e) => handleMobileChange(e.target.value)}
                   placeholder="0300 1234567"
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
-                <span className="mt-1 block text-[10px] text-[#8B909A]">Enter 11 digits (or 12 digits with country code 92).</span>
+                <span className="mt-1 block text-[10px] text-muted">Enter 11 digits (or 12 digits with country code 92).</span>
               </div>
 
               <div>
-                <label htmlFor="member-blood-group" className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label htmlFor="member-blood-group" className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Blood Group *
                 </label>
                 <select
@@ -489,7 +563,7 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                   value={bloodGroup}
                   onChange={(e) => setBloodGroup(e.target.value as BloodGroup | '')}
                   required
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 >
                   <option value="" disabled>Select blood group</option>
                   {(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const).map((group) => (
@@ -499,13 +573,13 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Gender
                 </label>
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value as any)}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 >
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -516,77 +590,46 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
 
             <div className="grid grid-cols-2 gap-2.5">
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Start Date
                 </label>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-1.5 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-1.5 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Expiry Date
                 </label>
                 <input
                   type="date"
                   value={expiryDate}
                   readOnly
-                  className="w-full bg-[#0D0E10] border border-[#262A30] rounded-[6px] px-3 py-1.5 text-xs font-mono font-bold text-[#D9383A]"
+                  className="w-full bg-app border border-line rounded-[6px] px-3 py-1.5 text-xs font-mono font-bold text-brand"
                 />
               </div>
             </div>
           </div>
 
           {/* Section 3: ADVANCED FEE MANAGEMENT (Separate Admission & Monthly Fee Inputs) */}
-          <div className="p-3.5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-3">
+          <div className="p-3.5 rounded-[8px] bg-panel border border-line space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold">
+              <span className="text-[11px] uppercase tracking-wider text-muted font-semibold">
                 Fee Breakdown & Customization
               </span>
-              <span className="font-condensed text-sm font-bold text-[#ECEAE6] tabular-nums">
+              <span className="font-condensed text-sm font-bold text-ink tabular-nums">
                 Total: Rs. {calculatedTotalFee.toLocaleString()}
               </span>
             </div>
 
-            {isCustomPlan && (
-              <div className="grid grid-cols-2 gap-2.5">
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium">
-                  Custom Plan Name
-                  <input
-                    type="text"
-                    required
-                    value={customPlanName}
-                    onChange={(event) => setCustomPlanName(event.target.value)}
-                    className="mt-1 w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
-                  />
-                </label>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium">
-                  Months
-                  <input
-                    type="number"
-                    min="1"
-                    max="36"
-                    required
-                    value={billingMonths}
-                    onChange={(event) => {
-                      const months = Math.max(1, Math.min(36, Number(event.target.value) || 1));
-                      setBillingMonths(months);
-                      setPaidAmount((Number(admissionFee) || 0) + (Number(regularFee) || 0) * months);
-                    }}
-                    className="mt-1 w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
-                  />
-                </label>
-              </div>
-            )}
-
             <div className="grid grid-cols-2 gap-2.5">
               {/* Separate New Admission Fee Input */}
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Admission Fee (PKR)
                 </label>
                 <input
@@ -598,14 +641,14 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                     setAdmissionFee(val);
                     setPaidAmount(val + (Number(regularFee) || 0) * (isCustomPlan ? billingMonths : 1));
                   }}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
-                <span className="text-[10px] text-[#8B909A] mt-0.5 block">One-time / advance</span>
+                <span className="text-[10px] text-muted mt-0.5 block">One-time / advance</span>
               </div>
 
               {/* Separate Regular Membership Fee Input */}
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Monthly Fee (PKR)
                 </label>
                 <input
@@ -617,9 +660,9 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                     setRegularFee(val);
                     setPaidAmount((Number(admissionFee) || 0) + val * (isCustomPlan ? billingMonths : 1));
                   }}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
-                <span className="text-[10px] text-[#8B909A] mt-0.5 block">
+                <span className="text-[10px] text-muted mt-0.5 block">
                   {isCustomPlan ? `Monthly fee × ${billingMonths} months` : 'Billed each calendar month'}
                 </span>
               </div>
@@ -627,7 +670,7 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
 
             <div className="grid grid-cols-2 gap-2.5 pt-1">
               <div>
-                <label htmlFor="member-paid-amount" className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label htmlFor="member-paid-amount" className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Amount Received *
                 </label>
                 <input
@@ -636,24 +679,24 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
                   min="0"
                   value={paidAmount}
                   onChange={(e) => setPaidAmount(Number(e.target.value) || 0)}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
                 <div className="text-[10px] mt-0.5 font-mono">
                   Balance:{' '}
-                  <strong className={calculatedTotalFee - paidAmount > 0 ? 'text-[#E5484D]' : 'text-[#3DB88B]'}>
+                  <strong className={calculatedTotalFee - paidAmount > 0 ? 'text-bad' : 'text-ok'}>
                     Rs. {Math.max(0, calculatedTotalFee - paidAmount).toLocaleString()}
                   </strong>
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-medium block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-medium block mb-1">
                   Payment Mode
                 </label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 >
                   <option value="Cash">Cash (Front Desk)</option>
                 </select>
@@ -662,90 +705,90 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
           </div>
 
           {/* Optional Extended Fields Accordion */}
-          <div className="border border-[#262A30] rounded-[6px] overflow-hidden bg-[#15171A]">
+          <div className="border border-line rounded-[6px] overflow-hidden bg-panel">
             <button
               type="button"
               onClick={() => setShowOptionalFields(!showOptionalFields)}
-              className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-semibold text-[#8B909A] hover:text-[#ECEAE6] transition-colors cursor-pointer"
+              className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-semibold text-muted hover:text-ink transition-colors cursor-pointer"
             >
               <span>Additional Details (CNIC, Address, Photo, Emergency Contact)</span>
               <span className="font-mono text-xs">{showOptionalFields ? '−' : '+'}</span>
             </button>
 
             {showOptionalFields && (
-              <div className="p-3.5 border-t border-[#262A30] space-y-3 text-xs bg-[#1C1F23]">
+              <div className="p-3.5 border-t border-line space-y-3 text-xs bg-raised">
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="text-[10px] uppercase text-[#8B909A] block mb-1">Father's Name</label>
+                    <label className="text-[10px] uppercase text-muted block mb-1">Father's Name</label>
                     <input
                       type="text"
                       value={fatherName}
                       onChange={(e) => setFatherName(e.target.value)}
                       placeholder="Father name"
-                      className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-2.5 py-1.5 text-xs text-[#ECEAE6]"
+                      className="w-full bg-panel border border-line rounded-[6px] px-2.5 py-1.5 text-xs text-ink"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[10px] uppercase text-[#8B909A] block mb-1">CNIC #</label>
+                    <label className="text-[10px] uppercase text-muted block mb-1">CNIC #</label>
                     <input
                       type="text"
                       value={cnic}
                       onChange={(e) => setCnic(e.target.value)}
                       placeholder="41303-xxxxxxx-x"
-                      className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-2.5 py-1.5 text-xs font-mono text-[#ECEAE6]"
+                      className="w-full bg-panel border border-line rounded-[6px] px-2.5 py-1.5 text-xs font-mono text-ink"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase text-[#8B909A] block mb-1">Address / Area</label>
+                  <label className="text-[10px] uppercase text-muted block mb-1">Address / Area</label>
                   <input
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="e.g. Saddar, Latifabad Unit 6, Hyderabad"
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-2.5 py-1.5 text-xs text-[#ECEAE6]"
+                    className="w-full bg-panel border border-line rounded-[6px] px-2.5 py-1.5 text-xs text-ink"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="text-[10px] uppercase text-[#8B909A] block mb-1">Emergency Name</label>
+                    <label className="text-[10px] uppercase text-muted block mb-1">Emergency Name</label>
                     <input
                       type="text"
                       value={emergencyName}
                       onChange={(e) => setEmergencyName(e.target.value)}
                       placeholder="Relative name"
-                      className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-2.5 py-1.5 text-xs text-[#ECEAE6]"
+                      className="w-full bg-panel border border-line rounded-[6px] px-2.5 py-1.5 text-xs text-ink"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[10px] uppercase text-[#8B909A] block mb-1">Emergency Phone</label>
+                    <label className="text-[10px] uppercase text-muted block mb-1">Emergency Phone</label>
                     <input
                       type="tel"
                       maxLength={16}
                       value={emergencyPhone}
                       onChange={(e) => setEmergencyPhone(e.target.value)}
                       placeholder="Emergency contact"
-                      className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-2.5 py-1.5 text-xs font-mono text-[#ECEAE6]"
+                      className="w-full bg-panel border border-line rounded-[6px] px-2.5 py-1.5 text-xs font-mono text-ink"
                     />
                   </div>
                 </div>
 
                 {/* Photo upload / camera */}
                 <div>
-                  <label className="text-[10px] uppercase text-[#8B909A] block mb-1">Member Photo</label>
+                  <label className="text-[10px] uppercase text-muted block mb-1">Member Photo</label>
                   <div className="flex items-center gap-2">
                     {photoUrl ? (
-                      <img src={photoUrl} alt="Preview" className="w-10 h-10 rounded-[4px] object-cover border border-[#262A30]" />
+                      <img src={photoUrl} alt="Preview" className="w-10 h-10 rounded-[4px] object-cover border border-line" />
                     ) : (
-                      <div className="w-10 h-10 rounded-[4px] bg-[#15171A] border border-[#262A30] flex items-center justify-center text-[#8B909A]">
+                      <div className="w-10 h-10 rounded-[4px] bg-panel border border-line flex items-center justify-center text-muted">
                         <User className="w-5 h-5 stroke-[1.5]" />
                       </div>
                     )}
-                    <label className="px-2.5 py-1 rounded-[4px] bg-[#15171A] border border-[#262A30] text-[11px] text-[#ECEAE6] cursor-pointer hover:bg-[#262A30]">
+                    <label className="px-2.5 py-1 rounded-[4px] bg-panel border border-line text-[11px] text-ink cursor-pointer hover:bg-hover">
                       <Upload className="w-3 h-3 inline mr-1" />
                       <span>Upload</span>
                       <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -757,20 +800,20 @@ export const NewMemberModal: React.FC<NewMemberModalProps> = ({
           </div>
 
           {/* Sticky Drawer Footer */}
-          <div className="pt-4 border-t border-[#262A30] flex items-center justify-end gap-2 shrink-0">
+          <div className="pt-4 border-t border-line flex items-center justify-end gap-2 shrink-0">
             <button
               type="button"
               onClick={() => {
                 stopCamera();
                 onClose();
               }}
-              className="px-3.5 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#262A30] text-xs font-semibold text-[#ECEAE6] cursor-pointer"
+              className="px-3.5 py-2 rounded-[6px] bg-panel hover:bg-hover text-xs font-semibold text-ink cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold uppercase tracking-wider text-[#ECEAE6] cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+              className="px-4 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold uppercase tracking-wider text-white cursor-pointer focus:ring-2 focus:ring-brand"
             >
               Register & Enroll Member
             </button>

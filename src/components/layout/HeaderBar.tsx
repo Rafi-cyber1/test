@@ -6,13 +6,20 @@ import {
   Sun,
   Moon,
   RefreshCw,
+  Menu,
+  Cloud,
+  CloudOff,
+  AlertTriangle,
 } from 'lucide-react';
 import { db } from '../../db/storage';
 import { appStorage } from '../../db/appStorage';
 import { GymTownLogo } from '../common/GymTownLogo';
+import type { AutoSyncState } from '../../services/cloudAutoSync';
 
 interface HeaderBarProps {
   currentTab: string;
+  onOpenSidebar?: () => void;
+  cloudSync?: AutoSyncState;
   onOpenCommandPalette: () => void;
   onOpenNotificationCenter: () => void;
   unreadNotifications: number;
@@ -25,6 +32,8 @@ interface HeaderBarProps {
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   currentTab,
+  onOpenSidebar,
+  cloudSync,
   onOpenCommandPalette,
   onOpenNotificationCenter,
   unreadNotifications,
@@ -78,30 +87,78 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
     .toUpperCase();
 
   return (
-    <header className="h-14 bg-[#15171A] border-b border-[#262A30] px-5 flex items-center justify-between shrink-0 select-none">
-      {/* Left: Page Title */}
-      <div className="flex items-center gap-3 min-w-0">
-        <GymTownLogo size="sm" className="shrink-0" />
+    <header className="h-14 bg-panel border-b border-line px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0 select-none">
+      {/* Left: Mobile menu + Page Title */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button
+          onClick={onOpenSidebar}
+          className="lg:hidden -ml-1 p-2 rounded-[6px] text-muted hover:text-ink hover:bg-raised transition-colors cursor-pointer"
+          title="Open navigation menu"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-5 h-5 stroke-[1.6]" />
+        </button>
+
+        <GymTownLogo size="sm" className="shrink-0 hidden lg:flex" />
         <div className="flex flex-col justify-center min-w-0">
-          <h1 className="font-condensed text-base font-bold text-[#ECEAE6] tracking-[0.04em] uppercase leading-none truncate">
+          <h1 className="font-condensed text-sm sm:text-base font-bold text-ink tracking-[0.04em] uppercase leading-none truncate">
             {currentInfo.title}
           </h1>
-          <span className="text-[11px] text-[#8B909A] mt-1 font-medium truncate">
+          <span className="hidden sm:block text-[11px] text-muted mt-1 font-medium truncate">
             {currentInfo.subtitle}
           </span>
         </div>
       </div>
 
       {/* Right Controls: Search, Register Member, Theme Toggle, User Avatar */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        {/* Cloud sync state — only when this device has a sync key */}
+        {cloudSync && cloudSync.status !== 'disabled' && (
+          <div
+            className={`hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-[6px] border text-[10px] font-semibold ${
+              cloudSync.status === 'synced'
+                ? 'border-ok/40 bg-ok/10 text-ok'
+                : cloudSync.status === 'syncing' || cloudSync.status === 'checking'
+                  ? 'border-brand/40 bg-brand/10 text-brand'
+                  : cloudSync.status === 'offline'
+                    ? 'border-line bg-raised text-muted'
+                    : 'border-warn/40 bg-warn/10 text-warn'
+            }`}
+            title={cloudSync.message || 'Cloud sync'}
+          >
+            {cloudSync.status === 'offline' ? (
+              <CloudOff className="w-3 h-3" />
+            ) : cloudSync.status === 'conflict' || cloudSync.status === 'needs-choice' || cloudSync.status === 'error' ? (
+              <AlertTriangle className="w-3 h-3" />
+            ) : (
+              <Cloud className="w-3 h-3" />
+            )}
+            <span className="font-mono">
+              {cloudSync.status === 'synced'
+                ? `v${cloudSync.version}`
+                : cloudSync.status === 'syncing'
+                  ? 'saving…'
+                  : cloudSync.status === 'checking'
+                    ? 'checking…'
+                    : cloudSync.status === 'offline'
+                      ? 'offline'
+                      : cloudSync.status === 'conflict'
+                        ? 'conflict'
+                        : cloudSync.status === 'needs-choice'
+                          ? 'choose'
+                          : 'sync error'}
+            </span>
+          </div>
+        )}
         {/* Global Search Button */}
         <button
           onClick={onOpenCommandPalette}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] bg-[#1C1F23] border border-[#262A30] text-xs text-[#8B909A] hover:text-[#ECEAE6] hover:border-[#363B44] transition-all duration-150 cursor-pointer"
+          className="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-[6px] bg-raised border border-line text-xs text-muted hover:text-ink hover:border-line-strong transition-all duration-150 cursor-pointer"
+          aria-label="Search member or action"
         >
-          <Search className="w-3.5 h-3.5 text-[#8B909A] stroke-[1.5]" />
+          <Search className="w-3.5 h-3.5 text-muted stroke-[1.5]" />
           <span className="hidden md:inline text-[11px]">Search member or action...</span>
-          <span className="font-mono text-[9px] bg-[#15171A] text-[#8B909A] px-1.5 py-0.5 rounded-[4px] border border-[#262A30]">
+          <span className="hidden lg:inline font-mono text-[9px] bg-panel text-muted px-1.5 py-0.5 rounded-[4px] border border-line">
             Ctrl+K
           </span>
         </button>
@@ -110,39 +167,42 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         {onOpenMonthlyRenewal && (
           <button
             onClick={onOpenMonthlyRenewal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] hover:border-[#D9383A] text-[#ECEAE6] text-xs font-semibold transition-all duration-150 cursor-pointer"
+            className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line hover:border-brand text-ink text-xs font-semibold transition-all duration-150 cursor-pointer"
             title="Renew Monthly Fee by Member Unique ID (the-gym-town-01)"
+            aria-label="Renew monthly fee"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-[#D9383A] stroke-[1.5]" />
-            <span className="hidden sm:inline">Renew Fee</span>
+            <RefreshCw className="w-3.5 h-3.5 text-brand stroke-[1.5]" />
+            <span className="hidden xl:inline">Renew Fee</span>
           </button>
         )}
 
         {/* Primary Action Button: Register Member */}
         <button
           onClick={onOpenNewMember}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-semibold transition-all duration-150 cursor-pointer focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 sm:py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-semibold transition-all duration-150 cursor-pointer focus:ring-2 focus:ring-brand focus:outline-none"
+          aria-label="Register member"
         >
           <UserPlus className="w-3.5 h-3.5 stroke-[1.5]" />
-          <span>Register Member</span>
+          <span className="hidden md:inline">Register Member</span>
+          <span className="md:hidden">New</span>
         </button>
 
         {/* Notifications Trigger */}
         <button
           onClick={onOpenNotificationCenter}
-          className="relative p-2 rounded-[6px] text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23] transition-colors cursor-pointer"
+          className="relative p-2 rounded-[6px] text-muted hover:text-ink hover:bg-raised transition-colors cursor-pointer"
           title="Notifications & Expiry Alerts"
         >
           <Bell className="w-4 h-4 stroke-[1.5]" />
           {unreadNotifications > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#D9383A]" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand" />
           )}
         </button>
 
         {/* Theme Toggle (Light / Dark) */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-[6px] text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23] transition-colors cursor-pointer"
+          className="p-2 rounded-[6px] text-muted hover:text-ink hover:bg-raised transition-colors cursor-pointer"
           title={isLightMode ? 'Switch to Dark Theme' : 'Switch to Light Theme'}
         >
           {isLightMode ? (
@@ -154,7 +214,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
         {/* User Avatar with Initials */}
         <div
-          className="w-8 h-8 rounded-full bg-[#1C1F23] border border-[#262A30] flex items-center justify-center text-[#ECEAE6] font-condensed font-bold text-xs tracking-wider cursor-default select-none"
+          className="hidden sm:flex w-8 h-8 rounded-full bg-raised border border-line items-center justify-center text-ink font-condensed font-bold text-xs tracking-wider cursor-default select-none"
           title={`Reception Officer: ${receptionistName}`}
         >
           {initials}

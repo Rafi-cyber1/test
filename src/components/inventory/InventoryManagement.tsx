@@ -257,51 +257,51 @@ export const InventoryManagement: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#0D0E10] text-[#ECEAE6]">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-app text-ink">
       {/* Toast Alert */}
       {toastMessage && (
         <div
-          className={`fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-[6px] border text-xs font-semibold shadow-xl transition-all duration-150 ${
+          className={`fixed bottom-20 right-3 sm:bottom-5 sm:right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-[6px] border text-xs font-semibold shadow-xl transition-all duration-150 ${
             toastMessage.type === 'success'
-              ? 'bg-[#15171A] border-[#262A30] border-l-4 border-l-[#3DB88B] text-[#ECEAE6]'
-              : 'bg-[#15171A] border-[#262A30] border-l-4 border-l-[#E5484D] text-[#E5484D]'
+              ? 'bg-panel border-line border-l-4 border-l-ok text-ink'
+              : 'bg-panel border-line border-l-4 border-l-bad text-bad'
           }`}
         >
           {toastMessage.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 text-[#3DB88B]" />
+            <CheckCircle2 className="w-4 h-4 text-ok" />
           ) : (
-            <AlertTriangle className="w-4 h-4 text-[#E5484D]" />
+            <AlertTriangle className="w-4 h-4 text-bad" />
           )}
           <span>{toastMessage.text}</span>
         </div>
       )}
 
       {/* Top Module Subheader & Sub-Navigation */}
-      <div className="h-12 border-b border-[#262A30] bg-[#15171A] px-5 flex items-center justify-between shrink-0">
+      <div className="min-h-12 border-b border-line bg-panel px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
-            <ShoppingBag className="w-4 h-4 text-[#D9383A]" />
+          <div className="flex items-center gap-1.5 font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
+            <ShoppingBag className="w-4 h-4 text-brand" />
             <span>Inventory & Daily Sales</span>
-            <span className="text-[#8B909A] font-normal text-xs">/</span>
-            <span className="text-[#8B909A] text-xs font-medium">Front Desk Store</span>
+            <span className="text-muted font-normal text-xs">/</span>
+            <span className="text-muted text-xs font-medium">Front Desk Store</span>
           </div>
 
           {lowStockProducts.length > 0 && (
             <span className="ml-2 status-pill-warning cursor-pointer" onClick={() => { setActiveSubTab('products'); setStockFilter('LOW'); }}>
-              <AlertTriangle className="w-3 h-3 text-[#E5AE4A]" />
+              <AlertTriangle className="w-3 h-3 text-warn" />
               <span>{lowStockProducts.length} low stock</span>
             </span>
           )}
         </div>
 
         {/* Sub-tab Navigation */}
-        <div className="flex items-center gap-1 bg-[#0D0E10] p-1 rounded-[6px] border border-[#262A30]">
+        <div className="flex items-center gap-1 bg-app p-1 rounded-[6px] border border-line overflow-x-auto max-w-full [&>button]:shrink-0 [&>button]:whitespace-nowrap">
           <button
             onClick={() => setActiveSubTab('pos')}
             className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
               activeSubTab === 'pos'
-                ? 'bg-[#D9383A] text-[#ECEAE6] font-semibold'
-                : 'text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23]'
+                ? 'bg-brand text-white font-semibold'
+                : 'text-muted hover:text-ink hover:bg-raised'
             }`}
           >
             <ShoppingCart className="w-3.5 h-3.5" />
@@ -312,8 +312,8 @@ export const InventoryManagement: React.FC = () => {
             onClick={() => setActiveSubTab('dashboard')}
             className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
               activeSubTab === 'dashboard'
-                ? 'bg-[#D9383A] text-[#ECEAE6] font-semibold'
-                : 'text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23]'
+                ? 'bg-brand text-white font-semibold'
+                : 'text-muted hover:text-ink hover:bg-raised'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
@@ -324,8 +324,8 @@ export const InventoryManagement: React.FC = () => {
             onClick={() => setActiveSubTab('products')}
             className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
               activeSubTab === 'products'
-                ? 'bg-[#D9383A] text-[#ECEAE6] font-semibold'
-                : 'text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23]'
+                ? 'bg-brand text-white font-semibold'
+                : 'text-muted hover:text-ink hover:bg-raised'
             }`}
           >
             <Package className="w-3.5 h-3.5" />
@@ -336,8 +336,8 @@ export const InventoryManagement: React.FC = () => {
             onClick={() => setActiveSubTab('purchases')}
             className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
               activeSubTab === 'purchases'
-                ? 'bg-[#D9383A] text-[#ECEAE6] font-semibold'
-                : 'text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23]'
+                ? 'bg-brand text-white font-semibold'
+                : 'text-muted hover:text-ink hover:bg-raised'
             }`}
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -348,8 +348,8 @@ export const InventoryManagement: React.FC = () => {
             onClick={() => setActiveSubTab('transactions')}
             className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
               activeSubTab === 'transactions'
-                ? 'bg-[#D9383A] text-[#ECEAE6] font-semibold'
-                : 'text-[#8B909A] hover:text-[#ECEAE6] hover:bg-[#1C1F23]'
+                ? 'bg-brand text-white font-semibold'
+                : 'text-muted hover:text-ink hover:bg-raised'
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
@@ -364,25 +364,25 @@ export const InventoryManagement: React.FC = () => {
         {/* SUB-TAB 1: FAST POS / DAILY SALES COUNTER */}
         {/* ======================================================== */}
         {activeSubTab === 'pos' && (
-          <div className="h-full flex flex-col md:flex-row overflow-hidden">
+          <div className="h-full flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left 68%: Product Catalog Grid & Quick Select */}
-            <div className="flex-1 flex flex-col border-r border-[#262A30] overflow-hidden">
+            <div className="flex-1 flex flex-col border-r-0 md:border-r border-line md:overflow-hidden">
               {/* Filter Strip */}
-              <div className="p-3 border-b border-[#262A30] bg-[#15171A] flex flex-wrap items-center justify-between gap-2.5">
+              <div className="p-3 border-b border-line bg-panel flex flex-wrap items-center justify-between gap-2.5">
                 {/* Search */}
                 <div className="relative flex-1 min-w-[200px] max-w-sm">
-                  <Search className="w-3.5 h-3.5 text-[#8B909A] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-3.5 h-3.5 text-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search product code or name..."
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] pl-8 pr-3 py-1.5 text-xs text-[#ECEAE6] placeholder:text-[#8B909A] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-raised border border-line rounded-[6px] pl-8 pr-3 py-1.5 text-xs text-ink placeholder:text-muted focus:ring-2 focus:ring-brand focus:outline-none"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8B909A] hover:text-[#ECEAE6]"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -395,8 +395,8 @@ export const InventoryManagement: React.FC = () => {
                     onClick={() => setSelectedCategory('ALL')}
                     className={`px-2.5 py-1 rounded-[6px] text-[11px] uppercase font-bold tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                       selectedCategory === 'ALL'
-                        ? 'bg-[#D9383A] text-[#ECEAE6]'
-                        : 'bg-[#1C1F23] text-[#8B909A] hover:text-[#ECEAE6] border border-[#262A30]'
+                        ? 'bg-brand text-white'
+                        : 'bg-raised text-muted hover:text-ink border border-line'
                     }`}
                   >
                     All Items
@@ -407,8 +407,8 @@ export const InventoryManagement: React.FC = () => {
                       onClick={() => setSelectedCategory(cat)}
                       className={`px-2.5 py-1 rounded-[6px] text-[11px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
                         selectedCategory === cat
-                          ? 'bg-[#D9383A] text-[#ECEAE6]'
-                          : 'bg-[#1C1F23] text-[#8B909A] hover:text-[#ECEAE6] border border-[#262A30]'
+                          ? 'bg-brand text-white'
+                          : 'bg-raised text-muted hover:text-ink border border-line'
                       }`}
                     >
                       {cat}
@@ -420,9 +420,18 @@ export const InventoryManagement: React.FC = () => {
               {/* Products Grid */}
               <div className="flex-1 overflow-y-auto p-4">
                 {filteredProducts.length === 0 ? (
-                  <div className="h-48 flex flex-col items-center justify-center text-[#8B909A] text-xs">
-                    <Package className="w-8 h-8 mb-2 stroke-[1.5] text-[#262A30]" />
-                    <p>No products found in this category.</p>
+                  <div className="h-48 flex flex-col items-center justify-center text-muted text-xs">
+                    <Package className="w-8 h-8 mb-2 stroke-[1.5] text-line-strong" />
+                    {products.length === 0 ? (
+                      <>
+                        <p>Inventory is empty.</p>
+                        <p className="mt-1 text-[11px]">
+                          Use “Add New Product” to register the first item you sell at the counter.
+                        </p>
+                      </>
+                    ) : (
+                      <p>No products found in this category.</p>
+                    )}
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -437,41 +446,41 @@ export const InventoryManagement: React.FC = () => {
                           onClick={() => !isOutOfStock && addToCart(prod)}
                           className={`group p-3 rounded-[8px] border text-left transition-all duration-150 relative flex flex-col justify-between ${
                             isOutOfStock
-                              ? 'bg-[#15171A]/40 border-[#262A30] opacity-50 cursor-not-allowed'
-                              : 'bg-[#15171A] border-[#262A30] hover:border-[#D9383A] hover:bg-[#1C1F23] cursor-pointer'
+                              ? 'bg-panel/40 border-line opacity-50 cursor-not-allowed'
+                              : 'bg-panel border-line hover:border-brand hover:bg-raised cursor-pointer'
                           }`}
                         >
                           <div>
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="font-mono text-[10px] text-[#8B909A]">{prod.code}</span>
+                              <span className="font-mono text-[10px] text-muted">{prod.code}</span>
                               {isOutOfStock ? (
                                 <span className="status-pill-danger text-[10px]">Out of Stock</span>
                               ) : isLowStock ? (
                                 <span className="status-pill-warning text-[10px]">{prod.stockQuantity} Left</span>
                               ) : (
-                                <span className="text-[10px] text-[#8B909A] font-mono tabular-nums">
+                                <span className="text-[10px] text-muted font-mono tabular-nums">
                                   {prod.stockQuantity} {prod.unit || 'units'}
                                 </span>
                               )}
                             </div>
 
-                            <h4 className="font-medium text-xs text-[#ECEAE6] line-clamp-2 leading-tight">
+                            <h4 className="font-medium text-xs text-ink line-clamp-2 leading-tight">
                               {prod.name}
                             </h4>
-                            <span className="text-[10px] text-[#8B909A] mt-0.5 block">{prod.category}</span>
+                            <span className="text-[10px] text-muted mt-0.5 block">{prod.category}</span>
                           </div>
 
-                          <div className="mt-3 pt-2.5 border-t border-[#262A30] flex items-center justify-between">
-                            <span className="font-condensed text-base font-bold text-[#ECEAE6] tabular-nums tracking-wide">
+                          <div className="mt-3 pt-2.5 border-t border-line flex items-center justify-between">
+                            <span className="font-condensed text-base font-bold text-ink tabular-nums tracking-wide">
                               Rs. {prod.sellingPrice.toLocaleString()}
                             </span>
 
                             {cartItem ? (
-                              <span className="px-1.5 py-0.5 rounded-[4px] bg-[#D9383A] text-[#ECEAE6] font-mono text-[11px] font-bold">
+                              <span className="px-1.5 py-0.5 rounded-[4px] bg-brand text-white font-mono text-[11px] font-bold">
                                 {cartItem.quantity} in cart
                               </span>
                             ) : (
-                              <span className="text-[11px] font-semibold text-[#8B909A] group-hover:text-[#ECEAE6] transition-colors">
+                              <span className="text-[11px] font-semibold text-muted group-hover:text-ink transition-colors">
                                 + Add
                               </span>
                             )}
@@ -485,19 +494,19 @@ export const InventoryManagement: React.FC = () => {
             </div>
 
             {/* Right 32%: POS Order Cart & Checkout Drawer */}
-            <div className="w-full md:w-[380px] lg:w-[420px] bg-[#15171A] flex flex-col shrink-0 h-full">
+            <div className="w-full md:w-[380px] lg:w-[420px] bg-panel flex flex-col shrink-0 border-t md:border-t-0 border-line md:h-full">
               {/* Cart Header */}
-              <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between bg-[#1C1F23]">
+              <div className="p-3.5 border-b border-line flex items-center justify-between bg-raised">
                 <div className="flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4 text-[#D9383A]" />
-                  <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+                  <ShoppingCart className="w-4 h-4 text-brand" />
+                  <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                     Current Sale ({cart.reduce((a, b) => a + b.quantity, 0)} items)
                   </h3>
                 </div>
                 {cart.length > 0 && (
                   <button
                     onClick={clearCart}
-                    className="text-[11px] text-[#8B909A] hover:text-[#E5484D] transition-colors flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] text-muted hover:text-bad transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     <Trash2 className="w-3 h-3" />
                     <span>Clear</span>
@@ -508,51 +517,51 @@ export const InventoryManagement: React.FC = () => {
               {/* Cart Items List */}
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
                 {posError && (
-                  <div className="p-2.5 rounded-[6px] bg-[#1C1F23] border-l-4 border-l-[#E5484D] border-[#262A30] text-xs text-[#E5484D] flex items-center gap-2">
+                  <div className="p-2.5 rounded-[6px] bg-raised border-l-4 border-l-bad border-line text-xs text-bad flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
                     <span>{posError}</span>
                   </div>
                 )}
 
                 {cart.length === 0 ? (
-                  <div className="h-48 flex flex-col items-center justify-center text-[#8B909A] text-xs text-center px-4">
-                    <ShoppingCart className="w-8 h-8 mb-2 stroke-[1.5] text-[#262A30]" />
-                    <p className="font-medium text-[#ECEAE6]">Cart is empty</p>
-                    <p className="text-[11px] text-[#8B909A] mt-0.5">Click any product on the left to start a counter sale.</p>
+                  <div className="h-48 flex flex-col items-center justify-center text-muted text-xs text-center px-4">
+                    <ShoppingCart className="w-8 h-8 mb-2 stroke-[1.5] text-line-strong" />
+                    <p className="font-medium text-ink">Cart is empty</p>
+                    <p className="text-[11px] text-muted mt-0.5">Click any product on the left to start a counter sale.</p>
                   </div>
                 ) : (
                   cart.map((item) => (
                     <div
                       key={item.product.id}
-                      className="p-2.5 rounded-[6px] bg-[#1C1F23] border border-[#262A30] flex items-center justify-between gap-2"
+                      className="p-2.5 rounded-[6px] bg-raised border border-line flex items-center justify-between gap-2"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-[10px] text-[#8B909A]">{item.product.code}</span>
-                          <span className="font-mono text-xs font-semibold text-[#ECEAE6] tabular-nums">
+                          <span className="font-mono text-[10px] text-muted">{item.product.code}</span>
+                          <span className="font-mono text-xs font-semibold text-ink tabular-nums">
                             Rs. {(item.product.sellingPrice * item.quantity).toLocaleString()}
                           </span>
                         </div>
-                        <p className="text-xs font-medium text-[#ECEAE6] truncate">{item.product.name}</p>
-                        <span className="text-[10px] text-[#8B909A]">
+                        <p className="text-xs font-medium text-ink truncate">{item.product.name}</p>
+                        <span className="text-[10px] text-muted">
                           Rs. {item.product.sellingPrice} each
                         </span>
                       </div>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center gap-1 bg-[#15171A] rounded-[4px] border border-[#262A30] p-0.5 shrink-0">
+                      <div className="flex items-center gap-1 bg-panel rounded-[4px] border border-line p-0.5 shrink-0">
                         <button
                           onClick={() => updateCartQty(item.product.id, -1)}
-                          className="w-5 h-5 flex items-center justify-center text-[#8B909A] hover:text-[#ECEAE6] cursor-pointer"
+                          className="w-5 h-5 flex items-center justify-center text-muted hover:text-ink cursor-pointer"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-6 text-center font-mono font-bold text-xs text-[#ECEAE6] tabular-nums">
+                        <span className="w-6 text-center font-mono font-bold text-xs text-ink tabular-nums">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateCartQty(item.product.id, 1)}
-                          className="w-5 h-5 flex items-center justify-center text-[#8B909A] hover:text-[#ECEAE6] cursor-pointer"
+                          className="w-5 h-5 flex items-center justify-center text-muted hover:text-ink cursor-pointer"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -560,7 +569,7 @@ export const InventoryManagement: React.FC = () => {
 
                       <button
                         onClick={() => removeFromCart(item.product.id)}
-                        className="text-[#8B909A] hover:text-[#E5484D] p-1 cursor-pointer"
+                        className="text-muted hover:text-bad p-1 cursor-pointer"
                         title="Remove item"
                       >
                         <X className="w-3.5 h-3.5" />
@@ -571,11 +580,11 @@ export const InventoryManagement: React.FC = () => {
               </div>
 
               {/* Customer Link & Payment Method (Sticky bottom) */}
-              <div className="p-3.5 border-t border-[#262A30] bg-[#1C1F23] space-y-3">
+              <div className="p-3.5 border-t border-line bg-raised space-y-3">
                 {/* Customer Toggle */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold">
+                    <label className="text-[11px] uppercase tracking-wider text-muted font-semibold">
                       Customer
                     </label>
                     <div className="flex items-center gap-2 text-[10px]">
@@ -586,17 +595,17 @@ export const InventoryManagement: React.FC = () => {
                           setPosSelectedMember(null);
                         }}
                         className={`cursor-pointer ${
-                          posCustomerType === 'WALK_IN' ? 'text-[#D9383A] font-bold' : 'text-[#8B909A]'
+                          posCustomerType === 'WALK_IN' ? 'text-brand font-bold' : 'text-muted'
                         }`}
                       >
                         Walk-in Guest
                       </button>
-                      <span className="text-[#262A30]">|</span>
+                      <span className="text-line-strong">|</span>
                       <button
                         type="button"
                         onClick={() => setPosCustomerType('MEMBER')}
                         className={`cursor-pointer ${
-                          posCustomerType === 'MEMBER' ? 'text-[#D9383A] font-bold' : 'text-[#8B909A]'
+                          posCustomerType === 'MEMBER' ? 'text-brand font-bold' : 'text-muted'
                         }`}
                       >
                         Gym Member
@@ -621,10 +630,10 @@ export const InventoryManagement: React.FC = () => {
                           }
                         }}
                         placeholder="Type Roll # or Member Name..."
-                        className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-2.5 py-1.5 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                        className="w-full bg-panel border border-line rounded-[6px] px-2.5 py-1.5 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                       />
                       {posSelectedMember && (
-                        <div className="text-[10px] text-[#3DB88B] mt-1 font-mono">
+                        <div className="text-[10px] text-ok mt-1 font-mono">
                           Linked: {posSelectedMember.name} ({posSelectedMember.rollNumber})
                         </div>
                       )}
@@ -634,10 +643,10 @@ export const InventoryManagement: React.FC = () => {
 
                 {/* Payment Method Selector */}
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Payment Method
                   </label>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                     {(['Cash'] as PaymentMethod[]).map((method) => (
                       <button
                         key={method}
@@ -645,8 +654,8 @@ export const InventoryManagement: React.FC = () => {
                         onClick={() => setPosPaymentMethod(method)}
                         className={`py-1.5 text-[11px] font-semibold rounded-[6px] border transition-all cursor-pointer text-center ${
                           posPaymentMethod === method
-                            ? 'bg-[#D9383A] border-[#D9383A] text-[#ECEAE6]'
-                            : 'bg-[#15171A] border-[#262A30] text-[#8B909A] hover:text-[#ECEAE6]'
+                            ? 'bg-brand border-brand text-white'
+                            : 'bg-panel border-line text-muted hover:text-ink'
                         }`}
                       >
                         {method}
@@ -656,13 +665,13 @@ export const InventoryManagement: React.FC = () => {
                 </div>
 
                 {/* Subtotal, Discount & Total */}
-                <div className="space-y-1.5 pt-2 border-t border-[#262A30] text-xs">
-                  <div className="flex items-center justify-between text-[#8B909A]">
+                <div className="space-y-1.5 pt-2 border-t border-line text-xs">
+                  <div className="flex items-center justify-between text-muted">
                     <span>Subtotal:</span>
-                    <span className="font-mono text-[#ECEAE6] tabular-nums">Rs. {cartSubtotal.toLocaleString()}</span>
+                    <span className="font-mono text-ink tabular-nums">Rs. {cartSubtotal.toLocaleString()}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-[#8B909A]">
+                  <div className="flex items-center justify-between text-muted">
                     <span>Discount (PKR):</span>
                     <input
                       type="number"
@@ -670,15 +679,15 @@ export const InventoryManagement: React.FC = () => {
                       value={posDiscount || ''}
                       onChange={(e) => setPosDiscount(Number(e.target.value) || 0)}
                       placeholder="0"
-                      className="w-20 text-right bg-[#15171A] border border-[#262A30] rounded-[4px] px-1.5 py-0.5 text-xs font-mono text-[#ECEAE6] focus:ring-1 focus:ring-[#D9383A] focus:outline-none"
+                      className="w-20 text-right bg-panel border border-line rounded-[4px] px-1.5 py-0.5 text-xs font-mono text-ink focus:ring-1 focus:ring-brand focus:outline-none"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 border-t border-[#262A30]">
-                    <span className="font-condensed uppercase tracking-wider text-sm font-bold text-[#ECEAE6]">
+                  <div className="flex items-center justify-between pt-1 border-t border-line">
+                    <span className="font-condensed uppercase tracking-wider text-sm font-bold text-ink">
                       Total Payable:
                     </span>
-                    <span className="font-condensed text-xl font-bold text-[#D9383A] tabular-nums">
+                    <span className="font-condensed text-xl font-bold text-brand tabular-nums">
                       Rs. {cartTotalPayable.toLocaleString()}
                     </span>
                   </div>
@@ -691,8 +700,8 @@ export const InventoryManagement: React.FC = () => {
                   onClick={handleConfirmSale}
                   className={`w-full py-2.5 rounded-[6px] text-xs font-bold uppercase tracking-wider transition-all duration-150 flex items-center justify-center gap-2 ${
                     cart.length > 0
-                      ? 'bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] cursor-pointer focus:ring-2 focus:ring-[#D9383A]'
-                      : 'bg-[#262A30] text-[#8B909A] cursor-not-allowed opacity-50'
+                      ? 'bg-brand hover:bg-brand-strong text-white cursor-pointer focus:ring-2 focus:ring-brand'
+                      : 'bg-hover text-muted cursor-not-allowed opacity-50'
                   }`}
                 >
                   <Check className="w-4 h-4" />
@@ -707,28 +716,28 @@ export const InventoryManagement: React.FC = () => {
         {/* SUB-TAB 2: DAILY SALES DASHBOARD & PROFIT REPORTS */}
         {/* ======================================================== */}
         {activeSubTab === 'dashboard' && (
-          <div className="h-full overflow-y-auto p-5 space-y-5">
+          <div className="h-full overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5">
             {/* Period Switcher Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-[#ECEAE6]">
+                <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
                   Sales Performance & Profit Accounting
                 </h2>
-                <p className="text-xs text-[#8B909A]">
+                <p className="text-xs text-muted">
                   Real-time sales revenue, cost of goods sold (COGS), and net gross profit.
                 </p>
               </div>
 
               {/* Period Tabs */}
-              <div className="flex items-center gap-1 bg-[#15171A] p-1 rounded-[6px] border border-[#262A30] self-start">
+              <div className="flex items-center gap-1 bg-panel p-1 rounded-[6px] border border-line self-start">
                 {(['today', 'week', 'month', 'all'] as const).map((period) => (
                   <button
                     key={period}
                     onClick={() => setSalesPeriod(period)}
                     className={`px-3 py-1 rounded-[4px] text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
                       salesPeriod === period
-                        ? 'bg-[#D9383A] text-[#ECEAE6] font-bold'
-                        : 'text-[#8B909A] hover:text-[#ECEAE6]'
+                        ? 'bg-brand text-white font-bold'
+                        : 'text-muted hover:text-ink'
                     }`}
                   >
                     {period === 'today' ? 'Today' : period === 'week' ? '7 Days' : period === 'month' ? 'This Month' : 'All Time'}
@@ -738,98 +747,98 @@ export const InventoryManagement: React.FC = () => {
             </div>
 
             {/* CONNECTED KPI STRIP: Single bordered container with vertical dividers */}
-            <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y lg:divide-y-0 lg:divide-x divide-[#262A30] overflow-hidden">
+            <div className="border border-line rounded-[8px] bg-panel grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y lg:divide-y-0 lg:divide-x divide-line overflow-hidden">
               {/* Cell 1: Sales Revenue */}
               <div className="p-4">
-                <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+                <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
                   Total Sales Revenue
                 </span>
-                <div className="font-condensed text-2xl font-bold text-[#ECEAE6] tabular-nums mt-1">
+                <div className="font-condensed text-2xl font-bold text-ink tabular-nums mt-1">
                   Rs. {salesMetrics.totalRevenue.toLocaleString()}
                 </div>
-                <span className="text-[10px] text-[#8B909A] mt-1 block">
+                <span className="text-[10px] text-muted mt-1 block">
                   {salesMetrics.totalTransactions} transactions
                 </span>
               </div>
 
               {/* Cell 2: Total COGS */}
               <div className="p-4">
-                <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+                <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
                   Cost of Goods (COGS)
                 </span>
-                <div className="font-condensed text-2xl font-bold text-[#ECEAE6] tabular-nums mt-1">
+                <div className="font-condensed text-2xl font-bold text-ink tabular-nums mt-1">
                   Rs. {salesMetrics.totalCogs.toLocaleString()}
                 </div>
-                <span className="text-[10px] text-[#8B909A] mt-1 block">Purchase cost of items</span>
+                <span className="text-[10px] text-muted mt-1 block">Purchase cost of items</span>
               </div>
 
               {/* Cell 3: Gross Profit */}
               <div className="p-4">
-                <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+                <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
                   Gross Profit
                 </span>
-                <div className="font-condensed text-2xl font-bold text-[#3DB88B] tabular-nums mt-1">
+                <div className="font-condensed text-2xl font-bold text-ok tabular-nums mt-1">
                   Rs. {salesMetrics.grossProfit.toLocaleString()}
                 </div>
-                <span className="text-[10px] text-[#3DB88B] font-semibold mt-1 block">
+                <span className="text-[10px] text-ok font-semibold mt-1 block">
                   {salesMetrics.profitMargin}% margin
                 </span>
               </div>
 
               {/* Cell 4: Products Sold */}
               <div className="p-4">
-                <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+                <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
                   Products Sold
                 </span>
-                <div className="font-condensed text-2xl font-bold text-[#ECEAE6] tabular-nums mt-1">
+                <div className="font-condensed text-2xl font-bold text-ink tabular-nums mt-1">
                   {salesMetrics.totalQuantitySold}
                 </div>
-                <span className="text-[10px] text-[#8B909A] mt-1 block">Units dispatched</span>
+                <span className="text-[10px] text-muted mt-1 block">Units dispatched</span>
               </div>
 
               {/* Cell 5: Cash Sales */}
               <div className="p-4">
-                <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+                <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
                   Cash Collections
                 </span>
-                <div className="font-condensed text-2xl font-bold text-[#ECEAE6] tabular-nums mt-1">
+                <div className="font-condensed text-2xl font-bold text-ink tabular-nums mt-1">
                   Rs. {salesMetrics.cashSales.toLocaleString()}
                 </div>
-                <span className="text-[10px] text-[#8B909A] mt-1 block">Front counter drawer</span>
+                <span className="text-[10px] text-muted mt-1 block">Front counter drawer</span>
               </div>
 
               {/* Cell 6: Digital Payments */}
               <div className="p-4">
-                <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+                <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
                   Digital Collections
                 </span>
-                <div className="font-condensed text-2xl font-bold text-[#ECEAE6] tabular-nums mt-1">
+                <div className="font-condensed text-2xl font-bold text-ink tabular-nums mt-1">
                   Rs. {salesMetrics.digitalSales.toLocaleString()}
                 </div>
-                <span className="text-[10px] text-[#8B909A] mt-1 block">Cash only</span>
+                <span className="text-[10px] text-muted mt-1 block">Cash only</span>
               </div>
             </div>
 
             {/* Best Seller Banner */}
             {salesMetrics.bestSellingProduct && (
-              <div className="p-3.5 rounded-[8px] bg-[#15171A] border border-[#262A30] flex items-center justify-between">
+              <div className="p-3.5 rounded-[8px] bg-panel border border-line flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-[6px] bg-[#1C1F23] border border-[#262A30] flex items-center justify-center text-[#D9383A]">
+                  <div className="w-8 h-8 rounded-[6px] bg-raised border border-line flex items-center justify-center text-brand">
                     <TrendingUp className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-[#D9383A] tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-brand tracking-wider">
                       Best-Selling Product of Period
                     </span>
-                    <h4 className="font-bold text-sm text-[#ECEAE6]">{salesMetrics.bestSellingProduct.name}</h4>
+                    <h4 className="font-bold text-sm text-ink">{salesMetrics.bestSellingProduct.name}</h4>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <div className="font-condensed text-lg font-bold text-[#ECEAE6] tabular-nums">
+                  <div className="font-condensed text-lg font-bold text-ink tabular-nums">
                     {salesMetrics.bestSellingProduct.quantity} Sold
                   </div>
-                  <span className="text-[10px] text-[#8B909A] font-mono tabular-nums">
+                  <span className="text-[10px] text-muted font-mono tabular-nums">
                     Revenue: Rs. {salesMetrics.bestSellingProduct.revenue.toLocaleString()}
                   </span>
                 </div>
@@ -837,20 +846,20 @@ export const InventoryManagement: React.FC = () => {
             )}
 
             {/* Product-Wise Sales Report Table */}
-            <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
-              <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between">
-                <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+            <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
+              <div className="p-3.5 border-b border-line flex items-center justify-between">
+                <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                   Product-Wise Sales & Remaining Stock Report
                 </h3>
-                <span className="text-xs text-[#8B909A]">
+                <span className="text-xs text-muted">
                   Showing real-time stock and unit profit margins
                 </span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full min-w-[720px] text-left border-collapse text-xs">
                   <thead>
-                    <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[11px] uppercase tracking-wider">
+                    <tr className="border-b border-line bg-raised text-muted text-[11px] uppercase tracking-wider">
                       <th className="py-2.5 px-4 font-semibold">Product</th>
                       <th className="py-2.5 px-4 font-semibold">Category</th>
                       <th className="py-2.5 px-4 font-semibold text-right">Sold Units</th>
@@ -861,34 +870,34 @@ export const InventoryManagement: React.FC = () => {
                       <th className="py-2.5 px-4 font-semibold text-center">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#262A30]">
+                  <tbody className="divide-y divide-line">
                     {salesMetrics.productSales.map((item) => (
-                      <tr key={item.productId} className="h-11 hover:bg-[#1C1F23]/50 transition-colors">
-                        <td className="py-2 px-4 font-medium text-[#ECEAE6]">{item.productName}</td>
-                        <td className="py-2 px-4 text-[#8B909A]">{item.category}</td>
-                        <td className="py-2 px-4 text-right font-mono font-bold text-[#ECEAE6] tabular-nums">
+                      <tr key={item.productId} className="h-11 hover:bg-raised/50 transition-colors">
+                        <td className="py-2 px-4 font-medium text-ink">{item.productName}</td>
+                        <td className="py-2 px-4 text-muted">{item.category}</td>
+                        <td className="py-2 px-4 text-right font-mono font-bold text-ink tabular-nums">
                           {item.quantitySold}
                         </td>
                         <td className="py-2 px-4 text-right font-mono tabular-nums">
                           <span
                             className={
                               item.remainingStock <= 0
-                                ? 'text-[#E5484D] font-bold'
+                                ? 'text-bad font-bold'
                                 : item.remainingStock <= 10
-                                ? 'text-[#E5AE4A] font-bold'
-                                : 'text-[#ECEAE6]'
+                                ? 'text-warn font-bold'
+                                : 'text-ink'
                             }
                           >
                             {item.remainingStock}
                           </span>
                         </td>
-                        <td className="py-2 px-4 text-right font-mono text-[#ECEAE6] tabular-nums">
+                        <td className="py-2 px-4 text-right font-mono text-ink tabular-nums">
                           Rs. {item.revenue.toLocaleString()}
                         </td>
-                        <td className="py-2 px-4 text-right font-mono text-[#8B909A] tabular-nums">
+                        <td className="py-2 px-4 text-right font-mono text-muted tabular-nums">
                           Rs. {item.cogs.toLocaleString()}
                         </td>
-                        <td className="py-2 px-4 text-right font-mono font-bold text-[#3DB88B] tabular-nums">
+                        <td className="py-2 px-4 text-right font-mono font-bold text-ok tabular-nums">
                           Rs. {item.grossProfit.toLocaleString()}
                         </td>
                         <td className="py-2 px-4 text-center">
@@ -915,16 +924,16 @@ export const InventoryManagement: React.FC = () => {
         {activeSubTab === 'products' && (
           <div className="h-full flex flex-col overflow-hidden">
             {/* Top Toolbar */}
-            <div className="p-3.5 border-b border-[#262A30] bg-[#15171A] flex flex-wrap items-center justify-between gap-3">
+            <div className="p-3.5 border-b border-line bg-panel flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 flex-1 max-w-md">
                 <div className="relative flex-1">
-                  <Search className="w-3.5 h-3.5 text-[#8B909A] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-3.5 h-3.5 text-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by code, title, supplier..."
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] pl-8 pr-3 py-1.5 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-raised border border-line rounded-[6px] pl-8 pr-3 py-1.5 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                   />
                 </div>
 
@@ -932,7 +941,7 @@ export const InventoryManagement: React.FC = () => {
                 <select
                   value={stockFilter}
                   onChange={(e) => setStockFilter(e.target.value as any)}
-                  className="bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-2.5 py-1.5 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="bg-raised border border-line rounded-[6px] px-2.5 py-1.5 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 >
                   <option value="ALL">All Stock Levels</option>
                   <option value="LOW">Low Stock Only</option>
@@ -943,9 +952,9 @@ export const InventoryManagement: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowRestockDrawer(true)}
-                  className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#ECEAE6] flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center gap-1.5 cursor-pointer"
                 >
-                  <RotateCcw className="w-3.5 h-3.5 text-[#8B909A]" />
+                  <RotateCcw className="w-3.5 h-3.5 text-muted" />
                   <span>Receive Restock Shipment</span>
                 </button>
 
@@ -954,7 +963,7 @@ export const InventoryManagement: React.FC = () => {
                     setEditingProduct(null);
                     setShowAddProductDrawer(true);
                   }}
-                  className="px-3.5 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] flex items-center gap-1.5 cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+                  className="px-3.5 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white flex items-center gap-1.5 cursor-pointer focus:ring-2 focus:ring-brand"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add New Product</span>
@@ -963,9 +972,9 @@ export const InventoryManagement: React.FC = () => {
             </div>
 
             {/* Product Table */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-auto">
               <table className="w-full text-left border-collapse text-xs">
-                <thead className="sticky top-0 z-10 bg-[#1C1F23] border-b border-[#262A30] text-[#8B909A] text-[11px] uppercase tracking-wider">
+                <thead className="sticky top-0 z-10 bg-raised border-b border-line text-muted text-[11px] uppercase tracking-wider">
                   <tr>
                     <th className="py-2.5 px-4 font-semibold">SKU / Code</th>
                     <th className="py-2.5 px-4 font-semibold">Product Name</th>
@@ -978,31 +987,31 @@ export const InventoryManagement: React.FC = () => {
                     <th className="py-2.5 px-4 font-semibold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#262A30]">
+                <tbody className="divide-y divide-line">
                   {filteredProducts.map((p) => {
                     const isOut = p.stockQuantity <= 0;
                     const isLow = p.stockQuantity > 0 && p.stockQuantity <= p.minStockLevel;
 
                     return (
-                      <tr key={p.id} className="h-11 hover:bg-[#1C1F23]/60 transition-colors">
-                        <td className="py-2 px-4 font-mono font-bold text-[#ECEAE6]">{p.code}</td>
-                        <td className="py-2 px-4 font-medium text-[#ECEAE6]">
+                      <tr key={p.id} className="h-11 hover:bg-raised/60 transition-colors">
+                        <td className="py-2 px-4 font-mono font-bold text-ink">{p.code}</td>
+                        <td className="py-2 px-4 font-medium text-ink">
                           <div>{p.name}</div>
-                          {p.description && <div className="text-[10px] text-[#8B909A] truncate max-w-xs">{p.description}</div>}
+                          {p.description && <div className="text-[10px] text-muted truncate max-w-xs">{p.description}</div>}
                         </td>
-                        <td className="py-2 px-4 text-[#8B909A]">{p.category}</td>
-                        <td className="py-2 px-4 text-right font-mono text-[#8B909A] tabular-nums">
+                        <td className="py-2 px-4 text-muted">{p.category}</td>
+                        <td className="py-2 px-4 text-right font-mono text-muted tabular-nums">
                           Rs. {p.purchasePrice.toLocaleString()}
                         </td>
-                        <td className="py-2 px-4 text-right font-mono font-bold text-[#ECEAE6] tabular-nums">
+                        <td className="py-2 px-4 text-right font-mono font-bold text-ink tabular-nums">
                           Rs. {p.sellingPrice.toLocaleString()}
                         </td>
                         <td className="py-2 px-4 text-right font-mono font-bold tabular-nums">
-                          <span className={isOut ? 'text-[#E5484D]' : isLow ? 'text-[#E5AE4A]' : 'text-[#ECEAE6]'}>
+                          <span className={isOut ? 'text-bad' : isLow ? 'text-warn' : 'text-ink'}>
                             {p.stockQuantity} {p.unit || ''}
                           </span>
                         </td>
-                        <td className="py-2 px-4 text-[#8B909A] text-[11px] truncate max-w-[150px]">
+                        <td className="py-2 px-4 text-muted text-[11px] truncate max-w-[150px]">
                           {p.supplierName || '—'}
                         </td>
                         <td className="py-2 px-4 text-center">
@@ -1023,7 +1032,7 @@ export const InventoryManagement: React.FC = () => {
                                 setAdjustReason('Physical stock count update');
                                 setShowAdjustStockDrawer(true);
                               }}
-                              className="px-2 py-1 rounded-[4px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-[11px] text-[#ECEAE6] cursor-pointer"
+                              className="px-2 py-1 rounded-[4px] bg-raised hover:bg-hover border border-line text-[11px] text-ink cursor-pointer"
                               title="Adjust stock (Damage, Expiry, Recount)"
                             >
                               Adjust Stock
@@ -1033,7 +1042,7 @@ export const InventoryManagement: React.FC = () => {
                                 setEditingProduct(p);
                                 setShowAddProductDrawer(true);
                               }}
-                              className="px-2 py-1 rounded-[4px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-[11px] text-[#ECEAE6] cursor-pointer"
+                              className="px-2 py-1 rounded-[4px] bg-raised hover:bg-hover border border-line text-[11px] text-ink cursor-pointer"
                             >
                               Edit
                             </button>
@@ -1052,20 +1061,20 @@ export const InventoryManagement: React.FC = () => {
         {/* SUB-TAB 4: RESTOCKING & SHIPMENT PURCHASES */}
         {/* ======================================================== */}
         {activeSubTab === 'purchases' && (
-          <div className="h-full overflow-y-auto p-5 space-y-5">
+          <div className="h-full overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-[#ECEAE6]">
+                <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
                   Stock Purchases & Supplier Shipments
                 </h2>
-                <p className="text-xs text-[#8B909A]">
+                <p className="text-xs text-muted">
                   Log stock intake from distributors to automatically increment inventory counts and compute weighted cost.
                 </p>
               </div>
 
               <button
                 onClick={() => setShowRestockDrawer(true)}
-                className="px-3.5 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Record New Purchase</span>
@@ -1073,10 +1082,10 @@ export const InventoryManagement: React.FC = () => {
             </div>
 
             {/* Purchases History Table */}
-            <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
-              <table className="w-full text-left border-collapse text-xs">
+            <div className="border border-line rounded-[8px] bg-panel overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[11px] uppercase tracking-wider">
+                  <tr className="border-b border-line bg-raised text-muted text-[11px] uppercase tracking-wider">
                     <th className="py-2.5 px-4 font-semibold">PO Number</th>
                     <th className="py-2.5 px-4 font-semibold">Date</th>
                     <th className="py-2.5 px-4 font-semibold">Supplier</th>
@@ -1086,27 +1095,27 @@ export const InventoryManagement: React.FC = () => {
                     <th className="py-2.5 px-4 font-semibold">Received By</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#262A30]">
+                <tbody className="divide-y divide-line">
                   {purchases.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-[#8B909A] text-xs">
+                      <td colSpan={7} className="py-8 text-center text-muted text-xs">
                         No purchase shipments logged yet. Click "Record New Purchase" above to add stock.
                       </td>
                     </tr>
                   ) : (
                     purchases.map((po) => (
-                      <tr key={po.id} className="h-11 hover:bg-[#1C1F23]/50 transition-colors">
-                        <td className="py-2 px-4 font-mono font-bold text-[#ECEAE6]">{po.purchaseNumber}</td>
-                        <td className="py-2 px-4 font-mono text-[#8B909A]">{po.purchaseDate}</td>
-                        <td className="py-2 px-4 font-medium text-[#ECEAE6]">{po.supplierName}</td>
-                        <td className="py-2 px-4 text-[#8B909A]">
+                      <tr key={po.id} className="h-11 hover:bg-raised/50 transition-colors">
+                        <td className="py-2 px-4 font-mono font-bold text-ink">{po.purchaseNumber}</td>
+                        <td className="py-2 px-4 font-mono text-muted">{po.purchaseDate}</td>
+                        <td className="py-2 px-4 font-medium text-ink">{po.supplierName}</td>
+                        <td className="py-2 px-4 text-muted">
                           {po.items.map((i) => `${i.productName} (${i.quantity})`).join(', ')}
                         </td>
-                        <td className="py-2 px-4 text-right font-mono font-bold text-[#ECEAE6] tabular-nums">
+                        <td className="py-2 px-4 text-right font-mono font-bold text-ink tabular-nums">
                           Rs. {po.totalCost.toLocaleString()}
                         </td>
                         <td className="py-2 px-4 font-mono text-xs">{po.paymentMethod}</td>
-                        <td className="py-2 px-4 text-[#8B909A]">{po.receivedBy}</td>
+                        <td className="py-2 px-4 text-muted">{po.receivedBy}</td>
                       </tr>
                     ))
                   )}
@@ -1120,20 +1129,20 @@ export const InventoryManagement: React.FC = () => {
         {/* SUB-TAB 5: INVENTORY AUDIT & STOCK TRANSACTIONS */}
         {/* ======================================================== */}
         {activeSubTab === 'transactions' && (
-          <div className="h-full overflow-y-auto p-5 space-y-4">
+          <div className="h-full overflow-y-auto p-3 sm:p-5 space-y-4">
             <div>
-              <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-[#ECEAE6]">
+              <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
                 Inventory Movement Log (Audit Trail)
               </h2>
-              <p className="text-xs text-[#8B909A]">
+              <p className="text-xs text-muted">
                 Complete audit ledger recording every sale deduction, restock shipment, and stock adjustment.
               </p>
             </div>
 
-            <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
-              <table className="w-full text-left border-collapse text-xs">
+            <div className="border border-line rounded-[8px] bg-panel overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[11px] uppercase tracking-wider">
+                  <tr className="border-b border-line bg-raised text-muted text-[11px] uppercase tracking-wider">
                     <th className="py-2.5 px-4 font-semibold">Timestamp</th>
                     <th className="py-2.5 px-4 font-semibold">Product</th>
                     <th className="py-2.5 px-4 font-semibold">Type</th>
@@ -1144,13 +1153,13 @@ export const InventoryManagement: React.FC = () => {
                     <th className="py-2.5 px-4 font-semibold">Operator</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#262A30]">
+                <tbody className="divide-y divide-line">
                   {transactions.slice(0, 100).map((t) => (
-                    <tr key={t.id} className="h-11 hover:bg-[#1C1F23]/50 transition-colors">
-                      <td className="py-2 px-4 font-mono text-[#8B909A] text-[11px]">
+                    <tr key={t.id} className="h-11 hover:bg-raised/50 transition-colors">
+                      <td className="py-2 px-4 font-mono text-muted text-[11px]">
                         {new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {t.timestamp.split('T')[0]}
                       </td>
-                      <td className="py-2 px-4 font-medium text-[#ECEAE6]">{t.productName}</td>
+                      <td className="py-2 px-4 font-medium text-ink">{t.productName}</td>
                       <td className="py-2 px-4">
                         <span
                           className={
@@ -1168,15 +1177,15 @@ export const InventoryManagement: React.FC = () => {
                       </td>
                       <td
                         className={`py-2 px-4 text-right font-mono font-bold tabular-nums ${
-                          t.quantityChange > 0 ? 'text-[#3DB88B]' : 'text-[#E5484D]'
+                          t.quantityChange > 0 ? 'text-ok' : 'text-bad'
                         }`}
                       >
                         {t.quantityChange > 0 ? `+${t.quantityChange}` : t.quantityChange}
                       </td>
-                      <td className="py-2 px-4 text-right font-mono text-[#8B909A] tabular-nums">{t.previousStock}</td>
-                      <td className="py-2 px-4 text-right font-mono font-bold text-[#ECEAE6] tabular-nums">{t.newStock}</td>
-                      <td className="py-2 px-4 text-[#8B909A] truncate max-w-xs">{t.reason || t.referenceId || '—'}</td>
-                      <td className="py-2 px-4 text-[#8B909A]">{t.operator}</td>
+                      <td className="py-2 px-4 text-right font-mono text-muted tabular-nums">{t.previousStock}</td>
+                      <td className="py-2 px-4 text-right font-mono font-bold text-ink tabular-nums">{t.newStock}</td>
+                      <td className="py-2 px-4 text-muted truncate max-w-xs">{t.reason || t.referenceId || '—'}</td>
+                      <td className="py-2 px-4 text-muted">{t.operator}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1191,15 +1200,15 @@ export const InventoryManagement: React.FC = () => {
       {/* ======================================================== */}
       {showAddProductDrawer && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-[2px] transition-all">
-          <div className="w-[480px] max-w-full bg-[#1C1F23] border-l border-[#262A30] h-full flex flex-col shadow-2xl">
+          <div className="w-[480px] max-w-full bg-raised border-l border-line h-full flex flex-col shadow-2xl">
             {/* Header */}
-            <div className="p-4 border-b border-[#262A30] flex items-center justify-between bg-[#15171A]">
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-[#ECEAE6]">
+            <div className="p-4 border-b border-line flex items-center justify-between bg-panel">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-ink">
                 {editingProduct ? 'Edit Product Details' : 'Register New Inventory Product'}
               </h3>
               <button
                 onClick={() => setShowAddProductDrawer(false)}
-                className="p-1 text-[#8B909A] hover:text-[#ECEAE6] rounded-[4px] cursor-pointer"
+                className="p-1 text-muted hover:text-ink rounded-[4px] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1238,10 +1247,10 @@ export const InventoryManagement: React.FC = () => {
                 setShowAddProductDrawer(false);
                 refreshData();
               }}
-              className="flex-1 overflow-y-auto p-5 space-y-4 text-xs"
+              className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 text-xs"
             >
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Product SKU / Code *
                 </label>
                 <input
@@ -1249,12 +1258,12 @@ export const InventoryManagement: React.FC = () => {
                   type="text"
                   required
                   defaultValue={editingProduct?.code || `PRD-${(products.length + 1).toString().padStart(3, '0')}`}
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Product Name *
                 </label>
                 <input
@@ -1263,19 +1272,19 @@ export const InventoryManagement: React.FC = () => {
                   required
                   defaultValue={editingProduct?.name || ''}
                   placeholder="e.g. Red Bull 250ml or Whey Shake"
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Category *
                   </label>
                   <select
                     name="category"
                     defaultValue={editingProduct?.category || 'Energy Drinks'}
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                   >
                     {categories.map((c) => (
                       <option key={c} value={c}>{c}</option>
@@ -1284,7 +1293,7 @@ export const InventoryManagement: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Packaging Unit
                   </label>
                   <input
@@ -1292,14 +1301,14 @@ export const InventoryManagement: React.FC = () => {
                     type="text"
                     defaultValue={editingProduct?.unit || 'Bottle'}
                     placeholder="Bottle, Scoop, Bar, Can, Piece"
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Purchase Cost (PKR) *
                   </label>
                   <input
@@ -1308,13 +1317,13 @@ export const InventoryManagement: React.FC = () => {
                     required
                     min="0"
                     defaultValue={editingProduct?.purchasePrice || 0}
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                   />
-                  <span className="text-[10px] text-[#8B909A] mt-0.5 block">Used for exact COGS</span>
+                  <span className="text-[10px] text-muted mt-0.5 block">Used for exact COGS</span>
                 </div>
 
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Selling Price (PKR) *
                   </label>
                   <input
@@ -1323,15 +1332,15 @@ export const InventoryManagement: React.FC = () => {
                     required
                     min="0"
                     defaultValue={editingProduct?.sellingPrice || 0}
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#D9383A] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-brand focus:ring-2 focus:ring-brand focus:outline-none"
                   />
-                  <span className="text-[10px] text-[#8B909A] mt-0.5 block">Charged at POS counter</span>
+                  <span className="text-[10px] text-muted mt-0.5 block">Charged at POS counter</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Current Stock Quantity *
                   </label>
                   <input
@@ -1340,12 +1349,12 @@ export const InventoryManagement: React.FC = () => {
                     required
                     min="0"
                     defaultValue={editingProduct?.stockQuantity !== undefined ? editingProduct.stockQuantity : 24}
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Min Stock Alert Level *
                   </label>
                   <input
@@ -1354,19 +1363,19 @@ export const InventoryManagement: React.FC = () => {
                     required
                     min="1"
                     defaultValue={editingProduct?.minStockLevel || 6}
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Supplier Name
                 </label>
                 <select
                   name="supplierName"
                   defaultValue={editingProduct?.supplierName || ''}
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 >
                   <option value="">Select or type supplier...</option>
                   {suppliers.map((s) => (
@@ -1376,19 +1385,19 @@ export const InventoryManagement: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Expiry Date (Optional)
                 </label>
                 <input
                   name="expiryDate"
                   type="date"
                   defaultValue={editingProduct?.expiryDate || ''}
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Description / Serving Notes
                 </label>
                 <textarea
@@ -1396,22 +1405,22 @@ export const InventoryManagement: React.FC = () => {
                   rows={2}
                   defaultValue={editingProduct?.description || ''}
                   placeholder="Notes about dosage, refrigeration, or size..."
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
               </div>
 
               {/* Sticky footer */}
-              <div className="pt-4 border-t border-[#262A30] flex items-center justify-end gap-2">
+              <div className="pt-4 border-t border-line flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAddProductDrawer(false)}
-                  className="px-3.5 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#262A30] text-[#ECEAE6] text-xs font-semibold cursor-pointer"
+                  className="px-3.5 py-2 rounded-[6px] bg-panel hover:bg-hover text-ink text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+                  className="px-4 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-brand"
                 >
                   {editingProduct ? 'Save Changes' : 'Save Product'}
                 </button>
@@ -1426,12 +1435,12 @@ export const InventoryManagement: React.FC = () => {
       {/* ======================================================== */}
       {showAdjustStockDrawer && adjustingProduct && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-[2px]">
-          <div className="w-[440px] max-w-full bg-[#1C1F23] border-l border-[#262A30] h-full flex flex-col shadow-2xl">
-            <div className="p-4 border-b border-[#262A30] flex items-center justify-between bg-[#15171A]">
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-[#ECEAE6]">
+          <div className="w-[440px] max-w-full bg-raised border-l border-line h-full flex flex-col shadow-2xl">
+            <div className="p-4 border-b border-line flex items-center justify-between bg-panel">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-ink">
                 Adjust Stock — {adjustingProduct.name}
               </h3>
-              <button onClick={() => setShowAdjustStockDrawer(false)} className="text-[#8B909A] hover:text-[#ECEAE6]">
+              <button onClick={() => setShowAdjustStockDrawer(false)} className="text-muted hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -1444,23 +1453,23 @@ export const InventoryManagement: React.FC = () => {
                 setShowAdjustStockDrawer(false);
                 refreshData();
               }}
-              className="p-5 space-y-4 text-xs flex-1 overflow-y-auto"
+              className="p-3 sm:p-5 space-y-4 text-xs flex-1 overflow-y-auto"
             >
-              <div className="p-3 rounded-[6px] bg-[#15171A] border border-[#262A30] space-y-1 text-xs">
+              <div className="p-3 rounded-[6px] bg-panel border border-line space-y-1 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-[#8B909A]">Current System Stock:</span>
-                  <span className="font-mono font-bold text-[#ECEAE6]">{adjustingProduct.stockQuantity} {adjustingProduct.unit}</span>
+                  <span className="text-muted">Current System Stock:</span>
+                  <span className="font-mono font-bold text-ink">{adjustingProduct.stockQuantity} {adjustingProduct.unit}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8B909A]">Resulting Stock:</span>
-                  <span className="font-mono font-bold text-[#D9383A]">
+                  <span className="text-muted">Resulting Stock:</span>
+                  <span className="font-mono font-bold text-brand">
                     {Math.max(0, adjustingProduct.stockQuantity + adjustQty)} {adjustingProduct.unit}
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Adjustment Type
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -1471,8 +1480,8 @@ export const InventoryManagement: React.FC = () => {
                       onClick={() => setAdjustType(type)}
                       className={`py-1.5 rounded-[6px] border text-[11px] font-semibold text-center cursor-pointer ${
                         adjustType === type
-                          ? 'bg-[#D9383A] border-[#D9383A] text-[#ECEAE6]'
-                          : 'bg-[#15171A] border-[#262A30] text-[#8B909A]'
+                          ? 'bg-brand border-brand text-white'
+                          : 'bg-panel border-line text-muted'
                       }`}
                     >
                       {type}
@@ -1482,7 +1491,7 @@ export const InventoryManagement: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Quantity Change (+ to add, - to subtract)
                 </label>
                 <input
@@ -1491,12 +1500,12 @@ export const InventoryManagement: React.FC = () => {
                   value={adjustQty}
                   onChange={(e) => setAdjustQty(Number(e.target.value))}
                   placeholder="-2 or +5"
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Reason for Adjustment *
                 </label>
                 <input
@@ -1505,21 +1514,21 @@ export const InventoryManagement: React.FC = () => {
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
                   placeholder="e.g. Broken bottle, expired batch, physical inventory recount"
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                 />
               </div>
 
-              <div className="pt-4 border-t border-[#262A30] flex items-center justify-end gap-2">
+              <div className="pt-4 border-t border-line flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAdjustStockDrawer(false)}
-                  className="px-3 py-1.5 rounded-[6px] bg-[#15171A] hover:bg-[#262A30] text-xs font-semibold text-[#ECEAE6]"
+                  className="px-3 py-1.5 rounded-[6px] bg-panel hover:bg-hover text-xs font-semibold text-ink"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider"
+                  className="px-4 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white uppercase tracking-wider"
                 >
                   Commit Adjustment
                 </button>
@@ -1534,20 +1543,20 @@ export const InventoryManagement: React.FC = () => {
       {/* ======================================================== */}
       {showRestockDrawer && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-[2px]">
-          <div className="w-[500px] max-w-full bg-[#1C1F23] border-l border-[#262A30] h-full flex flex-col shadow-2xl">
-            <div className="p-4 border-b border-[#262A30] flex items-center justify-between bg-[#15171A]">
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-[#ECEAE6]">
+          <div className="w-[500px] max-w-full bg-raised border-l border-line h-full flex flex-col shadow-2xl">
+            <div className="p-4 border-b border-line flex items-center justify-between bg-panel">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-base font-bold text-ink">
                 Receive Supplier Stock Shipment
               </h3>
-              <button onClick={() => setShowRestockDrawer(false)} className="text-[#8B909A] hover:text-[#ECEAE6]">
+              <button onClick={() => setShowRestockDrawer(false)} className="text-muted hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleConfirmRestock} className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+            <form onSubmit={handleConfirmRestock} className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Supplier Name *
                   </label>
                   <input
@@ -1556,12 +1565,12 @@ export const InventoryManagement: React.FC = () => {
                     value={restockSupplier}
                     onChange={(e) => setRestockSupplier(e.target.value)}
                     placeholder="e.g. Sindh Beverage Traders"
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Contact / Invoice Ref
                   </label>
                   <input
@@ -1569,28 +1578,28 @@ export const InventoryManagement: React.FC = () => {
                     value={restockSupplierContact}
                     onChange={(e) => setRestockSupplierContact(e.target.value)}
                     placeholder="Invoice # or phone"
-                    className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                    className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Items List */}
               <div className="space-y-2.5">
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold flex items-center justify-between">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold flex items-center justify-between">
                   <span>Shipment Products</span>
                   <button
                     type="button"
                     onClick={() =>
                       setRestockItems([...restockItems, { productId: '', quantity: 12, unitPurchasePrice: 0 }])
                     }
-                    className="text-[#D9383A] font-bold text-[11px] hover:underline cursor-pointer"
+                    className="text-brand font-bold text-[11px] hover:underline cursor-pointer"
                   >
                     + Add Another Product
                   </button>
                 </label>
 
                 {restockItems.map((item, index) => (
-                  <div key={index} className="p-3 rounded-[6px] bg-[#15171A] border border-[#262A30] space-y-2">
+                  <div key={index} className="p-3 rounded-[6px] bg-panel border border-line space-y-2">
                     <div className="flex items-center justify-between">
                       <select
                         required
@@ -1604,7 +1613,7 @@ export const InventoryManagement: React.FC = () => {
                           }
                           setRestockItems(updated);
                         }}
-                        className="flex-1 bg-[#1C1F23] border border-[#262A30] rounded-[4px] px-2.5 py-1.5 text-xs text-[#ECEAE6]"
+                        className="flex-1 bg-raised border border-line rounded-[4px] px-2.5 py-1.5 text-xs text-ink"
                       >
                         <option value="">Select product to restock...</option>
                         {products.map((p) => (
@@ -1618,7 +1627,7 @@ export const InventoryManagement: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setRestockItems(restockItems.filter((_, i) => i !== index))}
-                          className="ml-2 text-[#8B909A] hover:text-[#E5484D]"
+                          className="ml-2 text-muted hover:text-bad"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -1627,7 +1636,7 @@ export const InventoryManagement: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <span className="text-[10px] text-[#8B909A] block mb-0.5">Quantity Received</span>
+                        <span className="text-[10px] text-muted block mb-0.5">Quantity Received</span>
                         <input
                           type="number"
                           required
@@ -1638,12 +1647,12 @@ export const InventoryManagement: React.FC = () => {
                             updated[index].quantity = Number(e.target.value) || 0;
                             setRestockItems(updated);
                           }}
-                          className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[4px] px-2 py-1 text-xs font-mono text-[#ECEAE6]"
+                          className="w-full bg-raised border border-line rounded-[4px] px-2 py-1 text-xs font-mono text-ink"
                         />
                       </div>
 
                       <div>
-                        <span className="text-[10px] text-[#8B909A] block mb-0.5">Unit Purchase Cost (PKR)</span>
+                        <span className="text-[10px] text-muted block mb-0.5">Unit Purchase Cost (PKR)</span>
                         <input
                           type="number"
                           required
@@ -1654,7 +1663,7 @@ export const InventoryManagement: React.FC = () => {
                             updated[index].unitPurchasePrice = Number(e.target.value) || 0;
                             setRestockItems(updated);
                           }}
-                          className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[4px] px-2 py-1 text-xs font-mono text-[#ECEAE6]"
+                          className="w-full bg-raised border border-line rounded-[4px] px-2 py-1 text-xs font-mono text-ink"
                         />
                       </div>
                     </div>
@@ -1663,20 +1672,20 @@ export const InventoryManagement: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Payment Method
                 </label>
                 <select
                   value={restockPaymentMethod}
                   onChange={(e) => setRestockPaymentMethod(e.target.value as PaymentMethod)}
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 >
                   <option value="Cash">Cash on Delivery</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Shipment Notes
                 </label>
                 <textarea
@@ -1684,21 +1693,21 @@ export const InventoryManagement: React.FC = () => {
                   value={restockNotes}
                   onChange={(e) => setRestockNotes(e.target.value)}
                   placeholder="Delivery truck, gate pass, or batch remarks..."
-                  className="w-full bg-[#15171A] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-panel border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 />
               </div>
 
-              <div className="pt-4 border-t border-[#262A30] flex items-center justify-end gap-2">
+              <div className="pt-4 border-t border-line flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowRestockDrawer(false)}
-                  className="px-3 py-1.5 rounded-[6px] bg-[#15171A] text-xs font-semibold text-[#ECEAE6]"
+                  className="px-3 py-1.5 rounded-[6px] bg-panel text-xs font-semibold text-ink"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider"
+                  className="px-4 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white uppercase tracking-wider"
                 >
                   Confirm & Update Stock
                 </button>
@@ -1713,50 +1722,50 @@ export const InventoryManagement: React.FC = () => {
       {/* ======================================================== */}
       {showReceiptDrawer && lastCompletedSale && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-sm bg-[#15171A] border border-[#262A30] rounded-[8px] overflow-hidden flex flex-col shadow-2xl">
-            <div className="p-3 border-b border-[#262A30] flex items-center justify-between bg-[#1C1F23]">
-              <span className="font-condensed uppercase tracking-[0.04em] text-xs font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-sm bg-panel border border-line rounded-[8px] overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-3 border-b border-line flex items-center justify-between bg-raised">
+              <span className="font-condensed uppercase tracking-[0.04em] text-xs font-bold text-ink">
                 Sales Receipt Generated
               </span>
-              <button onClick={() => setShowReceiptDrawer(false)} className="text-[#8B909A] hover:text-[#ECEAE6]">
+              <button onClick={() => setShowReceiptDrawer(false)} className="text-muted hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Receipt Printable Preview (80mm style) */}
-            <div className="p-5 font-mono text-[11px] leading-relaxed bg-[#0D0E10] border-b border-[#262A30] text-[#ECEAE6] select-text print-inventory-receipt">
-              <div className="text-center pb-3 border-b border-dashed border-[#262A30]">
-                <div className="font-bold text-sm text-[#ECEAE6] tracking-wider uppercase">THE GYM TOWN</div>
-                <div className="text-[10px] text-[#8B909A]">Hyderabad District Station</div>
-                <div className="text-[9px] text-[#8B909A] mt-0.5">Ph: +92 22 2781 440</div>
+            <div className="p-5 font-mono text-[11px] leading-relaxed bg-app border-b border-line text-ink select-text print-inventory-receipt">
+              <div className="text-center pb-3 border-b border-dashed border-line">
+                <div className="font-bold text-sm text-ink tracking-wider uppercase">THE GYM TOWN</div>
+                <div className="text-[10px] text-muted">Hyderabad District Station</div>
+                <div className="text-[9px] text-muted mt-0.5">Ph: +92 22 2781 440</div>
               </div>
 
-              <div className="py-2.5 space-y-1 text-[10px] border-b border-dashed border-[#262A30]">
+              <div className="py-2.5 space-y-1 text-[10px] border-b border-dashed border-line">
                 <div className="flex justify-between">
-                  <span className="text-[#8B909A]">Invoice:</span>
-                  <span className="font-bold text-[#ECEAE6]">{lastCompletedSale.invoiceNumber}</span>
+                  <span className="text-muted">Invoice:</span>
+                  <span className="font-bold text-ink">{lastCompletedSale.invoiceNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8B909A]">Date/Time:</span>
+                  <span className="text-muted">Date/Time:</span>
                   <span>{new Date(lastCompletedSale.createdAt).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8B909A]">Cashier:</span>
+                  <span className="text-muted">Cashier:</span>
                   <span>{lastCompletedSale.soldBy}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8B909A]">Customer:</span>
-                  <span className="font-bold text-[#ECEAE6]">{lastCompletedSale.memberName}</span>
+                  <span className="text-muted">Customer:</span>
+                  <span className="font-bold text-ink">{lastCompletedSale.memberName}</span>
                 </div>
               </div>
 
               {/* Items Table */}
-              <div className="py-2.5 space-y-1.5 border-b border-dashed border-[#262A30]">
+              <div className="py-2.5 space-y-1.5 border-b border-dashed border-line">
                 {lastCompletedSale.items.map((it, idx) => (
                   <div key={idx} className="flex justify-between text-[11px]">
                     <div className="flex-1 pr-2">
-                      <div className="text-[#ECEAE6] font-medium">{it.productName}</div>
-                      <div className="text-[9px] text-[#8B909A]">{it.quantity} x Rs. {it.unitSellingPrice}</div>
+                      <div className="text-ink font-medium">{it.productName}</div>
+                      <div className="text-[9px] text-muted">{it.quantity} x Rs. {it.unitSellingPrice}</div>
                     </div>
                     <span className="font-bold tabular-nums">Rs. {it.subtotal.toLocaleString()}</span>
                   </div>
@@ -1766,31 +1775,31 @@ export const InventoryManagement: React.FC = () => {
               {/* Totals */}
               <div className="pt-2.5 space-y-1 text-xs">
                 {lastCompletedSale.discount > 0 && (
-                  <div className="flex justify-between text-[#8B909A]">
+                  <div className="flex justify-between text-muted">
                     <span>Discount:</span>
                     <span>-Rs. {lastCompletedSale.discount}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-sm text-[#ECEAE6]">
+                <div className="flex justify-between font-bold text-sm text-ink">
                   <span>TOTAL PAID:</span>
-                  <span className="text-[#D9383A]">Rs. {lastCompletedSale.totalAmount.toLocaleString()}</span>
+                  <span className="text-brand">Rs. {lastCompletedSale.totalAmount.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-[10px] text-[#8B909A]">
+                <div className="flex justify-between text-[10px] text-muted">
                   <span>Method:</span>
                   <span>{lastCompletedSale.paymentMethod}</span>
                 </div>
               </div>
 
-              <div className="text-center pt-3 text-[9px] text-[#8B909A]">
+              <div className="text-center pt-3 text-[9px] text-muted">
                 Thank you for training with The Gym Town Hyderabad!
               </div>
             </div>
 
             {/* Actions */}
-            <div className="p-3 bg-[#15171A] flex items-center justify-end gap-2">
+            <div className="p-3 bg-panel flex items-center justify-end gap-2">
               <button
                 onClick={() => setShowReceiptDrawer(false)}
-                className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] text-xs font-semibold text-[#ECEAE6] cursor-pointer"
+                className="px-3 py-1.5 rounded-[6px] bg-raised text-xs font-semibold text-ink cursor-pointer"
               >
                 Close
               </button>
@@ -1798,7 +1807,7 @@ export const InventoryManagement: React.FC = () => {
                 onClick={() => {
                   void printDocument('inventory-receipt');
                 }}
-                className="px-4 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white flex items-center gap-1.5 cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Print Receipt</span>

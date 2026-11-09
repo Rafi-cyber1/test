@@ -54,79 +54,79 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
   const maxAtt = Math.max(1, ...last7Days.map((d) => d.count));
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#0D0E10] text-[#ECEAE6]">
-      <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#262A30] overflow-hidden">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 bg-app text-ink">
+      <div className="border border-line rounded-[8px] bg-panel grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-line overflow-hidden">
         <div className="p-4">
-          <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+          <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
             Today Visits
           </span>
-          <div className="font-condensed text-2xl font-bold text-[#ECEAE6] tabular-nums mt-1">
+          <div className="font-condensed text-2xl font-bold text-ink tabular-nums mt-1">
             {todayAttendance}
           </div>
-          <span className="text-[10px] text-[#8B909A] mt-1 block">Check-in counter logs</span>
+          <span className="text-[10px] text-muted mt-1 block">Check-in counter logs</span>
         </div>
 
         <div className="p-4">
-          <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+          <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
             Active Members
           </span>
-          <div className="font-condensed text-2xl font-bold text-[#ECEAE6] tabular-nums mt-1">
+          <div className="font-condensed text-2xl font-bold text-ink tabular-nums mt-1">
             {activeMembers}
           </div>
-          <span className="text-[10px] text-[#8B909A] mt-1 block">
+          <span className="text-[10px] text-muted mt-1 block">
             Of {members.length} registered
           </span>
         </div>
 
         <div className="p-4">
-          <span className="text-[11px] uppercase tracking-[0.04em] text-[#8B909A] font-semibold block">
+          <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
             Expiring Soon
           </span>
-          <div className="font-condensed text-2xl font-bold text-[#E5AE4A] tabular-nums mt-1">
+          <div className="font-condensed text-2xl font-bold text-warn tabular-nums mt-1">
             {expiringSoonMembers.length}
           </div>
-          <span className="text-[10px] text-[#E5AE4A] font-medium mt-1 block">
+          <span className="text-[10px] text-warn font-medium mt-1 block">
             Within next 3 days
           </span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] flex flex-col justify-between">
+        <div className="p-4 rounded-[8px] bg-panel border border-line flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <span className="font-condensed uppercase tracking-[0.04em] text-xs font-bold text-[#ECEAE6]">
+              <span className="font-condensed uppercase tracking-[0.04em] text-xs font-bold text-ink">
                 Weekly Attendance Activity
               </span>
-              <span className="text-[11px] text-[#8B909A] block mt-0.5">
+              <span className="text-[11px] text-muted block mt-0.5">
                 Past 7 days turnstile and manual attendance volume
               </span>
             </div>
-            <span className="font-mono text-xs text-[#8B909A]">
-              Today: <strong className="text-[#ECEAE6]">{todayAttendance}</strong>
+            <span className="font-mono text-xs text-muted">
+              Today: <strong className="text-ink">{todayAttendance}</strong>
             </span>
           </div>
 
           {/* SVG Bar Chart with clean muted lines */}
-          <div className="h-28 flex items-end justify-between gap-3 pt-3 border-b border-[#262A30] px-2">
+          <div className="h-28 flex items-end justify-between gap-3 pt-3 border-b border-line px-2">
             {last7Days.map((d, i) => {
               const heightPct = Math.max(8, Math.round((d.count / maxAtt) * 100));
               const isToday = i === 6;
 
               return (
                 <div key={d.dayStr} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
-                  <span className="font-mono text-[10px] text-[#8B909A] tabular-nums opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="font-mono text-[10px] text-muted tabular-nums opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     {d.count}
                   </span>
                   <div
                     style={{ height: `${heightPct}%` }}
                     className={`w-full max-w-[36px] rounded-t-[4px] transition-all duration-150 ${
                       isToday
-                        ? 'bg-[#D9383A]'
-                        : 'bg-[#262A30] group-hover:bg-[#363B44]'
+                        ? 'bg-brand'
+                        : 'bg-hover group-hover:bg-hover-strong'
                     }`}
                   />
-                  <span className="text-[10px] uppercase tracking-wider text-[#8B909A] font-semibold mt-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted font-semibold mt-1">
                     {d.label}
                   </span>
                 </div>
@@ -136,13 +136,13 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       </div>
 
-      <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] flex flex-col overflow-hidden">
-          <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between">
+      <div className="border border-line rounded-[8px] bg-panel flex flex-col overflow-hidden">
+          <div className="p-3.5 border-b border-line flex items-center justify-between">
             <div>
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                 Membership Expiring Soon ({expiringSoonMembers.length})
               </h3>
-              <span className="text-[11px] text-[#8B909A]">
+              <span className="text-[11px] text-muted">
                 Requires renewal notice within 3 days
               </span>
             </div>
@@ -152,7 +152,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[11px] uppercase tracking-wider">
+                <tr className="border-b border-line bg-raised text-muted text-[11px] uppercase tracking-wider">
                   <th className="py-2 px-3 font-semibold">Member</th>
                   <th className="py-2 px-3 font-semibold">Phone</th>
                   <th className="py-2 px-3 font-semibold">Remaining</th>
@@ -160,10 +160,10 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   <th className="py-2 px-3 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#262A30]">
+              <tbody className="divide-y divide-line">
                 {expiringSoonMembers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-[#8B909A] text-xs">
+                    <td colSpan={5} className="py-8 text-center text-muted text-xs">
                       No memberships expiring in the next 3 days.
                     </td>
                   </tr>
@@ -171,14 +171,14 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                   expiringSoonMembers.map((item) => {
                     const m = item.member;
                     return (
-                      <tr key={m.id} className="h-11 hover:bg-[#1C1F23]/60 transition-colors">
+                      <tr key={m.id} className="h-11 hover:bg-raised/60 transition-colors">
                         <td className="py-2 px-3">
-                          <div className="font-medium text-[#ECEAE6] truncate">{m.fullName}</div>
-                          <span className="font-mono text-[10px] text-[#8B909A]">{m.rollNumber}</span>
+                          <div className="font-medium text-ink truncate">{m.fullName}</div>
+                          <span className="font-mono text-[10px] text-muted">{m.rollNumber}</span>
                         </td>
-                        <td className="py-2 px-3 font-mono text-[#8B909A]">{m.mobileNumber}</td>
-                        <td className="py-2 px-3 text-[#E5AE4A]">{item.daysLeft} day{item.daysLeft === 1 ? '' : 's'}</td>
-                        <td className="py-2 px-3 font-mono text-[11px] text-[#E5AE4A] tabular-nums">
+                        <td className="py-2 px-3 font-mono text-muted">{m.mobileNumber}</td>
+                        <td className="py-2 px-3 text-warn">{item.daysLeft} day{item.daysLeft === 1 ? '' : 's'}</td>
+                        <td className="py-2 px-3 font-mono text-[11px] text-warn tabular-nums">
                           {m.expiryDate}
                         </td>
                         <td className="py-2 px-3 text-right">
@@ -186,7 +186,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                             <button
                               onClick={() => handleTriggerWhatsApp(m)}
                               disabled={sentAlertMap[m.id] || item.sentToday}
-                              className="inline-flex items-center gap-1.5 rounded-[4px] bg-[#1C1F23] px-2 py-1 text-[11px] text-[#8B909A] hover:text-[#ECEAE6] disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 rounded-[4px] bg-raised px-2 py-1 text-[11px] text-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
                               title={item.sentToday || sentAlertMap[m.id] ? 'Reminder already opened today' : 'Open WhatsApp with reminder text'}
                             >
                               <Send className="w-3.5 h-3.5" />
@@ -200,7 +200,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                                   onSelectMember(m);
                                 }
                               }}
-                              className="px-2.5 py-1 rounded-[4px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-[#ECEAE6] text-xs font-semibold cursor-pointer"
+                              className="px-2.5 py-1 rounded-[4px] bg-raised hover:bg-hover border border-line text-ink text-xs font-semibold cursor-pointer"
                             >
                               Renew plan
                             </button>

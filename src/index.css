@@ -1,42 +1,80 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Design tokens — Ice Blue (#168BFF) accent with full dark / light support.
+   Every component uses these tokens so both themes stay readable.
+   --------------------------------------------------------------------------- */
+@theme {
+  --color-app: var(--bg-primary);
+  --color-panel: var(--surface);
+  --color-raised: var(--surface-raised);
+  --color-hover: var(--surface-hover);
+  --color-hover-strong: var(--surface-hover-strong);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-bright);
+  --color-ink: var(--text-primary);
+  --color-muted: var(--text-secondary);
+  --color-brand: var(--accent);
+  --color-brand-strong: var(--accent-hover);
+  --color-bad: var(--danger);
+  --color-bad-strong: var(--danger-strong);
+  --color-ok: var(--success);
+  --color-warn: var(--warning);
+}
+
 @layer base {
   :root {
     --font-condensed: 'Barlow Condensed', sans-serif;
     --font-sans: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
-    /* Black, deep navy, and cobalt operating palette */
-    --bg-primary: #06070B;
+    /* Dark theme (default) */
+    --bg-primary: #07080D;
     --surface: #0B1220;
     --surface-raised: #111A2E;
-    --navy-deep: #0E1D3D;
-    --navy-cobalt: #15295A;
+    --surface-hover: #1A2438;
+    --surface-hover-strong: #232F47;
     --border: #1D293F;
-    --border-bright: #263755;
+    --border-bright: #2C3E5C;
     --text-primary: #EEF1F9;
     --text-secondary: #8B96AE;
-    --accent: #3D6BFF;
-    --accent-hover: #315AE0;
-    --accent-light: #7D9DFF;
-    --accent-pale: #C3D2FF;
-    --success: #7D9DFF;
+
+    /* Ice Blue brand accent */
+    --accent: #168BFF;
+    --accent-hover: #0B6FD6;
+    --accent-light: #5CB0FF;
+    --accent-pale: #BFE0FF;
+
+    --success: #3DB88B;
     --warning: #F0B44A;
     --danger: #FF6A4D;
+    --danger-strong: #E2543A;
+
+    color-scheme: dark;
   }
 
   html.light, [data-theme="light"] {
-    --bg-primary: #F3F4F6;
+    --bg-primary: #EEF3FA;
     --surface: #FFFFFF;
-    --surface-raised: #F8F9FA;
-    --border: #E2E4E8;
-    --text-primary: #111827;
-    --text-secondary: #4B5563;
-    --accent: #3D6BFF;
-    --accent-hover: #315AE0;
-    --success: #315AE0;
-    --warning: #B87817;
-    --danger: #D94E38;
+    --surface-raised: #F5F8FD;
+    --surface-hover: #E3EBF6;
+    --surface-hover-strong: #D3DFEE;
+    --border: #D6E0EE;
+    --border-bright: #B6C6DA;
+    --text-primary: #0F172A;
+    --text-secondary: #55617A;
+
+    --accent: #168BFF;
+    --accent-hover: #0B6FD6;
+    --accent-light: #0B6FD6;
+    --accent-pale: #BFE0FF;
+
+    --success: #0B7A57;
+    --warning: #A85F00;
+    --danger: #D92D20;
+    --danger-strong: #B42318;
+
+    color-scheme: light;
   }
 
   body {
@@ -48,6 +86,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.01em;
+    transition: background-color 150ms ease-out, color 150ms ease-out;
   }
 
   /* Compact numbers */
@@ -72,52 +111,15 @@
   font-family: var(--font-mono);
 }
 
-.bg-\[\#D9383A\] {
-  background-color: var(--accent) !important;
-}
+/* Brand-colored text needs a darker shade on light backgrounds for contrast. */
+html.light .text-brand { color: var(--accent-hover); }
+html.light .text-ok { color: var(--success); }
+html.light .text-warn { color: var(--warning); }
+html.light .text-bad { color: var(--danger); }
 
-.hover\:bg-\[\#C92A2C\]:hover {
-  background-color: var(--accent-hover) !important;
-}
-
-.text-\[\#D9383A\] {
-  color: var(--accent-light) !important;
-}
-
-.border-\[\#D9383A\] {
-  border-color: var(--accent) !important;
-}
-
-.focus\:ring-\[\#D9383A\]:focus {
-  --tw-ring-color: var(--accent) !important;
-}
-
-/* Map legacy utility names onto the shared black, navy, and cobalt theme. */
-.bg-\[\#0D0E10\], .bg-\[\#07080A\], .bg-\[\#0B0F17\], .bg-\[\#06080d\] {
-  background-color: var(--bg-primary) !important;
-}
-.bg-\[\#15171A\], .bg-\[\#101216\] {
-  background-color: var(--surface) !important;
-}
-.bg-\[\#1C1F23\], .bg-\[\#17191F\] {
-  background-color: var(--surface-raised) !important;
-}
-.bg-\[\#262A30\] { background-color: var(--navy-cobalt) !important; }
-.border-\[\#262A30\], .border-\[\#21252D\] {
-  border-color: var(--border) !important;
-}
-.hover\:bg-\[\#262A30\]:hover, .hover\:bg-\[\#363B44\]:hover {
-  background-color: var(--navy-cobalt) !important;
-}
-.hover\:border-\[\#363B44\]:hover { border-color: var(--border-bright) !important; }
-.text-\[\#ECEAE6\] { color: var(--text-primary) !important; }
-.text-\[\#8B909A\] { color: var(--text-secondary) !important; }
-.text-\[\#E5AE4A\] { color: var(--warning) !important; }
-.text-\[\#E5484D\], .text-\[\#D9383A\] { color: var(--danger) !important; }
-.text-\[\#3DB88B\] { color: var(--accent-light) !important; }
-.bg-\[\#3DB88B\] { background-color: var(--accent) !important; }
-.bg-\[\#E5484D\] { background-color: var(--danger) !important; }
-.bg-\[\#E5AE4A\] { background-color: var(--warning) !important; }
+/* Soft nested panels keep a slight tint in light mode instead of pure white. */
+html.light .bg-app .bg-panel,
+html.light .bg-app .bg-raised { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06); }
 
 /* Subtle 1px borders */
 .border-subtle {
@@ -126,9 +128,9 @@
 
 /* Status pills: soft tinted background + matching text (999px radius) */
 .status-pill-success {
-  background-color: rgba(125, 157, 255, 0.12);
-  color: #9BB3FF;
-  border: 1px solid rgba(125, 157, 255, 0.25);
+  background-color: color-mix(in oklab, var(--success) 14%, transparent);
+  color: var(--success);
+  border: 1px solid color-mix(in oklab, var(--success) 32%, transparent);
   border-radius: 9999px;
   padding: 2px 8px;
   font-size: 11px;
@@ -139,9 +141,9 @@
 }
 
 .status-pill-warning {
-  background-color: rgba(240, 180, 74, 0.12);
-  color: #F0B44A;
-  border: 1px solid rgba(240, 180, 74, 0.25);
+  background-color: color-mix(in oklab, var(--warning) 14%, transparent);
+  color: var(--warning);
+  border: 1px solid color-mix(in oklab, var(--warning) 32%, transparent);
   border-radius: 9999px;
   padding: 2px 8px;
   font-size: 11px;
@@ -152,9 +154,9 @@
 }
 
 .status-pill-danger {
-  background-color: rgba(255, 106, 77, 0.12);
-  color: #FF8A72;
-  border: 1px solid rgba(255, 106, 77, 0.25);
+  background-color: color-mix(in oklab, var(--danger) 14%, transparent);
+  color: var(--danger);
+  border: 1px solid color-mix(in oklab, var(--danger) 32%, transparent);
   border-radius: 9999px;
   padding: 2px 8px;
   font-size: 11px;
@@ -165,9 +167,22 @@
 }
 
 .status-pill-neutral {
-  background-color: rgba(139, 150, 174, 0.12);
-  color: #AAB5CA;
-  border: 1px solid rgba(139, 150, 174, 0.25);
+  background-color: color-mix(in oklab, var(--text-secondary) 14%, transparent);
+  color: var(--text-secondary);
+  border: 1px solid color-mix(in oklab, var(--text-secondary) 30%, transparent);
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-pill-brand {
+  background-color: color-mix(in oklab, var(--accent) 14%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in oklab, var(--accent) 32%, transparent);
   border-radius: 9999px;
   padding: 2px 8px;
   font-size: 11px;
@@ -207,8 +222,8 @@ button, a, input, select, textarea {
 }
 
 ::selection {
-  color: #EEF1F9;
-  background: rgba(61, 107, 255, 0.42);
+  color: var(--text-primary);
+  background: color-mix(in oklab, var(--accent) 35%, transparent);
 }
 
 @media (max-width: 700px) {
@@ -235,79 +250,6 @@ button, a, input, select, textarea {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* ==========================================================================
-   LIGHT MODE OVERRIDES: Comprehensive theme rules when html.light is active
-   ========================================================================== */
-
-html.light body {
-  background-color: #F3F4F6 !important;
-  color: #111827 !important;
-}
-
-html.light .bg-\[\#0D0E10\],
-html.light .bg-\[\#0B0F17\],
-html.light .bg-\[\#07080A\],
-html.light .bg-\[\#06080d\] {
-  background-color: #F3F4F6 !important;
-  color: #111827 !important;
-}
-
-html.light .bg-\[\#15171A\],
-html.light .bg-\[\#101216\] {
-  background-color: #FFFFFF !important;
-  color: #111827 !important;
-}
-
-html.light .bg-\[\#1C1F23\],
-html.light .bg-\[\#17191F\] {
-  background-color: #F8F9FA !important;
-  color: #111827 !important;
-}
-
-html.light .border-\[\#262A30\],
-html.light .border-\[\#21252D\] {
-  border-color: #E2E4E8 !important;
-}
-
-html.light .divide-\[\#262A30\] > * + *,
-html.light .divide-\[\#21252D\] > * + * {
-  border-color: #E2E4E8 !important;
-}
-
-html.light .text-\[\#ECEAE6\] {
-  color: #111827 !important;
-}
-
-html.light .text-\[\#8B909A\] {
-  color: #4B5563 !important;
-}
-
-html.light table thead tr {
-  background-color: #F1F3F5 !important;
-  border-color: #E2E4E8 !important;
-}
-
-html.light table tbody tr:hover {
-  background-color: #F8F9FA !important;
-}
-
-html.light input,
-html.light select,
-html.light textarea {
-  background-color: #FFFFFF !important;
-  border-color: #D1D5DB !important;
-  color: #111827 !important;
-}
-
-html.light input::placeholder,
-html.light textarea::placeholder {
-  color: #9CA3AF !important;
-}
-
-html.light ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
 }
 
 .print-fee-record {
@@ -504,9 +446,9 @@ html.light ::-webkit-scrollbar-thumb {
   .receipt-logo {
     display: block !important;
     max-width: 100% !important;
-    max-height: 40px !important;
-    filter: grayscale(1) contrast(1.35) !important;
+    max-height: 48px !important;
     object-fit: contain !important;
+    print-color-adjust: exact;
   }
 
   .print-receipt table {
@@ -522,5 +464,35 @@ html.light ::-webkit-scrollbar-thumb {
 
   .no-print {
     display: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Mobile / touch polish
+   --------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth momentum scrolling inside scroll panes on iOS */
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Long presses / double taps should not select UI chrome */
+  button,
+  a {
+    touch-action: manipulation;
+  }
+}
+
+/* Horizontal scroll panes get a slim, unobtrusive scrollbar */
+@layer utilities {
+  .scroll-slim {
+    scrollbar-width: thin;
   }
 }

@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="900" viewBox="0 0 1360 900" font-family="Manrope, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#168BFF"/>
+    </marker>
+    <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3DB88B"/>
+    </marker>
+    <marker id="arrowW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#F0B44A"/>
+    </marker>
+  </defs>
+
+  <rect width="1360" height="900" fill="#07080D"/>
+
+  <text x="48" y="54" fill="#EEF1F9" font-size="26" font-weight="700">Supabase par shift karne ka flow</text>
+  <text x="48" y="82" fill="#8B96AE" font-size="14">Aaj ka app (localStorage) → 3 desk + phone, ek hi Postgres database. Har step ke saath: kaun karta hai aur kitna waqt.</text>
+
+  <!-- ================= STEP ROWS ================= -->
+  <!-- Step 1 -->
+  <rect x="48" y="112" width="1264" height="86" rx="10" fill="#0B1220" stroke="#1D293F"/>
+  <circle cx="90" cy="155" r="18" fill="#168BFF"/>
+  <text x="90" y="161" fill="#07080D" font-size="16" font-weight="700" text-anchor="middle">1</text>
+  <text x="126" y="147" fill="#EEF1F9" font-size="15" font-weight="700">Supabase project banayein</text>
+  <text x="126" y="172" fill="#8B96AE" font-size="12.5">supabase.com → New project → region Singapore (Pakistan ke liye sab se kam latency) · DB password safe rakhein</text>
+  <rect x="1076" y="128" width="106" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1129" y="145" fill="#EEF1F9" font-size="11.5" text-anchor="middle">aap · 5 min</text>
+  <rect x="1194" y="128" width="98" height="26" rx="13" fill="#0C2A20" stroke="#2C6A52"/>
+  <text x="1243" y="145" fill="#3DB88B" font-size="11.5" text-anchor="middle">free tier</text>
+
+  <line x1="90" y1="198" x2="90" y2="212" stroke="#168BFF" stroke-width="2" marker-end="url(#arrowB)"/>
+
+  <!-- Step 2 -->
+  <rect x="48" y="212" width="1264" height="86" rx="10" fill="#0B1220" stroke="#1D293F"/>
+  <circle cx="90" cy="255" r="18" fill="#168BFF"/>
+  <text x="90" y="261" fill="#07080D" font-size="16" font-weight="700" text-anchor="middle">2</text>
+  <text x="126" y="247" fill="#EEF1F9" font-size="15" font-weight="700">Schema chalayein — 19 tables + RLS + realtime</text>
+  <text x="126" y="272" fill="#8B96AE" font-size="12.5">SQL Editor → paste <tspan fill="#EEF1F9">supabase/migrations/001_schema.sql</tspan> → Run · gym row <tspan fill="#EEF1F9">gym_main</tspan> khud ban jata hai</text>
+  <rect x="1076" y="228" width="106" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1129" y="245" fill="#EEF1F9" font-size="11.5" text-anchor="middle">aap · 2 min</text>
+  <rect x="1194" y="228" width="98" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1243" y="245" fill="#8B96AE" font-size="11.5" text-anchor="middle">ready file</text>
+
+  <line x1="90" y1="298" x2="90" y2="312" stroke="#168BFF" stroke-width="2" marker-end="url(#arrowB)"/>
+
+  <!-- Step 3 -->
+  <rect x="48" y="312" width="1264" height="86" rx="10" fill="#0B1220" stroke="#1D293F"/>
+  <circle cx="90" cy="355" r="18" fill="#168BFF"/>
+  <text x="90" y="361" fill="#07080D" font-size="16" font-weight="700" text-anchor="middle">3</text>
+  <text x="126" y="347" fill="#EEF1F9" font-size="15" font-weight="700">Staff logins banayein (owner + har desk)</text>
+  <text x="126" y="372" fill="#8B96AE" font-size="12.5">Authentication → Users → Add user · metadata: <tspan fill="#EEF1F9">{ "gym_id":"gym_main", "role":"owner" | "receptionist" }</tspan></text>
+  <rect x="1076" y="328" width="106" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1129" y="345" fill="#EEF1F9" font-size="11.5" text-anchor="middle">aap · 3 min</text>
+  <rect x="1194" y="328" width="98" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1243" y="345" fill="#8B96AE" font-size="11.5" text-anchor="middle">trigger auto</text>
+
+  <line x1="90" y1="398" x2="90" y2="412" stroke="#168BFF" stroke-width="2" marker-end="url(#arrowB)"/>
+
+  <!-- Step 4 -->
+  <rect x="48" y="412" width="1264" height="86" rx="10" fill="#0B1220" stroke="#1D293F"/>
+  <circle cx="90" cy="455" r="18" fill="#F0B44A"/>
+  <text x="90" y="461" fill="#07080D" font-size="16" font-weight="700" text-anchor="middle">4</text>
+  <text x="126" y="447" fill="#EEF1F9" font-size="15" font-weight="700">Aaj ka data import karein (backup JSON → Postgres)</text>
+  <text x="126" y="472" fill="#8B96AE" font-size="12.5">app se <tspan fill="#EEF1F9">Export Full Backup</tspan> → <tspan fill="#EEF1F9">npm run import:supabase -- ./backup.json</tspan> · counts match karein (members, dues)</text>
+  <rect x="1076" y="428" width="106" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1129" y="445" fill="#EEF1F9" font-size="11.5" text-anchor="middle">aap · 5 min</text>
+  <rect x="1194" y="428" width="98" height="26" rx="13" fill="#0C2A20" stroke="#2C6A52"/>
+  <text x="1243" y="445" fill="#3DB88B" font-size="11.5" text-anchor="middle">re-runnable</text>
+
+  <line x1="90" y1="498" x2="90" y2="512" stroke="#168BFF" stroke-width="2" marker-end="url(#arrowB)"/>
+
+  <!-- Step 5 -->
+  <rect x="48" y="512" width="1264" height="86" rx="10" fill="#0B1220" stroke="#1D293F"/>
+  <circle cx="90" cy="555" r="18" fill="#168BFF"/>
+  <text x="90" y="561" fill="#07080D" font-size="16" font-weight="700" text-anchor="middle">5</text>
+  <text x="126" y="547" fill="#EEF1F9" font-size="15" font-weight="700">Vercel env vars + redeploy</text>
+  <text x="126" y="572" fill="#8B96AE" font-size="12.5"><tspan fill="#EEF1F9">VITE_SUPABASE_URL</tspan> + <tspan fill="#EEF1F9">VITE_SUPABASE_ANON_KEY</tspan> (anon key public hai — RLS usay mehfooz rakhta hai) · service key kabhi nahi</text>
+  <rect x="1076" y="528" width="106" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1129" y="545" fill="#EEF1F9" font-size="11.5" text-anchor="middle">aap · 3 min</text>
+  <rect x="1194" y="528" width="98" height="26" rx="13" fill="#2A2010" stroke="#6A552C"/>
+  <text x="1243" y="545" fill="#F0B44A" font-size="11.5" text-anchor="middle">redeploy</text>
+
+  <line x1="90" y1="598" x2="90" y2="612" stroke="#168BFF" stroke-width="2" marker-end="url(#arrowB)"/>
+
+  <!-- Step 6 -->
+  <rect x="48" y="612" width="1264" height="86" rx="10" fill="#0B1220" stroke="#168BFF" stroke-opacity="0.55"/>
+  <circle cx="90" cy="655" r="18" fill="#168BFF"/>
+  <text x="90" y="661" fill="#07080D" font-size="16" font-weight="700" text-anchor="middle">6</text>
+  <text x="126" y="647" fill="#EEF1F9" font-size="15" font-weight="700">Code wiring — login screen + cloud adapter (baaki kaam)</text>
+  <text x="126" y="672" fill="#8B96AE" font-size="12.5">Login (Auth) · pull snapshot (mapper) · write-through upsert · realtime channel · offline queue · flag <tspan fill="#EEF1F9">VITE_DATA_MODE=cloud</tspan></text>
+  <rect x="1076" y="628" width="106" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1129" y="645" fill="#EEF1F9" font-size="11.5" text-anchor="middle">main · 3–5 din</text>
+  <rect x="1194" y="628" width="98" height="26" rx="13" fill="#111A2E" stroke="#1D293F"/>
+  <text x="1243" y="645" fill="#8B96AE" font-size="11.5" text-anchor="middle">screens same</text>
+
+  <!-- ================= RESULT + ROLLBACK ================= -->
+  <line x1="90" y1="698" x2="90" y2="722" stroke="#3DB88B" stroke-width="2" marker-end="url(#arrowG)"/>
+
+  <rect x="48" y="722" width="620" height="118" rx="10" fill="#0C2A20" stroke="#2C6A52"/>
+  <text x="72" y="752" fill="#3DB88B" font-size="15" font-weight="700">Result: 3 desk + phone, ek hi data</text>
+  <text x="72" y="778" fill="#EEF1F9" font-size="12.5">Desk 1 fee leta hai → Desk 2 aur owner ke phone par balance 1 second</text>
+  <text x="72" y="798" fill="#EEF1F9" font-size="12.5">mein khud update. Reports seedha SQL se. Net band? Counter chalta</text>
+  <text x="72" y="818" fill="#EEF1F9" font-size="12.5">rahega, changes queue ho kar reconnect par chale jayenge.</text>
+
+  <rect x="692" y="722" width="620" height="118" rx="10" fill="#0B1220" stroke="#2C3E5C" stroke-dasharray="6 6"/>
+  <text x="716" y="752" fill="#F0B44A" font-size="15" font-weight="700">Rollback (hamesha available)</text>
+  <text x="716" y="778" fill="#EEF1F9" font-size="12.5">Vercel mein <tspan fill="#F0B44A">VITE_DATA_MODE=local</tspan> → redeploy. App bilkul</text>
+  <text x="716" y="798" fill="#EEF1F9" font-size="12.5">aaj jaisa: data browser ke localStorage mein. Supabase ka data</text>
+  <text x="716" y="818" fill="#EEF1F9" font-size="12.5">waisa hi rehta hai — kuch delete nahi hota.</text>
+
+  <!-- branch arrow to rollback -->
+  <path d="M 668 781 L 688 781" stroke="#F0B44A" stroke-width="2" marker-end="url(#arrowW)" stroke-dasharray="5 4"/>
+
+  <text x="48" y="876" fill="#8B96AE" font-size="11.5">Steps 1–5 aaj ho sakte hain (data safe rehta hai) · step 6 ke baad hi flag cloud hota hai · poora detail: docs/supabase-setup.md</text>
+</svg>

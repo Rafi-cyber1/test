@@ -27,42 +27,42 @@ export const WhatsAppManager: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#0D0E10] text-[#ECEAE6]">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 bg-app text-ink">
       {/* Top Header */}
-      <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-[8px] bg-panel border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-[#ECEAE6]">
+            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
               WhatsApp Expiry Notifications & Alerts
             </h2>
-            <span className="font-mono text-xs text-[#E5AE4A] bg-[#1C1F23] px-2 py-0.5 rounded-[4px] border border-[#262A30]">
+            <span className="font-mono text-xs text-warn bg-raised px-2 py-0.5 rounded-[4px] border border-line">
               {expiringList.length} Due for Alert
             </span>
           </div>
-          <p className="text-xs text-[#8B909A] mt-1">
+          <p className="text-xs text-muted mt-1">
             Automated 3-day expiry alerts with pre-filled WhatsApp link generation and duplicate prevention.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-[#3DB88B] bg-[#1C1F23] px-3 py-1.5 rounded-[6px] border border-[#262A30]">
-          <Clock className="w-3.5 h-3.5 text-[#3DB88B]" />
+        <div className="flex items-center gap-2 text-xs font-mono text-ok bg-raised px-3 py-1.5 rounded-[6px] border border-line">
+          <Clock className="w-3.5 h-3.5 text-ok" />
           <span>3-Day Engine Active</span>
         </div>
       </div>
 
       {/* Expiring Members Requiring Reminders Table */}
-      <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
-        <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between">
-          <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+      <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
+        <div className="p-3.5 border-b border-line flex items-center justify-between">
+          <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
             Members Expiring within 3 Days ({expiringList.length})
           </h3>
-          <span className="text-xs text-[#8B909A]">Direct pre-filled WhatsApp dispatch</span>
+          <span className="text-xs text-muted">Direct pre-filled WhatsApp dispatch</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[10px] uppercase tracking-wider">
+              <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                 <th className="py-2.5 px-4 font-semibold">Roll #</th>
                 <th className="py-2.5 px-4 font-semibold">Member Name</th>
                 <th className="py-2.5 px-4 font-semibold">WhatsApp Number</th>
@@ -71,10 +71,10 @@ export const WhatsAppManager: React.FC = () => {
                 <th className="py-2.5 px-4 font-semibold text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#262A30]">
+            <tbody className="divide-y divide-line">
               {expiringList.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[#8B909A]">
+                  <td colSpan={6} className="py-8 text-center text-muted">
                     No members have memberships expiring within the next 3 days. All records up to date.
                   </td>
                 </tr>
@@ -84,19 +84,19 @@ export const WhatsAppManager: React.FC = () => {
                   const isSent = sentMap[m.id];
 
                   return (
-                    <tr key={m.id} className="h-11 hover:bg-[#1C1F23]/50 transition-colors">
-                      <td className="py-2 px-4 font-mono font-bold text-[#ECEAE6]">{m.rollNumber}</td>
-                      <td className="py-2 px-4 font-medium text-[#ECEAE6]">{m.fullName}</td>
-                      <td className="py-2 px-4 font-mono text-[#8B909A]">{m.whatsappNumber}</td>
-                      <td className="py-2 px-4 text-[#8B909A]">{m.planName}</td>
-                      <td className="py-2 px-4 font-mono text-[#E5AE4A] font-semibold tabular-nums">{m.expiryDate}</td>
+                    <tr key={m.id} className="h-11 hover:bg-raised/50 transition-colors">
+                      <td className="py-2 px-4 font-mono font-bold text-ink">{m.rollNumber}</td>
+                      <td className="py-2 px-4 font-medium text-ink">{m.fullName}</td>
+                      <td className="py-2 px-4 font-mono text-muted">{m.whatsappNumber}</td>
+                      <td className="py-2 px-4 text-muted">{m.planName}</td>
+                      <td className="py-2 px-4 font-mono text-warn font-semibold tabular-nums">{m.expiryDate}</td>
                       <td className="py-2 px-4 text-right">
                         <button
                           onClick={() => handleTriggerOfficialReminder(m)}
                           className={`px-3 py-1.5 rounded-[6px] text-xs font-semibold flex items-center gap-1.5 ml-auto transition-all cursor-pointer ${
                             isSent
-                              ? 'bg-[#1C1F23] border border-[#262A30] text-[#3DB88B]'
-                              : 'bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6]'
+                              ? 'bg-raised border border-line text-ok'
+                              : 'bg-brand hover:bg-brand-strong text-white'
                           }`}
                         >
                           <Send className="w-3.5 h-3.5" />
@@ -113,18 +113,18 @@ export const WhatsAppManager: React.FC = () => {
       </div>
 
       {/* Dispatched WhatsApp Notifications History */}
-      <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
-        <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between">
-          <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+      <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
+        <div className="p-3.5 border-b border-line flex items-center justify-between">
+          <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
             Dispatch Audit Log ({notifications.length})
           </h3>
-          <span className="text-xs text-[#8B909A]">Historical message receipts</span>
+          <span className="text-xs text-muted">Historical message receipts</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[10px] uppercase tracking-wider">
+              <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                 <th className="py-2.5 px-4 font-semibold">Timestamp</th>
                 <th className="py-2.5 px-4 font-semibold">Recipient</th>
                 <th className="py-2.5 px-4 font-semibold">Phone</th>
@@ -133,25 +133,25 @@ export const WhatsAppManager: React.FC = () => {
                 <th className="py-2.5 px-4 font-semibold text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#262A30]">
+            <tbody className="divide-y divide-line">
               {notifications.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[#8B909A]">
+                  <td colSpan={6} className="py-8 text-center text-muted">
                     No WhatsApp notifications logged yet. Sent alerts will appear here.
                   </td>
                 </tr>
               ) : (
                 notifications.slice(0, 50).map((n) => (
-                  <tr key={n.id} className="h-11 hover:bg-[#1C1F23]/50 transition-colors">
-                    <td className="py-2 px-4 font-mono text-[#8B909A] text-[11px]">
+                  <tr key={n.id} className="h-11 hover:bg-raised/50 transition-colors">
+                    <td className="py-2 px-4 font-mono text-muted text-[11px]">
                       {n.createdAt.split('T')[0]} {n.createdAt.split('T')[1]?.substring(0, 5)}
                     </td>
-                    <td className="py-2 px-4 font-medium text-[#ECEAE6]">{n.memberName}</td>
-                    <td className="py-2 px-4 font-mono text-[#8B909A]">{n.whatsappNumber}</td>
+                    <td className="py-2 px-4 font-medium text-ink">{n.memberName}</td>
+                    <td className="py-2 px-4 font-mono text-muted">{n.whatsappNumber}</td>
                     <td className="py-2 px-4">
                       <span className="status-pill-neutral text-[10px]">{n.messageType}</span>
                     </td>
-                    <td className="py-2 px-4 text-[#8B909A] truncate max-w-sm">{n.messageText}</td>
+                    <td className="py-2 px-4 text-muted truncate max-w-sm">{n.messageText}</td>
                     <td className="py-2 px-4 text-center">
                       <span className="status-pill-success">Dispatched</span>
                     </td>

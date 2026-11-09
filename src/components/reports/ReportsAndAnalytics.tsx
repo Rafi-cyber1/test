@@ -38,7 +38,7 @@ export const ReportsAndAnalytics: React.FC = () => {
   const totalOverdue = overdueMembers.reduce((sum, m) => sum + m.balanceDue, 0);
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto print-report">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto print-report">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
         <div>
@@ -159,7 +159,7 @@ export const ReportsAndAnalytics: React.FC = () => {
             </div>
           </div>
 
-          <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-left text-xs">
             <thead className="bg-[#080d17] text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="p-3">Roll Number</th>
@@ -186,7 +186,7 @@ export const ReportsAndAnalytics: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
 

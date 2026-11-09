@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   HardDrive,
   Download,
@@ -10,12 +10,21 @@ import {
   RotateCcw,
   Check,
   FileText,
-  FlaskConical,
-  Trash2,
+  Cloud,
+  KeyRound,
+  RefreshCw,
 } from 'lucide-react';
 import { db } from '../../db/storage';
 import { GymSettings, ReceptionistProfile } from '../../types';
 import { GymTownLogo } from '../common/GymTownLogo';
+import {
+  CloudStatus,
+  checkCloudStatus,
+  getLastSyncLabel,
+  getSyncKey,
+  setSyncKey,
+} from '../../services/cloudSync';
+import { cloudAutoSync, AutoSyncState } from '../../services/cloudAutoSync';
 
 export const ApplicationSettings: React.FC = () => {
   const [settings, setSettings] = useState<GymSettings>(db.getSettings());
@@ -32,41 +41,35 @@ export const ApplicationSettings: React.FC = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [restoreStatus, setRestoreStatus] = useState<string | null>(null);
-  const [demoBusy, setDemoBusy] = useState(false);
+  const [exportMessage, setExportMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'receptionist' | 'gym' | 'database' | 'audit'>('receptionist');
 
+  // Optional cloud sync (Vercel serverless endpoint at /api/sync)
+  const [syncKeyInput, setSyncKeyInput] = useState(getSyncKey());
+  const [cloudStatus, setCloudStatus] = useState<CloudStatus | null>(null);
+  const [cloudMessage, setCloudMessage] = useState<string | null>(null);
+  const [cloudError, setCloudError] = useState(false);
+  const [cloudBusy, setCloudBusy] = useState(false);
+  const [lastSyncLabel, setLastSyncLabel] = useState(getLastSyncLabel());
+  const [autoSyncState, setAutoSyncState] = useState<AutoSyncState>(cloudAutoSync.getState());
+
+  useEffect(() => {
+    const unsubscribe = cloudAutoSync.subscribe(() => {
+      setAutoSyncState(cloudAutoSync.getState());
+      setLastSyncLabel(getLastSyncLabel());
+    });
+    return () => unsubscribe();
+  }, []);
+
   const auditLogs = db.getState().auditLogs;
-  const demoMemberCount = db.getDemoMemberCount();
-
-  const handleAddDemoData = async () => {
-    if (!confirm('Add 120 clearly labeled demo members, sample payments, and attendance records? Existing records will not be changed.')) {
-      return;
-    }
-
-    setDemoBusy(true);
-    setRestoreStatus(null);
-    try {
-      const added = await db.seedDemoData();
-      setRestoreStatus(`Added ${added} demo members, sample payments, and attendance records. Search for "DEMO" to find them.`);
-    } catch (error) {
-      setRestoreStatus(`Unable to add demo data: ${error instanceof Error ? error.message : 'Unknown error.'}`);
-    } finally {
-      setDemoBusy(false);
-    }
-  };
-
-  const handleRemoveDemoData = () => {
-    if (!confirm(`Remove ${demoMemberCount} demo members and their related payments and attendance? Other records will be kept.`)) {
-      return;
-    }
-
-    try {
-      const removed = db.removeDemoData();
-      setRestoreStatus(`Removed ${removed} demo members and their related records. Other records were kept.`);
-    } catch (error) {
-      setRestoreStatus(`Unable to remove demo data: ${error instanceof Error ? error.message : 'Unknown error.'}`);
-    }
-  };
+  const backupCounts = db.getBackupCounts();
+  const backupAgeDays: number | null = (() => {
+    const raw = db.getState().lastBackupDate;
+    if (!raw) return null;
+    const stamp = new Date(raw).getTime();
+    if (Number.isNaN(stamp)) return null;
+    return Math.max(0, Math.floor((Date.now() - stamp) / 86_400_000));
+  })();
 
   const validatePhoneNumbers = (phones: Array<{ label: string; value: string }>) => {
     const invalidPhone = phones.find(({ value }) => value.trim() && !db.isValidPhoneNumber(value));
@@ -106,12 +109,109 @@ export const ApplicationSettings: React.FC = () => {
     const json = db.exportBackupJson();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
+
+    const stamp = new Date()
+      .toISOString()
+      .replace('T', '_')
+      .replace(/[:.]/g, '-')
+      .slice(0, 16);
+    const fileName = `TheGymTown_Backup_${stamp}.json`;
+
     const link = document.createElement('a');
     link.href = url;
-    link.download = `TheGymTown_Hyderabad_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = fileName;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+    // Some browsers need the object URL to stay alive for a moment.
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+    const sizeKb = Math.max(1, Math.round(json.length / 1024));
+    setExportMessage(
+      `${fileName} (${sizeKb} KB) downloaded to this device's Downloads folder — keep a copy in Google Drive too.`
+    );
+    setSettings(db.getSettings());
   };
+
+  const runCloud = async (task: () => Promise<void>) => {
+    setCloudBusy(true);
+    try {
+      await task();
+    } finally {
+      setCloudBusy(false);
+      setLastSyncLabel(getLastSyncLabel());
+    }
+  };
+
+  const handleSaveSyncKey = () => runCloud(async () => {
+    setSyncKey(syncKeyInput);
+    setCloudMessage(null);
+    setCloudError(false);
+    if (!syncKeyInput.trim()) {
+      setCloudStatus(null);
+      setCloudMessage('Sync key cleared on this device.');
+      return;
+    }
+    try {
+      const status = await checkCloudStatus();
+      setCloudStatus(status);
+      setCloudMessage(
+        status.empty
+          ? 'Cloud is connected and empty — upload this desk\'s data first.'
+          : `Cloud connected · v${status.version} · saved ${status.updatedAt ? new Date(status.updatedAt).toLocaleString() : 'unknown'} by ${status.updatedBy || 'front desk'}.`
+      );
+      setCloudError(false);
+      await cloudAutoSync.restart();
+    } catch (error: any) {
+      setCloudStatus(null);
+      setCloudMessage(error.message || 'Could not reach the cloud endpoint.');
+      setCloudError(true);
+    }
+  });
+
+  const handleCloudUpload = () => runCloud(async () => {
+    const confirmed = window.confirm(
+      `Replace the cloud copy with this desk's data?\n\nMembers: ${backupCounts.members} · Ledger entries: ${backupCounts.ledgerEntries} · Receipts: ${backupCounts.payments} · Products: ${backupCounts.products}\n\nA copy of the current cloud data stays in your last export, and the previous upload is always downloadable until this one is replaced.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await cloudAutoSync.forceUpload();
+      const engineState = cloudAutoSync.getState();
+      setCloudMessage(engineState.message);
+      setCloudError(engineState.status === 'error');
+      setCloudStatus(await checkCloudStatus());
+    } catch (error: any) {
+      setCloudMessage(error.message || 'Upload failed.');
+      setCloudError(true);
+    }
+  });
+
+  const handleCloudDownload = () => runCloud(async () => {
+    try {
+      const status = await checkCloudStatus();
+      setCloudStatus(status);
+      if (status.empty) {
+        setCloudMessage('Cloud is empty — nothing to download yet.');
+        setCloudError(true);
+        return;
+      }
+      const confirmed = window.confirm(
+        `Download cloud copy v${status.version} (saved ${status.updatedAt ? new Date(status.updatedAt).toLocaleString() : 'unknown'} by ${status.updatedBy || 'front desk'})?\n\nThis REPLACES the data in this browser. Export a backup first if this device has newer work.`
+      );
+      if (!confirmed) return;
+
+      await cloudAutoSync.forceDownload();
+      const engineState = cloudAutoSync.getState();
+      setSettings(db.getSettings());
+      setCloudMessage(engineState.message);
+      setCloudError(engineState.status === 'error');
+    } catch (error: any) {
+      setCloudMessage(error.message || 'Download failed.');
+      setCloudError(true);
+    }
+  });
 
   const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -137,35 +237,35 @@ export const ApplicationSettings: React.FC = () => {
   const handleClearAllData = () => {
     if (
       confirm(
-        'Are you sure you want to clear all data? This will remove all registered members, attendance logs, and payments for a clean slate.'
+        'Clear ALL records? This removes members, fee ledger, receipts, attendance, expenses, inventory products, POS sales, stock purchases, and suppliers. Plans and station settings are kept. Export a backup first if you may need this data.'
       )
     ) {
       db.clearAllData();
-      setRestoreStatus('All data cleared. Database is 100% fresh with zero records.');
+      setRestoreStatus('All operational records cleared. Plans and station settings were kept.');
       setTimeout(() => setRestoreStatus(null), 4000);
     }
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#0D0E10] text-[#ECEAE6]">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 bg-app text-ink">
       {/* Top Header */}
-      <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-[8px] bg-panel border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-[#ECEAE6]">
+            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
               Station Settings & Administration
             </h2>
-            <span className="font-mono text-xs text-[#8B909A] bg-[#1C1F23] px-2 py-0.5 rounded-[4px] border border-[#262A30]">
+            <span className="font-mono text-xs text-muted bg-raised px-2 py-0.5 rounded-[4px] border border-line">
               Hyderabad Desk 01
             </span>
           </div>
-          <p className="text-xs text-[#8B909A] mt-1">
+          <p className="text-xs text-muted mt-1">
             Manage your Front Desk Receptionist profile, gym location details (Hyderabad, Sindh), and JSON database backup.
           </p>
         </div>
 
         {saveSuccess && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#1C1F23] border border-[#262A30] border-l-4 border-l-[#3DB88B] text-[#3DB88B] text-xs font-semibold">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-raised border border-line border-l-4 border-l-ok text-ok text-xs font-semibold">
             <Check className="w-3.5 h-3.5" />
             <span>Settings Saved</span>
           </div>
@@ -173,7 +273,7 @@ export const ApplicationSettings: React.FC = () => {
       </div>
 
       {/* Underline Tabs */}
-      <div className="flex items-center gap-6 px-1 border-b border-[#262A30]">
+      <div className="flex items-center gap-6 px-1 border-b border-line">
         {(
           [
             { key: 'receptionist', label: 'Receptionist Profile' },
@@ -187,8 +287,8 @@ export const ApplicationSettings: React.FC = () => {
             onClick={() => setActiveTab(tab.key)}
             className={`py-2.5 text-xs font-semibold tracking-wide transition-all cursor-pointer border-b-2 ${
               activeTab === tab.key
-                ? 'border-[#D9383A] text-[#ECEAE6]'
-                : 'border-transparent text-[#8B909A] hover:text-[#ECEAE6]'
+                ? 'border-brand text-ink'
+                : 'border-transparent text-muted hover:text-ink'
             }`}
           >
             {tab.label}
@@ -198,24 +298,24 @@ export const ApplicationSettings: React.FC = () => {
 
       {/* Tab 1: Receptionist Profile */}
       {activeTab === 'receptionist' && (
-        <form onSubmit={handleSaveReceptionist} className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-4 max-w-2xl text-xs">
+        <form onSubmit={handleSaveReceptionist} className="p-5 rounded-[8px] bg-panel border border-line space-y-4 max-w-2xl text-xs">
           {phoneError && (
-            <div role="alert" className="rounded-[6px] border border-[#E5484D]/40 bg-[#E5484D]/10 p-2.5 text-xs text-[#E5484D]">
+            <div role="alert" className="rounded-[6px] border border-bad/40 bg-bad/10 p-2.5 text-xs text-bad">
               {phoneError}
             </div>
           )}
           <div className="space-y-1">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Front Desk Officer Profile
             </h3>
-            <p className="text-[#8B909A] text-[11px]">
+            <p className="text-muted text-[11px]">
               This name appears on all receipts, turnstile logs, and attendance audits.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Officer Full Name *
               </label>
               <input
@@ -223,12 +323,12 @@ export const ApplicationSettings: React.FC = () => {
                 required
                 value={receptionist.name}
                 onChange={(e) => setReceptionist({ ...receptionist, name: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Contact Phone
               </label>
               <input
@@ -239,42 +339,42 @@ export const ApplicationSettings: React.FC = () => {
                   setReceptionist({ ...receptionist, phone: e.target.value });
                   setPhoneError(null);
                 }}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
-              <span className="mt-1 block text-[10px] text-[#8B909A]">11 digits, or 12 digits with country code 92.</span>
+              <span className="mt-1 block text-[10px] text-muted">11 digits, or 12 digits with country code 92.</span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Work Shift Timing
               </label>
               <input
                 type="text"
                 value={receptionist.shift}
                 onChange={(e) => setReceptionist({ ...receptionist, shift: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Counter ID / Gate
               </label>
               <input
                 type="text"
                 value={receptionist.counterId}
                 onChange={(e) => setReceptionist({ ...receptionist, counterId: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6] focus:ring-2 focus:ring-[#D9383A] focus:outline-none"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink focus:ring-2 focus:ring-brand focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#262A30] flex justify-end">
+          <div className="pt-3 border-t border-line flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+              className="px-4 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-brand"
             >
               Save Officer Profile
             </button>
@@ -284,24 +384,24 @@ export const ApplicationSettings: React.FC = () => {
 
       {/* Tab 2: Gym Details & Location */}
       {activeTab === 'gym' && (
-        <form onSubmit={handleSaveGymSettings} className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-4 max-w-2xl text-xs">
+        <form onSubmit={handleSaveGymSettings} className="p-5 rounded-[8px] bg-panel border border-line space-y-4 max-w-2xl text-xs">
           {phoneError && (
-            <div role="alert" className="rounded-[6px] border border-[#E5484D]/40 bg-[#E5484D]/10 p-2.5 text-xs text-[#E5484D]">
+            <div role="alert" className="rounded-[6px] border border-bad/40 bg-bad/10 p-2.5 text-xs text-bad">
               {phoneError}
             </div>
           )}
           <div className="space-y-1">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Gym Facility Information
             </h3>
-            <p className="text-[#8B909A] text-[11px]">
+            <p className="text-muted text-[11px]">
               Hyderabad District center branding and contact info printed on customer receipts.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Gym Name *
               </label>
               <input
@@ -309,38 +409,38 @@ export const ApplicationSettings: React.FC = () => {
                 required
                 value={settings.gymName}
                 onChange={(e) => setSettings({ ...settings, gymName: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 City / Region
               </label>
               <input
                 type="text"
                 value={settings.city}
                 onChange={(e) => setSettings({ ...settings, city: e.target.value })}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+            <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
               Address
             </label>
             <input
               type="text"
               value={settings.address}
               onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-              className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+              className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 Official Contact Phone
               </label>
               <input
@@ -351,12 +451,12 @@ export const ApplicationSettings: React.FC = () => {
                   setSettings({ ...settings, phone: e.target.value });
                   setPhoneError(null);
                 }}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+              <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                 WhatsApp Hotline
               </label>
               <input
@@ -367,15 +467,15 @@ export const ApplicationSettings: React.FC = () => {
                   setSettings({ ...settings, whatsapp: e.target.value });
                   setPhoneError(null);
                 }}
-                className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
+                className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#262A30] flex justify-end">
+          <div className="pt-3 border-t border-line flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+              className="px-4 py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold uppercase tracking-wider cursor-pointer focus:ring-2 focus:ring-brand"
             >
               Update Gym Info
             </button>
@@ -385,85 +485,98 @@ export const ApplicationSettings: React.FC = () => {
 
       {/* Tab 3: Database Backup & Restore */}
       {activeTab === 'database' && (
-        <div className="p-5 rounded-[8px] bg-[#15171A] border border-[#262A30] space-y-5 max-w-2xl text-xs">
+        <div className="p-5 rounded-[8px] bg-panel border border-line space-y-5 max-w-2xl text-xs">
           <div>
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Database Protection & Backup Snapshot
             </h3>
-            <p className="text-[#8B909A] text-[11px] mt-0.5">
-              Export all members, attendance records, inventory stock, sales invoices, and ledger receipts to a secure JSON file.
+            <p className="text-muted text-[11px] mt-0.5">
+              One JSON file with <strong className="text-ink">everything</strong>: members &amp; removed members, plans,
+              fee ledger, receipts, attendance, expenses, inventory products, POS sales, stock purchases, suppliers,
+              notifications, station settings, and the audit trail. Restoring it brings every module back exactly as
+              it was.
             </p>
           </div>
 
           {restoreStatus && (
-            <div role="status" className={`p-3 rounded-[6px] bg-[#1C1F23] border border-[#262A30] border-l-4 font-semibold ${
-              restoreStatus.startsWith('Unable to') || restoreStatus.startsWith('Demo records already')
-                ? 'border-l-[#E5484D] text-[#E5484D]'
-                : 'border-l-[#3DB88B] text-[#3DB88B]'
+            <div role="status" className={`p-3 rounded-[6px] bg-raised border border-line border-l-4 font-semibold ${
+              restoreStatus.startsWith('Unable to')
+                ? 'border-l-bad text-bad'
+                : 'border-l-ok text-ok'
             }`}>
               {restoreStatus}
             </div>
           )}
 
-          <div className="p-4 rounded-[6px] bg-[#1C1F23] border border-[#D9383A]/40 space-y-3">
-            <div className="flex items-start gap-2.5">
-              <FlaskConical className="w-4 h-4 mt-0.5 text-[#D9383A] shrink-0" />
-              <div>
-                <span className="font-semibold text-xs text-[#ECEAE6] block">Demo Data for Testing</span>
-                <p className="text-[11px] text-[#8B909A] mt-1">
-                  Adds 120 clearly labeled DEMO members with varied payment statuses and attendance. Existing records stay untouched. Demo phone numbers are fake; do not contact them.
-                </p>
-                <p className="text-[11px] text-[#8B909A] mt-1">
-                  Current demo members: <strong className="text-[#ECEAE6]">{demoMemberCount}</strong>
-                </p>
-              </div>
+          <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold text-xs text-ink block">What the next backup will contain</span>
+              <span className="text-[10px] font-mono text-muted">schema v3 · full database</span>
             </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleAddDemoData}
-                disabled={demoBusy || demoMemberCount > 0}
-                className="px-3.5 py-2 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] disabled:opacity-50 disabled:cursor-not-allowed text-[#ECEAE6] text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-              >
-                <FlaskConical className="w-3.5 h-3.5" />
-                <span>{demoBusy ? 'Adding demo data…' : demoMemberCount > 0 ? 'Demo data already added' : 'Add 120 Demo Members'}</span>
-              </button>
-              {demoMemberCount > 0 && (
-                <button
-                  type="button"
-                  onClick={handleRemoveDemoData}
-                  disabled={demoBusy}
-                  className="px-3.5 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#E5484D] border border-[#E5484D]/40 text-[#E5484D] hover:text-[#ECEAE6] disabled:opacity-50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {[
+                { label: 'Members', value: backupCounts.members },
+                { label: 'Removed members', value: backupCounts.removedMembers },
+                { label: 'Plans', value: backupCounts.plans },
+                { label: 'Fee ledger entries', value: backupCounts.ledgerEntries },
+                { label: 'Receipts / payments', value: backupCounts.payments },
+                { label: 'Attendance', value: backupCounts.attendance },
+                { label: 'Expenses', value: backupCounts.expenses },
+                { label: 'Inventory products', value: backupCounts.products },
+                { label: 'POS sales', value: backupCounts.sales },
+                { label: 'Stock purchases', value: backupCounts.stockPurchases },
+                { label: 'Suppliers', value: backupCounts.suppliers },
+                { label: 'Notifications', value: backupCounts.notifications },
+                { label: 'Audit log entries', value: backupCounts.auditLogs },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center justify-between gap-2 rounded-[4px] border border-line bg-panel px-2 py-1.5"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Remove Demo Data</span>
-                </button>
-              )}
+                  <span className="text-[10px] text-muted truncate">{item.label}</span>
+                  <span className="font-mono text-[11px] font-bold text-ink tabular-nums">{item.value}</span>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-[6px] bg-[#1C1F23] border border-[#262A30] space-y-2">
-              <span className="font-semibold text-xs text-[#ECEAE6] block">Export Backup JSON</span>
-              <p className="text-[11px] text-[#8B909A]">
-                Download complete snapshot to local disk.
+            <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2">
+              <span className="font-semibold text-xs text-ink block">Export Full Backup JSON</span>
+              <p className="text-[11px] text-muted">
+                Downloads members + inventory + sales + fees in a single file.
               </p>
               <button
                 type="button"
                 onClick={handleExportBackup}
-                className="w-full mt-2 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#ECEAE6] flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full mt-2 py-2 rounded-[6px] bg-panel hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Export JSON Backup</span>
+                <span>Export Full Backup</span>
               </button>
+
+              <p className={`text-[10px] leading-snug ${backupAgeDays === null || backupAgeDays > 7 ? 'text-warn' : 'text-muted'}`}>
+                {backupAgeDays === null
+                  ? 'Is device par abhi tak koi backup nahi liya gaya — aaj hi le lein.'
+                  : backupAgeDays === 0
+                    ? 'Aakhri backup aaj liya gaya.'
+                    : `Aakhri backup ${backupAgeDays} din pehle liya gaya${backupAgeDays > 7 ? ' — dobara le lein' : ''}.`}
+              </p>
+
+              {exportMessage && (
+                <p className="text-[10px] text-ok flex items-start gap-1.5">
+                  <CheckCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                  <span>{exportMessage}</span>
+                </p>
+              )}
             </div>
 
-            <div className="p-4 rounded-[6px] bg-[#1C1F23] border border-[#262A30] space-y-2">
-              <span className="font-semibold text-xs text-[#ECEAE6] block">Restore from Backup</span>
-              <p className="text-[11px] text-[#8B909A]">
-                Load an existing backup JSON file into database.
+            <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2">
+              <span className="font-semibold text-xs text-ink block">Restore from Backup</span>
+              <p className="text-[11px] text-muted">
+                Replaces the current data with the full contents of the chosen file.
               </p>
-              <label className="w-full mt-2 py-2 rounded-[6px] bg-[#15171A] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#ECEAE6] flex items-center justify-center gap-1.5 cursor-pointer">
+              <label className="w-full mt-2 py-2 rounded-[6px] bg-panel hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 cursor-pointer">
                 <Upload className="w-3.5 h-3.5" />
                 <span>Choose Backup File</span>
                 <input type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
@@ -471,15 +584,145 @@ export const ApplicationSettings: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#262A30] flex items-center justify-between">
+          {/* Optional cloud sync — Vercel serverless endpoint in api/sync.ts */}
+          <div className="pt-4 border-t border-line space-y-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <span className="font-semibold text-xs text-ink flex items-center gap-1.5">
+                  <Cloud className="w-3.5 h-3.5 text-brand" />
+                  <span>Cloud Sync (desk + phone)</span>
+                </span>
+                <p className="text-[11px] text-muted mt-1 max-w-xl">
+                  Optional. Upload this desk&apos;s full database to your Vercel endpoint and download it on
+                  another device. Nothing is uploaded until you press Upload.
+                </p>
+                <p className="text-[10px] text-muted mt-1 max-w-xl">
+                  Runs on the Vercel deployment (or with <span className="font-mono">vercel dev</span>) — the
+                  plain <span className="font-mono">npm run dev</span> preview has no <span className="font-mono">/api</span> functions,
+                  where this card will report “endpoint not found”.
+                </p>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-[4px] font-semibold ${
+                cloudStatus && !cloudStatus.empty ? 'status-pill-success' : cloudStatus ? 'status-pill-warning' : 'status-pill-neutral'
+              }`}>
+                {cloudStatus
+                  ? cloudStatus.empty
+                    ? 'Connected · empty'
+                    : `Connected · v${cloudStatus.version}`
+                  : 'Not connected'}
+              </span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <KeyRound className="w-3.5 h-3.5 text-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  value={syncKeyInput}
+                  onChange={(event) => setSyncKeyInput(event.target.value)}
+                  placeholder="Sync key (SYNC_SECRET set in Vercel)"
+                  className="w-full bg-raised border border-line rounded-[6px] pl-8 pr-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
+                  autoComplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleSaveSyncKey}
+                disabled={cloudBusy}
+                className="px-3.5 py-2 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-semibold text-ink transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${cloudBusy ? 'animate-spin' : ''}`} />
+                <span>Save &amp; test</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleCloudUpload}
+                disabled={cloudBusy}
+                className="py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Upload to cloud</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCloudDownload}
+                disabled={cloudBusy}
+                className="py-2 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download from cloud</span>
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-line/60">
+              <label className="flex items-center gap-2 text-[11px] text-ink cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={autoSyncState.auto}
+                  onChange={(event) => cloudAutoSync.setAuto(event.target.checked)}
+                  className="w-3.5 h-3.5 accent-[#168BFF] cursor-pointer"
+                />
+                <span>Auto sync in background (recommended)</span>
+              </label>
+              <span className={`text-[10px] font-mono ${
+                autoSyncState.status === 'synced'
+                  ? 'text-ok'
+                  : autoSyncState.status === 'conflict' || autoSyncState.status === 'needs-choice' || autoSyncState.status === 'error'
+                    ? 'text-warn'
+                    : 'text-muted'
+              }`}>
+                {autoSyncState.status === 'disabled'
+                  ? 'sync off'
+                  : autoSyncState.status === 'synced'
+                    ? `synced · v${autoSyncState.version}${autoSyncState.lastSyncAt ? ` · ${new Date(autoSyncState.lastSyncAt).toLocaleTimeString()}` : ''}`
+                    : autoSyncState.status === 'offline'
+                      ? 'offline — changes local hain, reconnect par jayenge'
+                      : autoSyncState.status === 'needs-choice'
+                        ? 'choose: upload ya download'
+                        : autoSyncState.status === 'conflict'
+                          ? 'conflict — pehle download karein'
+                          : autoSyncState.status}
+              </span>
+            </div>
+
+            {(autoSyncState.status === 'conflict' || autoSyncState.status === 'needs-choice') && (
+              <p className="text-[11px] text-warn flex items-start gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>{autoSyncState.message}</span>
+              </p>
+            )}
+
+            {cloudMessage && (
+              <p className={`text-[11px] flex items-start gap-1.5 ${cloudError ? 'text-bad' : 'text-ok'}`}>
+                {cloudError ? (
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                ) : (
+                  <CheckCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                )}
+                <span>{cloudMessage}</span>
+              </p>
+            )}
+
+            {lastSyncLabel && (
+              <p className="text-[10px] text-muted font-mono">Last cloud sync on this device — {lastSyncLabel}</p>
+            )}
+          </div>
+
+          <div className="pt-4 border-t border-line flex items-center justify-between">
             <div>
-              <span className="font-semibold text-xs text-[#E5484D] block">Clear All Records</span>
-              <span className="text-[11px] text-[#8B909A]">Reset members and transactions to zero for a clean start.</span>
+              <span className="font-semibold text-xs text-bad block">Clear All Records</span>
+              <span className="text-[11px] text-muted">
+                Removes members, fees, receipts, attendance, expenses, inventory, sales, purchases, and suppliers.
+                Plans and station settings are kept.
+              </span>
             </div>
             <button
               type="button"
               onClick={handleClearAllData}
-              className="px-3.5 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#E5484D] hover:text-[#ECEAE6] border border-[#E5484D]/40 text-[#E5484D] text-xs font-semibold transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-[6px] bg-raised hover:bg-bad hover:text-white border border-bad/40 text-bad text-xs font-semibold transition-colors cursor-pointer"
             >
               Clear Database
             </button>
@@ -489,18 +732,18 @@ export const ApplicationSettings: React.FC = () => {
 
       {/* Tab 4: System Audit Log */}
       {activeTab === 'audit' && (
-        <div className="border border-[#262A30] rounded-[8px] bg-[#15171A] overflow-hidden">
-          <div className="p-3.5 border-b border-[#262A30] flex items-center justify-between">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+        <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
+          <div className="p-3.5 border-b border-line flex items-center justify-between">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Audit Log Ledger ({auditLogs.length})
             </h3>
-            <span className="text-xs text-[#8B909A]">Immutable security trail</span>
+            <span className="text-xs text-muted">Immutable security trail</span>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full min-w-[640px] text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-[#262A30] bg-[#1C1F23] text-[#8B909A] text-[10px] uppercase tracking-wider">
+                <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                   <th className="py-2.5 px-4 font-semibold">Timestamp</th>
                   <th className="py-2.5 px-4 font-semibold">Module</th>
                   <th className="py-2.5 px-4 font-semibold">Action</th>
@@ -508,18 +751,18 @@ export const ApplicationSettings: React.FC = () => {
                   <th className="py-2.5 px-4 font-semibold">Operator</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#262A30]">
+              <tbody className="divide-y divide-line">
                 {auditLogs.slice(0, 80).map((log) => (
-                  <tr key={log.id} className="h-11 hover:bg-[#1C1F23]/50 transition-colors">
-                    <td className="py-2 px-4 font-mono text-[#8B909A] text-[11px]">
+                  <tr key={log.id} className="h-11 hover:bg-raised/50 transition-colors">
+                    <td className="py-2 px-4 font-mono text-muted text-[11px]">
                       {log.timestamp.split('T')[0]} {log.timestamp.split('T')[1]?.substring(0, 5)}
                     </td>
                     <td className="py-2 px-4">
                       <span className="status-pill-neutral text-[10px]">{log.module}</span>
                     </td>
-                    <td className="py-2 px-4 font-medium text-[#ECEAE6]">{log.action}</td>
-                    <td className="py-2 px-4 text-[#8B909A] truncate max-w-md">{log.details}</td>
-                    <td className="py-2 px-4 text-[#8B909A] font-mono">{log.username}</td>
+                    <td className="py-2 px-4 font-medium text-ink">{log.action}</td>
+                    <td className="py-2 px-4 text-muted truncate max-w-md">{log.details}</td>
+                    <td className="py-2 px-4 text-muted font-mono">{log.username}</td>
                   </tr>
                 ))}
               </tbody>

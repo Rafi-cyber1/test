@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="880" viewBox="0 0 1360 880" font-family="Manrope, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#168BFF"/>
+    </marker>
+    <marker id="arrowGrey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8B96AE"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3DB88B"/>
+    </marker>
+  </defs>
+
+  <rect width="1360" height="880" fill="#07080D"/>
+
+  <text x="48" y="54" fill="#EEF1F9" font-size="26" font-weight="700">The Gym Town — Supabase integration</text>
+  <text x="48" y="82" fill="#8B96AE" font-size="14">App Vercel par rehta hai, data Supabase (Postgres) mein. Har device wahi app kholta hai — 3 desk ek hi data dekhte hain.</text>
+
+  <!-- ============ 1. DEVICES ============ -->
+  <text x="48" y="132" fill="#168BFF" font-size="12" font-weight="700" letter-spacing="1.6">1. DEVICES</text>
+
+  <rect x="48" y="146" width="248" height="62" rx="8" fill="#0B1220" stroke="#1D293F"/>
+  <text x="66" y="172" fill="#EEF1F9" font-size="14" font-weight="600">Desk PC 1 — main counter</text>
+  <text x="66" y="192" fill="#8B96AE" font-size="12">Chrome · login desk1@…</text>
+
+  <rect x="48" y="220" width="248" height="62" rx="8" fill="#0B1220" stroke="#1D293F"/>
+  <text x="66" y="246" fill="#EEF1F9" font-size="14" font-weight="600">Owner's phone</text>
+  <text x="66" y="266" fill="#8B96AE" font-size="12">Add to Home Screen · owner@…</text>
+
+  <rect x="48" y="294" width="248" height="62" rx="8" fill="#0B1220" stroke="#1D293F"/>
+  <text x="66" y="320" fill="#EEF1F9" font-size="14" font-weight="600">Desk 2 (optional)</text>
+  <text x="66" y="340" fill="#8B96AE" font-size="12">same URL · same data</text>
+
+  <line x1="296" y1="251" x2="358" y2="251" stroke="#168BFF" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="296" y="240" fill="#8B96AE" font-size="10.5">HTTPS</text>
+
+  <!-- ============ 2. VERCEL ============ -->
+  <rect x="362" y="112" width="446" height="428" rx="12" fill="#0B1220" fill-opacity="0.55" stroke="#2C3E5C" stroke-dasharray="6 6"/>
+  <text x="382" y="136" fill="#168BFF" font-size="12" font-weight="700" letter-spacing="1.6">2. VERCEL — REACT APP (static)</text>
+
+  <rect x="386" y="152" width="398" height="54" rx="8" fill="#111A2E" stroke="#1D293F"/>
+  <text x="404" y="175" fill="#EEF1F9" font-size="14" font-weight="600">React screens</text>
+  <text x="404" y="194" fill="#8B96AE" font-size="12">Members · Fee Record · POS · Receipts · Settings</text>
+
+  <rect x="386" y="232" width="398" height="54" rx="8" fill="#111A2E" stroke="#1D293F"/>
+  <text x="404" y="255" fill="#EEF1F9" font-size="14" font-weight="600">db facade — src/db/storage.ts</text>
+  <text x="404" y="274" fill="#8B96AE" font-size="12">getMembers() · addPayment() · subscribe()</text>
+
+  <rect x="386" y="312" width="398" height="54" rx="8" fill="#111A2E" stroke="#1D293F"/>
+  <text x="404" y="335" fill="#EEF1F9" font-size="14" font-weight="600">cloud adapter — mapper.ts + supabaseStore.ts</text>
+  <text x="404" y="354" fill="#8B96AE" font-size="12">state ⟷ table rows · pull · upsert · realtime</text>
+
+  <rect x="386" y="404" width="182" height="72" rx="8" fill="#111A2E" stroke="#2C3E5C"/>
+  <text x="404" y="427" fill="#EEF1F9" font-size="13" font-weight="600">localStorage copy</text>
+  <text x="404" y="446" fill="#8B96AE" font-size="12">+ IndexedDB write</text>
+  <text x="404" y="463" fill="#8B96AE" font-size="12">queue (offline)</text>
+
+  <rect x="602" y="404" width="182" height="72" rx="8" fill="#111A2E" stroke="#2C3E5C"/>
+  <text x="620" y="427" fill="#EEF1F9" font-size="13" font-weight="600">session / JWT</text>
+  <text x="620" y="446" fill="#8B96AE" font-size="12">Auth login se aata hai,</text>
+  <text x="620" y="463" fill="#8B96AE" font-size="12">har call par bhejta hai</text>
+
+  <line x1="585" y1="206" x2="585" y2="230" stroke="#8B96AE" stroke-width="1.6" marker-end="url(#arrowGrey)"/>
+  <text x="595" y="223" fill="#8B96AE" font-size="11">calls</text>
+
+  <line x1="585" y1="286" x2="585" y2="310" stroke="#168BFF" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="595" y="303" fill="#8B96AE" font-size="11">har change par</text>
+
+  <line x1="477" y1="366" x2="477" y2="402" stroke="#8B96AE" stroke-width="1.6" marker-end="url(#arrowGrey)" marker-start="url(#arrowGrey)"/>
+  <text x="487" y="389" fill="#8B96AE" font-size="11">save / hydrate</text>
+
+  <line x1="685" y1="402" x2="685" y2="368" stroke="#8B96AE" stroke-width="1.6" marker-end="url(#arrowGrey)"/>
+  <text x="695" y="389" fill="#8B96AE" font-size="11">JWT</text>
+
+  <text x="392" y="502" fill="#168BFF" font-size="11">↗ select · upsert (anon key + JWT)</text>
+  <text x="392" y="521" fill="#3DB88B" font-size="11">↙ live updates (realtime websocket)</text>
+
+  <!-- ============ 3. SUPABASE ============ -->
+  <rect x="920" y="112" width="376" height="428" rx="12" fill="#0B1220" fill-opacity="0.55" stroke="#2C3E5C" stroke-dasharray="6 6"/>
+  <text x="940" y="136" fill="#3DB88B" font-size="12" font-weight="700" letter-spacing="1.6">3. SUPABASE (managed Postgres)</text>
+
+  <rect x="944" y="152" width="328" height="54" rx="8" fill="#111A2E" stroke="#1D293F"/>
+  <text x="962" y="175" fill="#EEF1F9" font-size="14" font-weight="600">Auth — email + password</text>
+  <text x="962" y="194" fill="#8B96AE" font-size="12">staff accounts · role: owner / receptionist</text>
+
+  <rect x="944" y="232" width="328" height="54" rx="8" fill="#111A2E" stroke="#1D293F"/>
+  <text x="962" y="255" fill="#EEF1F9" font-size="14" font-weight="600">PostgREST API + Row Level Security</text>
+  <text x="962" y="274" fill="#8B96AE" font-size="12">select / upsert — sirf apne gym_id ka data</text>
+
+  <rect x="944" y="312" width="328" height="76" rx="8" fill="#111A2E" stroke="#1D293F"/>
+  <text x="962" y="335" fill="#EEF1F9" font-size="14" font-weight="600">Postgres — 19 tables</text>
+  <text x="962" y="355" fill="#8B96AE" font-size="12">members · fee ledger · payments · sales …</text>
+  <text x="962" y="373" fill="#8B96AE" font-size="12">har row: poora data (jsonb) + report columns</text>
+
+  <rect x="944" y="404" width="328" height="54" rx="8" fill="#111A2E" stroke="#1D293F"/>
+  <text x="962" y="427" fill="#EEF1F9" font-size="14" font-weight="600">Realtime (websocket)</text>
+  <text x="962" y="446" fill="#8B96AE" font-size="12">doosre desk ko change foran milta hai</text>
+
+  <rect x="944" y="478" width="328" height="54" rx="8" fill="#111A2E" stroke="#1D293F"/>
+  <text x="962" y="501" fill="#EEF1F9" font-size="14" font-weight="600">Backups / PITR</text>
+  <text x="962" y="520" fill="#8B96AE" font-size="12">daily snapshot (Pro) · app ka JSON backup bhi jari</text>
+
+  <line x1="1108" y1="206" x2="1108" y2="230" stroke="#8B96AE" stroke-width="1.6" marker-end="url(#arrowGrey)"/>
+  <text x="1118" y="223" fill="#8B96AE" font-size="11">JWT verify</text>
+
+  <line x1="1108" y1="286" x2="1108" y2="310" stroke="#8B96AE" stroke-width="1.6" marker-end="url(#arrowGrey)"/>
+  <text x="1118" y="303" fill="#8B96AE" font-size="11">SQL + RLS</text>
+
+  <line x1="1005" y1="388" x2="1005" y2="402" stroke="#3DB88B" stroke-width="1.6" marker-end="url(#arrowGreen)"/>
+  <text x="1015" y="400" fill="#8B96AE" font-size="11">change feed</text>
+
+  <!-- cross arrows -->
+  <line x1="786" y1="326" x2="942" y2="264" stroke="#168BFF" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="942" y1="440" x2="786" y2="352" stroke="#3DB88B" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- ============ BOTTOM: PAYMENT FLOW ============ -->
+  <rect x="48" y="576" width="1264" height="248" rx="12" fill="#0B1220" stroke="#1D293F"/>
+  <text x="72" y="610" fill="#EEF1F9" font-size="16" font-weight="700">Ek fee payment par kya hota hai — 5 steps</text>
+
+  <circle cx="86" cy="648" r="11" fill="#168BFF"/>
+  <text x="86" y="652" fill="#07080D" font-size="12" font-weight="700" text-anchor="middle">1</text>
+  <text x="108" y="653" fill="#EEF1F9" font-size="13">Fee collect → UI turant update, net ka intezaar nahi</text>
+
+  <circle cx="86" cy="688" r="11" fill="#168BFF"/>
+  <text x="86" y="692" fill="#07080D" font-size="12" font-weight="700" text-anchor="middle">2</text>
+  <text x="108" y="693" fill="#EEF1F9" font-size="13">db facade: state + localStorage save → receipt print</text>
+
+  <circle cx="86" cy="728" r="11" fill="#168BFF"/>
+  <text x="86" y="732" fill="#07080D" font-size="12" font-weight="700" text-anchor="middle">3</text>
+  <text x="108" y="733" fill="#EEF1F9" font-size="13">cloud adapter: 2 rows upsert (client id = idempotent)</text>
+
+  <circle cx="690" cy="648" r="11" fill="#3DB88B"/>
+  <text x="690" y="652" fill="#07080D" font-size="12" font-weight="700" text-anchor="middle">4</text>
+  <text x="712" y="653" fill="#EEF1F9" font-size="13">RLS: gym_id match → insert, warna 401 / 403</text>
+
+  <circle cx="690" cy="688" r="11" fill="#3DB88B"/>
+  <text x="690" y="692" fill="#07080D" font-size="12" font-weight="700" text-anchor="middle">5</text>
+  <text x="712" y="693" fill="#EEF1F9" font-size="13">Realtime → doosre desk/phone ka balance khud refresh</text>
+
+  <circle cx="690" cy="728" r="11" fill="#F0B44A"/>
+  <text x="690" y="732" fill="#07080D" font-size="12" font-weight="700" text-anchor="middle">!</text>
+  <text x="712" y="733" fill="#F0B44A" font-size="13">Net band:</text>
+  <text x="782" y="733" fill="#8B96AE" font-size="13">IndexedDB queue → reconnect par retry (UI kabhi rukta nahi)</text>
+
+  <line x1="72" y1="758" x2="1288" y2="758" stroke="#1D293F"/>
+  <text x="72" y="786" fill="#8B96AE" font-size="12">Read path: login → pull poora snapshot (mapper) → local state. Write path: har mutation par sirf badli hui rows bhejta hai — poora database nahi.</text>
+  <text x="72" y="806" fill="#8B96AE" font-size="12">Conflict: members.version check · payments/ledger append-only (do desk ek saath fee le sakte hain, dono receipts safe).</text>
+
+  <text x="48" y="858" fill="#8B96AE" font-size="11.5">Details: docs/supabase-setup.md · schema: supabase/migrations/001_schema.sql · mapping: src/db/cloud/mapper.ts</text>
+</svg>

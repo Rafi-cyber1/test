@@ -29,11 +29,11 @@ import {
 import { appStorage } from './appStorage';
 
 const STORAGE_PREFIX = 'tgt_db_';
+const BACKUP_SCHEMA_VERSION = 3;
 const CLEAN_V2_FLAG = 'tgt_db_clean_v2';
 const BLOOD_GROUPS = new Set<BloodGroup>(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
 const INVALID_PHONE_NUMBER_ERROR =
   'Enter a valid phone number with exactly 11 digits, or 12 digits including Pakistan country code 92.';
-const DEMO_MEMBER_EMAIL_PATTERN = /^demo\.member\.\d{3}@example\.test$/;
 
 const normalizePhoneNumber = (phone: string): string => {
   let digits = phone.replace(/\D/g, '');
@@ -129,256 +129,26 @@ const DEFAULT_PLANS: MembershipPlan[] = [
   },
 ];
 
-// Default Gym Inventory Products Catalog
-const DEFAULT_PRODUCTS: Product[] = [
-  // Bottled Water
-  {
-    id: 'prd_water_500',
-    code: 'WAT-01',
-    name: 'Aquafina Mineral Water 500ml',
-    category: 'Bottled Water',
-    purchasePrice: 40,
-    sellingPrice: 70,
-    stockQuantity: 48,
-    minStockLevel: 15,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Bottle',
-    description: 'Chilled mineral drinking water bottle.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_water_1500',
-    code: 'WAT-02',
-    name: 'Nestle Pure Life 1.5L Big Bottle',
-    category: 'Bottled Water',
-    purchasePrice: 75,
-    sellingPrice: 120,
-    stockQuantity: 24,
-    minStockLevel: 8,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Bottle',
-    description: '1.5 Liter large hydration bottle.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Energy Drinks
-  {
-    id: 'prd_sting_300',
-    code: 'ENG-01',
-    name: 'Sting Energy Berry Blast 300ml',
-    category: 'Energy Drinks',
-    purchasePrice: 90,
-    sellingPrice: 130,
-    stockQuantity: 36,
-    minStockLevel: 12,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Bottle',
-    description: 'Pre-workout instant caffeinated energy boost.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_redbull_250',
-    code: 'ENG-02',
-    name: 'Red Bull Energy Drink Can 250ml',
-    category: 'Energy Drinks',
-    purchasePrice: 380,
-    sellingPrice: 480,
-    stockQuantity: 18,
-    minStockLevel: 6,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Can',
-    description: 'Premium Austrian taurine energy drink.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Protein Shakes
-  {
-    id: 'prd_shake_whey_choc',
-    code: 'SHK-01',
-    name: 'Whey Protein Shake (Double Choc)',
-    category: 'Protein Shakes',
-    purchasePrice: 220,
-    sellingPrice: 400,
-    stockQuantity: 30,
-    minStockLevel: 10,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Scoop/Glass',
-    description: '25g cold milk whey isolate post-workout shake.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_shake_gainer_banana',
-    code: 'SHK-02',
-    name: 'Mass Gainer Shake (Banana Cream)',
-    category: 'Protein Shakes',
-    purchasePrice: 240,
-    sellingPrice: 420,
-    stockQuantity: 20,
-    minStockLevel: 8,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Scoop/Glass',
-    description: 'High calorie mass builder shake with oats and banana.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Protein Bars
-  {
-    id: 'prd_bar_muscletech',
-    code: 'BAR-01',
-    name: 'MuscleTech NitroTech Protein Bar 60g',
-    category: 'Protein Bars',
-    purchasePrice: 320,
-    sellingPrice: 450,
-    stockQuantity: 16,
-    minStockLevel: 6,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Bar',
-    description: '22g protein crunch bar with low sugar.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Snacks
-  {
-    id: 'prd_snack_nuts',
-    code: 'SNK-01',
-    name: 'Roasted Almond & Peanut Energy Pack',
-    category: 'Snacks',
-    purchasePrice: 110,
-    sellingPrice: 180,
-    stockQuantity: 25,
-    minStockLevel: 8,
-    supplierName: 'Sindh Beverage & Water Traders',
-    unit: 'Pack',
-    description: 'Natural roasted salted gym endurance nuts.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Supplements
-  {
-    id: 'prd_supp_creatine',
-    code: 'SUP-01',
-    name: 'Creatine Monohydrate Pure 5g Shot',
-    category: 'Supplements',
-    purchasePrice: 80,
-    sellingPrice: 160,
-    stockQuantity: 50,
-    minStockLevel: 15,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Scoop',
-    description: 'Micronized German creatine for explosive strength.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_supp_preworkout',
-    code: 'SUP-02',
-    name: 'C4 High Energy Pre-Workout Shot',
-    category: 'Supplements',
-    purchasePrice: 140,
-    sellingPrice: 260,
-    stockQuantity: 40,
-    minStockLevel: 10,
-    supplierName: 'Pakistan Sports Nutrition',
-    unit: 'Scoop',
-    description: 'Beta-alanine and caffeine pump formula.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Gym Accessories
-  {
-    id: 'prd_acc_shaker',
-    code: 'ACC-01',
-    name: 'The Gym Town Heavy Shaker 700ml',
-    category: 'Gym Accessories',
-    purchasePrice: 450,
-    sellingPrice: 850,
-    stockQuantity: 12,
-    minStockLevel: 4,
-    supplierName: 'IronGrip Gym Accessories Wholesale',
-    unit: 'Piece',
-    description: 'BPA-free wire blender shaker with gym town insignia.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prd_acc_straps',
-    code: 'ACC-02',
-    name: 'Heavy Duty Weightlifting Wrist Straps',
-    category: 'Gym Accessories',
-    purchasePrice: 650,
-    sellingPrice: 1100,
-    stockQuantity: 10,
-    minStockLevel: 3,
-    supplierName: 'IronGrip Gym Accessories Wholesale',
-    unit: 'Pair',
-    description: 'Cotton padded deadlift and rowing wrist straps.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  // Other
-  {
-    id: 'prd_oth_towel',
-    code: 'OTH-01',
-    name: 'Gym Town Microfiber Workout Towel',
-    category: 'Other',
-    purchasePrice: 350,
-    sellingPrice: 600,
-    stockQuantity: 15,
-    minStockLevel: 5,
-    supplierName: 'IronGrip Gym Accessories Wholesale',
-    unit: 'Piece',
-    description: 'Quick dry sweat towel with clip.',
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+// Older builds seeded a demo inventory catalog, a supplier directory, and 120
+// demo members. Production builds start completely empty; these legacy markers
+// exist only so data created by those older builds can be cleaned up on load.
+const LEGACY_DEMO_PRODUCT_IDS = new Set<string>([
+  'prd_water_500', 'prd_water_1500', 'prd_sting_300', 'prd_redbull_250',
+  'prd_shake_whey_choc', 'prd_shake_gainer_banana', 'prd_bar_muscletech',
+  'prd_snack_nuts', 'prd_supp_creatine', 'prd_supp_preworkout',
+  'prd_acc_shaker', 'prd_acc_straps', 'prd_oth_towel',
+]);
 
-// Default Suppliers Directory
-const DEFAULT_SUPPLIERS: Supplier[] = [
-  {
-    id: 'sup_01',
-    name: 'Sindh Beverage & Water Traders',
-    contactPerson: 'Tariq Mehmood',
-    phone: '+92 300 3981245',
-    city: 'Hyderabad',
-    address: 'Station Road, Saddar, Hyderabad',
-    categoriesSupplied: ['Bottled Water', 'Energy Drinks', 'Snacks'],
-  },
-  {
-    id: 'sup_02',
-    name: 'Pakistan Sports Nutrition',
-    contactPerson: 'Asad Farooq',
-    phone: '+92 321 8291044',
-    city: 'Karachi / Hyderabad',
-    address: 'Auto Bhan Commercial Hub, Hyderabad',
-    categoriesSupplied: ['Protein Shakes', 'Supplements', 'Protein Bars'],
-  },
-  {
-    id: 'sup_03',
-    name: 'IronGrip Gym Accessories Wholesale',
-    contactPerson: 'Rashid Ali',
-    phone: '+92 333 4910283',
-    city: 'Hyderabad Hub',
-    address: 'Latifabad Unit 7, Hyderabad',
-    categoriesSupplied: ['Gym Accessories', 'Other'],
-  },
-];
+const LEGACY_DEMO_SUPPLIERS = new Map<string, string>([
+  ['sup_01', 'Sindh Beverage & Water Traders'],
+  ['sup_02', 'Pakistan Sports Nutrition'],
+  ['sup_03', 'IronGrip Gym Accessories Wholesale'],
+]);
+
+const LEGACY_DEMO_MEMBER_EMAIL_PATTERN = /^demo\.member\.\d{3}@example\.test$/;
+
+/** Address stored by earlier builds; replaced by the real station address. */
+const LEGACY_GYM_ADDRESS = 'Auto Bhan Road, Near Citizen Colony, Saddar';
 
 // Male Reception Desk Officer Account (Editable in Settings)
 const DEFAULT_USERS: UserAccount[] = [
@@ -396,7 +166,7 @@ const DEFAULT_USERS: UserAccount[] = [
 const DEFAULT_SETTINGS: GymSettings = {
   gymName: 'The Gym Town',
   tagline: 'Strength & Conditioning Club | IronCore Arena',
-  address: 'Auto Bhan Road, Near Citizen Colony, Saddar',
+  address: 'Hyder Chowk, Near Opposite Sultan Fast Food',
   city: 'Hyderabad, Sindh, Pakistan',
   phone: '+92 22 2781 440',
   whatsapp: '+92 301 8392011',
@@ -434,6 +204,7 @@ class DatabaseManager {
 
   constructor() {
     this.state = this.loadState();
+    this.purgeLegacyDemoRecords();
     this.recomputeStatuses();
   }
 
@@ -567,6 +338,11 @@ class DatabaseManager {
           receptionistProfile: parsed.settings?.receptionistProfile || DEFAULT_SETTINGS.receptionistProfile,
         };
 
+        const addressReplaced = !settings.address || settings.address.trim() === LEGACY_GYM_ADDRESS;
+        if (addressReplaced) {
+          settings.address = DEFAULT_SETTINGS.address;
+        }
+
         const receptionistName = settings.receptionistProfile?.name || 'Bilal Tariq';
         const currentUser: UserAccount = {
           id: 'usr_reception',
@@ -591,13 +367,10 @@ class DatabaseManager {
           : [];
         const plansToUse = [...DEFAULT_PLANS, ...customPlans];
 
-        const productsToUse = Array.isArray(parsed.products) && parsed.products.length > 0
-          ? parsed.products
-          : DEFAULT_PRODUCTS;
-
-        const suppliersToUse = Array.isArray(parsed.suppliers) && parsed.suppliers.length > 0
-          ? parsed.suppliers
-          : DEFAULT_SUPPLIERS;
+        // The inventory starts empty for a real gym. An existing (even empty)
+        // array is always respected so deleted products never come back.
+        const productsToUse: Product[] = Array.isArray(parsed.products) ? parsed.products : [];
+        const suppliersToUse: Supplier[] = Array.isArray(parsed.suppliers) ? parsed.suppliers : [];
 
         const membersToUse: Member[] = Array.isArray(parsed.members)
           ? parsed.members.map((member: Member) => ({
@@ -618,11 +391,13 @@ class DatabaseManager {
             : record;
         });
         if (attendanceToUse.some((record, index) => record !== storedAttendance[index])
-          || JSON.stringify(parsed.plans) !== JSON.stringify(plansToUse)) {
+          || JSON.stringify(parsed.plans) !== JSON.stringify(plansToUse)
+          || addressReplaced) {
           appStorage.setItem(`${STORAGE_PREFIX}data`, JSON.stringify({
             ...parsed,
             attendance: attendanceToUse,
             plans: plansToUse,
+            settings,
           }));
         }
 
@@ -692,11 +467,11 @@ class DatabaseManager {
       settings: DEFAULT_SETTINGS,
       currentUser: initialCurrentUser,
       lastBackupDate: new Date().toISOString(),
-      products: DEFAULT_PRODUCTS,
+      products: [],
       sales: [],
       stockPurchases: [],
       inventoryTransactions: [],
-      suppliers: DEFAULT_SUPPLIERS,
+      suppliers: [],
     };
 
     try {
@@ -778,107 +553,75 @@ class DatabaseManager {
     return this.state.members;
   }
 
-  public async seedDemoData(): Promise<number> {
-    if (this.state.members.some((member) => DEMO_MEMBER_EMAIL_PATTERN.test(member.email || ''))) {
-      throw new Error('Demo records already exist. Remove them before adding the demo dataset again.');
+  /**
+   * Older builds shipped a demo dataset (120 demo members, a 13-product demo
+   * inventory, and a demo supplier list). Production builds start empty, so any
+   * records created by those builds are removed here. Real records and any demo
+   * product/supplier that has transactions against it are always preserved.
+   */
+  private purgeLegacyDemoRecords(): boolean {
+    const demoMemberIds = new Set(
+      this.state.members
+        .filter((member) => LEGACY_DEMO_MEMBER_EMAIL_PATTERN.test(member.email || ''))
+        .map((member) => member.id)
+    );
+
+    const sales = this.state.sales || [];
+    const stockPurchases = this.state.stockPurchases || [];
+    const inventoryTransactions = this.state.inventoryTransactions || [];
+
+    const usedProductIds = new Set<string>([
+      ...sales.flatMap((sale) => sale.items.map((item) => item.productId)),
+      ...stockPurchases.flatMap((purchase) => purchase.items.map((item) => item.productId)),
+      ...inventoryTransactions.map((entry) => entry.productId),
+    ]);
+    const usedSupplierNames = new Set(stockPurchases.map((purchase) => purchase.supplierName));
+
+    const demoProductIds = new Set(
+      (this.state.products || [])
+        .filter((product) => LEGACY_DEMO_PRODUCT_IDS.has(product.id) && !usedProductIds.has(product.id))
+        .map((product) => product.id)
+    );
+    const demoSupplierIds = new Set(
+      (this.state.suppliers || [])
+        .filter((supplier) =>
+          LEGACY_DEMO_SUPPLIERS.get(supplier.id) === supplier.name
+          && !usedSupplierNames.has(supplier.name))
+        .map((supplier) => supplier.id)
+    );
+
+    if (demoMemberIds.size === 0 && demoProductIds.size === 0 && demoSupplierIds.size === 0) {
+      return false;
     }
 
-    const today = new Date();
-    const todayString = formatDate(today);
-    const plans = this.state.plans.filter((plan) => plan.isActive);
-    const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-    const paymentMethods: PaymentMethod[] = ['Cash'];
-
-    for (let index = 1; index <= 120; index += 1) {
-      const memberNumber = index.toString().padStart(3, '0');
-      const plan = plans[index % plans.length] || DEFAULT_PLANS[1];
-      const paymentMethod: PaymentMethod = 'Cash';
-      const expiryOffset = index % 10 === 0 ? -7 : index % 10 === 1 ? 2 : 30;
-      const expiry = new Date(`${todayString}T00:00:00Z`);
-      expiry.setUTCDate(expiry.getUTCDate() + expiryOffset);
-      const registration = new Date(`${todayString}T00:00:00Z`);
-      registration.setUTCDate(registration.getUTCDate() - (index % 90));
-      const registrationDate = formatDate(registration);
-      const phone = `0300${(1000 + index).toString().padStart(7, '0')}`;
-      const fee = plan.price;
-      const paidAmount = index % 4 === 0 ? 0 : index % 4 === 1 ? Math.floor(fee / 2) : fee;
-
-      const member = this.addMember({
-        fullName: `DEMO - Member ${memberNumber}`,
-        fatherName: `Demo Parent ${memberNumber}`,
-        mobileNumber: phone,
-        whatsappNumber: phone,
-        email: `demo.member.${memberNumber}@example.test`,
-        gender: index % 2 === 0 ? 'Male' : 'Female',
-        bloodGroup: bloodGroups[index % bloodGroups.length],
-        registrationDate,
-        planId: plan.id,
-        planName: plan.name,
-        startDate: registrationDate,
-        expiryDate: formatDate(expiry),
-        emergencyContactName: `Demo Contact ${memberNumber}`,
-        emergencyContactPhone: `0300${(9000 + index).toString().padStart(7, '0')}`,
-        notes: 'DEMO DATA ONLY — do not contact this number.',
-        totalFee: fee,
-        paidAmount,
-        admissionFee: plan.id.startsWith('plan_admission') ? 2000 : 0,
-        monthlyFee: plan.id.startsWith('plan_admission') ? fee - 2000 : fee,
-        billingMonths: 1,
-      }, `DEMO-TGT-${memberNumber}-X`);
-
-      const initialPayment = this.state.payments.find((payment) => payment.memberId === member.id);
-      if (initialPayment) {
-        initialPayment.paymentMethod = paymentMethod;
-        const ledgerPayment = this.state.memberFeeLedger.find((entry) => entry.paymentId === initialPayment.id);
-        if (ledgerPayment) ledgerPayment.paymentMethod = paymentMethod;
-      }
-
-      if (member.paidAmount > 0 && member.status !== 'EXPIRED' && index % 3 !== 0) {
-        this.recordAttendance({
-          memberId: member.id,
-          rollNumber: member.rollNumber,
-          memberName: member.fullName,
-          method: 'MANUAL',
-          accessStatus: 'GRANTED',
-          notes: 'Demo attendance record for testing.',
-        });
-      }
-
-      await new Promise<void>((resolve) => setTimeout(resolve, 1));
+    if (demoMemberIds.size > 0) {
+      this.state.members = this.state.members.filter((member) => !demoMemberIds.has(member.id));
+      this.state.membershipHistory = this.state.membershipHistory.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.memberFeeLedger = this.state.memberFeeLedger.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.attendance = this.state.attendance.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.payments = this.state.payments.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.doorLogs = this.state.doorLogs.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.notifications = this.state.notifications.filter((entry) => !demoMemberIds.has(entry.memberId));
+      this.state.sales = sales.filter((entry) => !entry.memberId || !demoMemberIds.has(entry.memberId));
+      this.state.auditLogs = this.state.auditLogs.filter((entry) => !entry.details.includes('DEMO - Member '));
     }
 
-    this.addAuditLog('SYSTEM', 'Demo Dataset Added', 'Added 120 clearly labeled demo member profiles for testing.');
-    this.persist();
-    return 120;
-  }
+    if (demoProductIds.size > 0) {
+      this.state.products = (this.state.products || []).filter((product) => !demoProductIds.has(product.id));
+      this.state.inventoryTransactions = inventoryTransactions.filter((entry) => !demoProductIds.has(entry.productId));
+    }
 
-  public removeDemoData(): number {
-    const demoMembers = this.state.members.filter((member) =>
-      DEMO_MEMBER_EMAIL_PATTERN.test(member.email || '')
+    if (demoSupplierIds.size > 0) {
+      this.state.suppliers = (this.state.suppliers || []).filter((supplier) => !demoSupplierIds.has(supplier.id));
+    }
+
+    this.addAuditLog(
+      'SYSTEM',
+      'Demo Records Removed',
+      `Removed ${demoMemberIds.size} demo members, ${demoProductIds.size} demo products, and ${demoSupplierIds.size} demo suppliers left over from a previous build.`
     );
-    if (demoMembers.length === 0) return 0;
-
-    const demoMemberIds = new Set(demoMembers.map((member) => member.id));
-    this.state.members = this.state.members.filter((member) => !demoMemberIds.has(member.id));
-    this.state.membershipHistory = this.state.membershipHistory.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.memberFeeLedger = this.state.memberFeeLedger.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.attendance = this.state.attendance.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.payments = this.state.payments.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.doorLogs = this.state.doorLogs.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.notifications = this.state.notifications.filter((entry) => !demoMemberIds.has(entry.memberId));
-    this.state.sales = this.state.sales.filter((entry) => !entry.memberId || !demoMemberIds.has(entry.memberId));
-    this.state.auditLogs = this.state.auditLogs.filter((entry) =>
-      !entry.details.includes('DEMO - Member ')
-    );
-    this.addAuditLog('SYSTEM', 'Demo Dataset Removed', `Removed ${demoMembers.length} demo member profiles and their related records.`);
     this.persist();
-    return demoMembers.length;
-  }
-
-  public getDemoMemberCount(): number {
-    return this.state.members.filter((member) =>
-      DEMO_MEMBER_EMAIL_PATTERN.test(member.email || '')
-    ).length;
+    return true;
   }
 
   public getMemberById(id: string): Member | undefined {
@@ -1217,6 +960,7 @@ class DatabaseManager {
       registrationDate: member.registrationDate,
       membershipPeriods,
       archived: false,
+      removedAt: undefined,
       totalFee,
       paidAmount,
       balanceDue,
@@ -1347,6 +1091,7 @@ class DatabaseManager {
     }
     member.membershipPeriods = membershipPeriods;
     member.archived = true;
+    member.removedAt = new Date().toISOString();
     member.updatedAt = new Date().toISOString();
     this.addAuditLog('MEMBERS', 'Member Left', `Marked ${member.fullName} (${member.rollNumber}) as left; profile history retained`);
     this.persist();
@@ -1358,6 +1103,7 @@ class DatabaseManager {
     if (!member || !member.archived) return false;
 
     member.archived = false;
+    member.removedAt = undefined;
     const today = formatDate(new Date());
     if (member.expiryDate >= today) {
       const periods = member.membershipPeriods?.length
@@ -2551,56 +2297,182 @@ class DatabaseManager {
 
   // --- BACKUP & RESTORE & FRESH START ---
 
+  /**
+   * What a backup file holds — shown on the Settings screen so the operator can
+   * see that the snapshot covers every module, not only members.
+   */
+  public getBackupCounts(state: DatabaseState = this.state): {
+    members: number;
+    removedMembers: number;
+    plans: number;
+    ledgerEntries: number;
+    payments: number;
+    attendance: number;
+    expenses: number;
+    products: number;
+    sales: number;
+    stockPurchases: number;
+    suppliers: number;
+    notifications: number;
+    auditLogs: number;
+  } {
+    return {
+      members: state.members.length,
+      removedMembers: state.members.filter((member) => member.archived).length,
+      plans: state.plans.length,
+      ledgerEntries: state.memberFeeLedger.length,
+      payments: state.payments.length,
+      attendance: state.attendance.length,
+      expenses: state.expenses.length,
+      products: (state.products || []).length,
+      sales: (state.sales || []).length,
+      stockPurchases: (state.stockPurchases || []).length,
+      suppliers: (state.suppliers || []).length,
+      notifications: state.notifications.length,
+      auditLogs: state.auditLogs.length,
+    };
+  }
+
+  /**
+   * Wipes every operational record (members, fees, payments, attendance, POS,
+   * inventory, suppliers) for a brand-new station. Plans and station settings
+   * are configuration, so they are kept.
+   */
   public clearAllData(): void {
     this.state.members = [];
     this.state.membershipHistory = [];
+    this.state.memberFeeLedger = [];
     this.state.attendance = [];
     this.state.payments = [];
     this.state.expenses = [];
     this.state.doorLogs = [];
     this.state.notifications = [];
-    this.addAuditLog('SYSTEM', 'Clean Database Initialized', 'Cleared all member, attendance, and financial records for fresh start');
+    this.state.products = [];
+    this.state.sales = [];
+    this.state.stockPurchases = [];
+    this.state.inventoryTransactions = [];
+    this.state.suppliers = [];
+    this.addAuditLog(
+      'SYSTEM',
+      'Clean Database Initialized',
+      'Cleared members, fee ledger, payments, attendance, expenses, inventory, sales, purchases, and suppliers for a fresh start'
+    );
     this.persist();
   }
 
+  /**
+   * Complete JSON snapshot: members, plans, fee ledger, payments, attendance,
+   * expenses, inventory, POS sales, purchases, suppliers, notifications,
+   * settings, and the audit trail.
+   */
   public exportBackupJson(): string {
     const payload = {
       exportTimestamp: new Date().toISOString(),
       software: 'The Gym Town Enterprise Desktop - Hyderabad Desk',
-      version: '2.5.0-win64',
+      version: '3.0.0',
+      schemaVersion: BACKUP_SCHEMA_VERSION,
+      counts: this.getBackupCounts(),
       database: this.state,
     };
     this.state.lastBackupDate = new Date().toISOString();
-    this.addAuditLog('SYSTEM', 'Database Backup', 'Exported complete database JSON snapshot');
+    this.addAuditLog(
+      'SYSTEM',
+      'Database Backup',
+      `Exported full database snapshot (${this.state.members.length} members, ${(this.state.products || []).length} products, ${(this.state.sales || []).length} sales)`
+    );
     this.persist();
     return JSON.stringify(payload, null, 2);
   }
 
+  /**
+   * Restores every module from a backup file. Older backups that only carried
+   * members/payments are still accepted: their fee ledger is rebuilt from the
+   * membership history and payment records so balances are never lost.
+   */
   public restoreBackupJson(jsonString: string): { success: boolean; message: string } {
     try {
-      const parsed = JSON.parse(jsonString);
-      const data = parsed.database || parsed;
-      if (!data.members || !Array.isArray(data.members)) {
+      const parsed = JSON.parse(jsonString) as { database?: unknown } | unknown;
+      const data = (parsed && typeof parsed === 'object' && 'database' in parsed
+        ? (parsed as { database?: unknown }).database
+        : parsed) as Record<string, unknown> | null;
+
+      if (!data || typeof data !== 'object' || Array.isArray(data) || !Array.isArray(data.members)) {
         return { success: false, message: 'Invalid backup file structure. Missing members table.' };
       }
 
-      this.state = {
-        ...this.state,
-        members: data.members,
-        plans: data.plans || this.state.plans,
-        membershipHistory: data.membershipHistory || this.state.membershipHistory,
-        attendance: data.attendance || this.state.attendance,
-        payments: data.payments || this.state.payments,
-        expenses: data.expenses || this.state.expenses,
-        doorLogs: data.doorLogs || this.state.doorLogs,
-        notifications: data.notifications || this.state.notifications,
-        settings: data.settings || this.state.settings,
-        lastBackupDate: new Date().toISOString(),
+      const list = <T>(value: unknown, fallback: T[] = []): T[] =>
+        Array.isArray(value) ? (value as T[]) : fallback;
+
+      const members = data.members as Member[];
+      const membershipHistory = list<MembershipHistory>(data.membershipHistory);
+      const payments = list<PaymentRecord>(data.payments);
+      const ledger = Array.isArray(data.memberFeeLedger)
+        ? (data.memberFeeLedger as MemberFeeLedgerEntry[])
+        : this.createLegacyMemberFeeLedger(members, membershipHistory, payments);
+      const settings: GymSettings = {
+        ...DEFAULT_SETTINGS,
+        ...((data.settings as Partial<GymSettings>) || {}),
+        receptionistProfile: (data.settings as Partial<GymSettings>)?.receptionistProfile
+          || DEFAULT_SETTINGS.receptionistProfile,
       };
 
-      this.addAuditLog('SYSTEM', 'Database Restore', 'Successfully restored database from file backup');
-      this.persist();
-      return { success: true, message: `Successfully restored database (${data.members.length} members loaded).` };
+      // Best-effort safety copy of the current data before it is overwritten.
+      try {
+        appStorage.setItem(`${STORAGE_PREFIX}pre_restore`, JSON.stringify(this.state));
+      } catch {
+        /* not enough space — continue with the restore */
+      }
+
+      this.state = {
+        members,
+        plans: list<MembershipPlan>(data.plans).length > 0
+          ? list<MembershipPlan>(data.plans)
+          : DEFAULT_PLANS,
+        membershipHistory,
+        memberFeeLedger: ledger,
+        attendance: list<AttendanceRecord>(data.attendance),
+        payments,
+        expenses: list<ExpenseRecord>(data.expenses),
+        doorLogs: list<DoorAccessLog>(data.doorLogs),
+        notifications: list<WhatsAppNotification>(data.notifications),
+        users: list<UserAccount>(data.users).length > 0 ? list<UserAccount>(data.users) : this.state.users,
+        auditLogs: list<AuditLog>(data.auditLogs, this.state.auditLogs),
+        settings,
+        currentUser: {
+          ...this.state.currentUser,
+          fullName: settings.receptionistProfile?.name || this.state.currentUser.fullName,
+        },
+        lastBackupDate: new Date().toISOString(),
+        products: list<Product>(data.products),
+        sales: list<Sale>(data.sales),
+        stockPurchases: list<StockPurchase>(data.stockPurchases),
+        inventoryTransactions: list<InventoryTransaction>(data.inventoryTransactions),
+        suppliers: list<Supplier>(data.suppliers),
+      };
+
+      this.purgeLegacyDemoRecords();
+      this.recomputeLedgerBalances();
+      this.recomputeStatuses();
+
+      const counts = this.getBackupCounts();
+      this.addAuditLog(
+        'SYSTEM',
+        'Database Restore',
+        `Restored full database from file backup (${counts.members} members, ${counts.products} products, ${counts.sales} sales, ${counts.payments} receipts)`
+      );
+      try {
+        this.persist();
+      } catch (error) {
+        return {
+          success: false,
+          message: `Backup data is larger than this browser can store: ${error instanceof Error ? error.message : 'storage error'}`,
+        };
+      }
+
+      return {
+        success: true,
+        message: `Backup restored — ${counts.members} members (${counts.removedMembers} removed), ${counts.ledgerEntries} ledger entries, ${counts.payments} receipts, ${counts.attendance} attendance, ${counts.expenses} expenses, ${counts.products} products, ${counts.sales} sales, ${counts.stockPurchases} purchases, ${counts.suppliers} suppliers.`,
+      };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown parsing error';
       return { success: false, message: `Failed to restore database: ${msg}` };

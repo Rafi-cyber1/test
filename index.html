@@ -2,8 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#07080D" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#EEF3FA" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/png" href="./logo.png" />
+    <link rel="apple-touch-icon" href="./logo.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Gym Town" />
     <title>The Gym Town — Enterprise Windows Desktop Gym Management</title>
     <meta name="description" content="Windows desktop gym management system with browser localStorage persistence, manual attendance, WhatsApp receipts & alerts, and PKR financial accounting for the Hyderabad front desk." />
     <meta property="og:title" content="The Gym Town — Enterprise Windows Desktop Gym Management" />
@@ -13,8 +21,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      // Apply the saved theme before the first paint so the app never flashes.
+      try {
+        if (localStorage.getItem('tgt_theme') === 'light') {
+          document.documentElement.classList.add('light');
+        }
+      } catch (error) {
+        /* storage unavailable — keep the dark default */
+      }
+    </script>
   </head>
-  <body class="bg-[#0D0E10] text-[#ECEAE6] antialiased">
+  <body class="bg-app text-ink antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

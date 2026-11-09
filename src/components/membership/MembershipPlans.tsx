@@ -89,44 +89,44 @@ export const MembershipPlans: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#0D0E10] text-[#ECEAE6]">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 bg-app text-ink">
       {/* Toast */}
       {toastMsg && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-[6px] bg-[#15171A] border border-[#262A30] border-l-4 border-l-[#3DB88B] text-xs font-semibold shadow-xl">
-          <Check className="w-4 h-4 text-[#3DB88B]" />
+        <div className="fixed bottom-20 right-3 sm:bottom-5 sm:right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-[6px] bg-panel border border-line border-l-4 border-l-ok text-xs font-semibold shadow-xl">
+          <Check className="w-4 h-4 text-ok" />
           <span>{toastMsg}</span>
         </div>
       )}
 
       {/* Top Header */}
-      <div className="p-4 rounded-[8px] bg-[#15171A] border border-[#262A30] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-[8px] bg-panel border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-[#ECEAE6]">
+            <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
               Membership Plans & Fee Rates (PKR)
             </h2>
-            <span className="font-mono text-[11px] text-[#8B909A] bg-[#1C1F23] px-2 py-0.5 rounded-[4px] border border-[#262A30]">
+            <span className="font-mono text-[11px] text-muted bg-raised px-2 py-0.5 rounded-[4px] border border-line">
               {plans.length} Tiered Packages
             </span>
           </div>
-          <p className="text-xs text-[#8B909A] mt-1">
-            Standard: <strong className="text-[#ECEAE6]">Rs. 4,000 (Admission + first month)</strong> · <strong className="text-[#ECEAE6]">Rs. 2,000 (monthly)</strong>
+          <p className="text-xs text-muted mt-1">
+            Standard: <strong className="text-ink">Rs. 4,000 (Admission + first month)</strong> · <strong className="text-ink">Rs. 2,000 (monthly)</strong>
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={handleResetToStandard}
-            className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] hover:bg-[#262A30] border border-[#262A30] text-xs font-semibold text-[#8B909A] hover:text-[#ECEAE6] transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-semibold text-muted hover:text-ink transition-colors flex items-center gap-1.5 cursor-pointer"
             title="Reset to Rs. 4,000 Advance & Rs. 2,000 Monthly"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-[#D9383A]" />
+            <RotateCcw className="w-3.5 h-3.5 text-brand" />
             <span>Reset Standard Rates</span>
           </button>
 
           <button
             onClick={() => setShowNewModal(true)}
-            className="px-3.5 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-[#ECEAE6] text-xs font-bold flex items-center gap-1.5 cursor-pointer focus:ring-2 focus:ring-[#D9383A]"
+            className="px-3.5 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer focus:ring-2 focus:ring-brand"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Create Plan</span>
@@ -144,23 +144,23 @@ export const MembershipPlans: React.FC = () => {
           return (
             <div
               key={p.id}
-              className={`rounded-[8px] bg-[#15171A] border p-4.5 flex flex-col justify-between transition-all duration-150 ${
+              className={`rounded-[8px] bg-panel border p-4.5 flex flex-col justify-between transition-all duration-150 ${
                 p.isActive
                   ? isAdvance
-                    ? 'border-[#D9383A]'
-                    : 'border-[#262A30] hover:border-[#363B44]'
-                  : 'border-[#262A30]/50 opacity-50'
+                    ? 'border-brand'
+                    : 'border-line hover:border-line-strong'
+                  : 'border-line/50 opacity-50'
               }`}
             >
               <div>
-                <div className="flex items-start justify-between pb-2.5 border-b border-[#262A30]">
+                <div className="flex items-start justify-between pb-2.5 border-b border-line">
                   <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#D9383A]">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-brand">
                       {p.durationMonths || Math.max(1, Math.round(p.durationDays / 30))} Month
                       {(p.durationMonths || Math.max(1, Math.round(p.durationDays / 30))) === 1 ? '' : 's'}
                       {isAdvance ? ' Admission' : ' Membership'}
                     </span>
-                    <h3 className="font-bold text-sm text-[#ECEAE6] mt-0.5">{p.name}</h3>
+                    <h3 className="font-bold text-sm text-ink mt-0.5">{p.name}</h3>
                   </div>
 
                   {isAdvance && (
@@ -176,22 +176,22 @@ export const MembershipPlans: React.FC = () => {
                 </div>
 
                 {/* Price Display */}
-                <div className="py-3 border-b border-[#262A30]">
+                <div className="py-3 border-b border-line">
                   <div className="flex items-baseline gap-2">
-                    <span className="font-condensed text-3xl font-bold text-[#ECEAE6] tabular-nums">
+                    <span className="font-condensed text-3xl font-bold text-ink tabular-nums">
                       {settings.currency} {p.price.toLocaleString()}
                     </span>
-                    <span className="text-xs text-[#8B909A]">
+                    <span className="text-xs text-muted">
                       {isAdvance ? 'Admission + first month' : `/ ${p.durationMonths || Math.max(1, Math.round(p.durationDays / 30))} month(s)`}
                     </span>
                   </div>
-                  <p className="text-xs text-[#8B909A] mt-1.5 leading-relaxed">
+                  <p className="text-xs text-muted mt-1.5 leading-relaxed">
                     {p.description}
                   </p>
                 </div>
 
                 {/* Features */}
-                <div className="py-3 space-y-1.5 text-xs text-[#8B909A]">
+                <div className="py-3 space-y-1.5 text-xs text-muted">
                   {(p.features || ['Full gym floor access', 'Locker & workout guidance']).map((feat, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <span>{feat}</span>
@@ -201,16 +201,16 @@ export const MembershipPlans: React.FC = () => {
               </div>
 
               {/* Card Controls */}
-              <div className="pt-3 border-t border-[#262A30] flex items-center justify-between text-xs mt-3">
-                <div className="flex items-center gap-1.5 text-[#8B909A] font-mono text-[11px]">
-                  <Users className="w-3.5 h-3.5 text-[#8B909A]" />
-                  <span><strong className="text-[#ECEAE6]">{enrolledCount}</strong> active</span>
+              <div className="pt-3 border-t border-line flex items-center justify-between text-xs mt-3">
+                <div className="flex items-center gap-1.5 text-muted font-mono text-[11px]">
+                  <Users className="w-3.5 h-3.5 text-muted" />
+                  <span><strong className="text-ink">{enrolledCount}</strong> active</span>
                 </div>
 
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => setEditingPlan(p)}
-                    className="p-1 text-[#8B909A] hover:text-[#ECEAE6] rounded-[4px] hover:bg-[#1C1F23] cursor-pointer"
+                    className="p-1 text-muted hover:text-ink rounded-[4px] hover:bg-raised cursor-pointer"
                     title="Edit Rate or Days"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -230,7 +230,7 @@ export const MembershipPlans: React.FC = () => {
                   {!isAdvance && !isMonthly && (
                     <button
                       onClick={() => setPlanToDelete(p)}
-                      className="p-1 text-[#8B909A] hover:text-[#E5484D] rounded-[4px] hover:bg-[#1C1F23] cursor-pointer"
+                      className="p-1 text-muted hover:text-bad rounded-[4px] hover:bg-raised cursor-pointer"
                       title="Delete Plan"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -246,19 +246,19 @@ export const MembershipPlans: React.FC = () => {
       {/* Edit Plan Modal */}
       {editingPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-md bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#262A30]">
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-md bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                 Edit Plan — {editingPlan.name}
               </h3>
-              <button onClick={() => setEditingPlan(null)} className="text-[#8B909A] hover:text-[#ECEAE6]">
+              <button onClick={() => setEditingPlan(null)} className="text-muted hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSaveEdit} className="space-y-3.5 text-xs">
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Plan Name *
                 </label>
                 <input
@@ -266,13 +266,13 @@ export const MembershipPlans: React.FC = () => {
                   required
                   value={editingPlan.name}
                   onChange={(e) => setEditingPlan({ ...editingPlan, name: e.target.value })}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Price Fee (PKR) *
                   </label>
                   <input
@@ -281,12 +281,12 @@ export const MembershipPlans: React.FC = () => {
                     min="0"
                     value={editingPlan.price}
                     onChange={(e) => setEditingPlan({ ...editingPlan, price: Number(e.target.value) })}
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#ECEAE6]"
+                    className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-ink"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Duration (Months) *
                   </label>
                   <input
@@ -295,34 +295,34 @@ export const MembershipPlans: React.FC = () => {
                     min="1"
                     value={editingPlan.durationMonths || Math.max(1, Math.round(editingPlan.durationDays / 30))}
                     onChange={(e) => setEditingPlan({ ...editingPlan, durationMonths: Number(e.target.value), durationDays: Number(e.target.value) * 30 })}
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
+                    className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Description
                 </label>
                 <textarea
                   rows={2}
                   value={editingPlan.description || ''}
                   onChange={(e) => setEditingPlan({ ...editingPlan, description: e.target.value })}
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#262A30] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-line flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setEditingPlan(null)}
-                  className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] text-xs font-semibold text-[#ECEAE6]"
+                  className="px-3 py-1.5 rounded-[6px] bg-raised text-xs font-semibold text-ink"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider"
+                  className="px-4 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white uppercase tracking-wider"
                 >
                   Save Changes
                 </button>
@@ -335,19 +335,19 @@ export const MembershipPlans: React.FC = () => {
       {/* Create Plan Modal */}
       {showNewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-md bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#262A30]">
-              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-md bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
+              <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
                 Create Membership Plan
               </h3>
-              <button onClick={() => setShowNewModal(false)} className="text-[#8B909A] hover:text-[#ECEAE6]">
+              <button onClick={() => setShowNewModal(false)} className="text-muted hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleCreatePlan} className="space-y-3.5 text-xs">
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Package Name *
                 </label>
                 <input
@@ -356,13 +356,13 @@ export const MembershipPlans: React.FC = () => {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="e.g. Student 1-Month Package"
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Price Fee (PKR) *
                   </label>
                   <input
@@ -371,12 +371,12 @@ export const MembershipPlans: React.FC = () => {
                     min="0"
                     value={newPrice}
                     onChange={(e) => setNewPrice(Number(e.target.value))}
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-[#ECEAE6]"
+                    className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono font-bold text-ink"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                  <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Duration (Months) *
                   </label>
                   <input
@@ -385,13 +385,13 @@ export const MembershipPlans: React.FC = () => {
                     min="1"
                     value={newDays}
                     onChange={(e) => setNewDays(Number(e.target.value))}
-                    className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs font-mono text-[#ECEAE6]"
+                    className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs font-mono text-ink"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-wider text-[#8B909A] font-semibold block mb-1">
+                <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Description
                 </label>
                 <textarea
@@ -399,21 +399,21 @@ export const MembershipPlans: React.FC = () => {
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
                   placeholder="Terms, locker access, or shift limits..."
-                  className="w-full bg-[#1C1F23] border border-[#262A30] rounded-[6px] px-3 py-2 text-xs text-[#ECEAE6]"
+                  className="w-full bg-raised border border-line rounded-[6px] px-3 py-2 text-xs text-ink"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#262A30] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-line flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] text-xs font-semibold text-[#ECEAE6]"
+                  className="px-3 py-1.5 rounded-[6px] bg-raised text-xs font-semibold text-ink"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-[6px] bg-[#D9383A] hover:bg-[#C92A2C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider"
+                  className="px-4 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-xs font-bold text-white uppercase tracking-wider"
                 >
                   Create Plan
                 </button>
@@ -426,23 +426,23 @@ export const MembershipPlans: React.FC = () => {
       {/* Delete Confirmation Modal */}
       {planToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-[2px]">
-          <div className="w-full max-w-sm bg-[#15171A] border border-[#262A30] rounded-[8px] p-5 space-y-4 shadow-2xl">
-            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-[#ECEAE6]">
+          <div className="w-full max-w-sm bg-panel border border-line rounded-[8px] p-5 space-y-4 shadow-2xl">
+            <h3 className="font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
               Delete Plan {planToDelete.name}?
             </h3>
-            <p className="text-xs text-[#8B909A]">
+            <p className="text-xs text-muted">
               Are you sure you want to delete this plan? Existing members enrolled on it will maintain their records.
             </p>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setPlanToDelete(null)}
-                className="px-3 py-1.5 rounded-[6px] bg-[#1C1F23] text-xs text-[#ECEAE6]"
+                className="px-3 py-1.5 rounded-[6px] bg-raised text-xs text-ink"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDeletePlan(planToDelete)}
-                className="px-4 py-1.5 rounded-[6px] bg-[#E5484D] hover:bg-[#D1383C] text-xs font-bold text-[#ECEAE6] uppercase tracking-wider"
+                className="px-4 py-1.5 rounded-[6px] bg-bad hover:bg-bad-strong text-xs font-bold text-white uppercase tracking-wider"
               >
                 Delete Plan
               </button>

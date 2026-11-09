@@ -12,9 +12,10 @@
     "electron:build": "npm run build && electron-builder --win --x64",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test:integration": "tsx --test tests/integration/member-fee-ledger.test.ts",
+    "test:integration": "tsx --test tests/integration/*.test.ts",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "import:supabase": "tsx scripts/import-backup-to-supabase.ts"
   },
   "build": {
     "appId": "com.thegymtown.enterprise",

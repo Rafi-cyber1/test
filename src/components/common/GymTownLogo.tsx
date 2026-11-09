@@ -31,16 +31,15 @@ export const GymTownLogo: React.FC<GymTownLogoProps> = ({
         alt={settings.gymName || 'The Gym Town'}
         className={`${currentSize.image} w-auto object-contain shrink-0`}
         onError={(event) => {
-          const image = event.currentTarget;
-          image.hidden = true;
+          event.currentTarget.hidden = true;
         }}
       />
       {showText && (
         <div className="flex flex-col min-w-0">
-          <span className={`font-display font-extrabold text-white tracking-wider uppercase truncate ${currentSize.text}`}>
+          <span className={`font-display font-extrabold text-ink tracking-wider uppercase truncate ${currentSize.text}`}>
             {settings.gymName || 'THE GYM TOWN'}
           </span>
-          <span className={`text-red-400 font-semibold truncate ${currentSize.sub}`}>
+          <span className={`text-brand font-semibold truncate ${currentSize.sub}`}>
             {settings.city?.includes('Hyderabad') ? 'Hyderabad Station' : 'Strength & Fitness'}
           </span>
         </div>
