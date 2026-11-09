@@ -10,10 +10,22 @@ import {
   RotateCcw,
   Check,
   FileText,
+  Cloud,
+  KeyRound,
+  RefreshCw,
 } from 'lucide-react';
 import { db } from '../../db/storage';
 import { GymSettings, ReceptionistProfile } from '../../types';
 import { GymTownLogo } from '../common/GymTownLogo';
+import {
+  CloudStatus,
+  checkCloudStatus,
+  downloadFromCloud,
+  getLastSyncLabel,
+  getSyncKey,
+  setSyncKey,
+  uploadToCloud,
+} from '../../services/cloudSync';
 
 export const ApplicationSettings: React.FC = () => {
   const [settings, setSettings] = useState<GymSettings>(db.getSettings());
@@ -31,6 +43,14 @@ export const ApplicationSettings: React.FC = () => {
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [restoreStatus, setRestoreStatus] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'receptionist' | 'gym' | 'database' | 'audit'>('receptionist');
+
+  // Optional cloud sync (Vercel serverless endpoint at /api/sync)
+  const [syncKeyInput, setSyncKeyInput] = useState(getSyncKey());
+  const [cloudStatus, setCloudStatus] = useState<CloudStatus | null>(null);
+  const [cloudMessage, setCloudMessage] = useState<string | null>(null);
+  const [cloudError, setCloudError] = useState(false);
+  const [cloudBusy, setCloudBusy] = useState(false);
+  const [lastSyncLabel, setLastSyncLabel] = useState(getLastSyncLabel());
 
   const auditLogs = db.getState().auditLogs;
   const backupCounts = db.getBackupCounts();
@@ -79,6 +99,87 @@ export const ApplicationSettings: React.FC = () => {
     link.click();
     URL.revokeObjectURL(url);
   };
+
+  const runCloud = async (task: () => Promise<void>) => {
+    setCloudBusy(true);
+    try {
+      await task();
+    } finally {
+      setCloudBusy(false);
+      setLastSyncLabel(getLastSyncLabel());
+    }
+  };
+
+  const handleSaveSyncKey = () => runCloud(async () => {
+    setSyncKey(syncKeyInput);
+    setCloudMessage(null);
+    setCloudError(false);
+    if (!syncKeyInput.trim()) {
+      setCloudStatus(null);
+      setCloudMessage('Sync key cleared on this device.');
+      return;
+    }
+    try {
+      const status = await checkCloudStatus();
+      setCloudStatus(status);
+      setCloudMessage(
+        status.empty
+          ? 'Cloud is connected and empty — upload this desk\'s data first.'
+          : `Cloud connected · v${status.version} · saved ${status.updatedAt ? new Date(status.updatedAt).toLocaleString() : 'unknown'} by ${status.updatedBy || 'front desk'}.`
+      );
+      setCloudError(false);
+    } catch (error: any) {
+      setCloudStatus(null);
+      setCloudMessage(error.message || 'Could not reach the cloud endpoint.');
+      setCloudError(true);
+    }
+  });
+
+  const handleCloudUpload = () => runCloud(async () => {
+    const confirmed = window.confirm(
+      `Replace the cloud copy with this desk's data?\n\nMembers: ${backupCounts.members} · Ledger entries: ${backupCounts.ledgerEntries} · Receipts: ${backupCounts.payments} · Products: ${backupCounts.products}\n\nA copy of the current cloud data stays in your last export, and the previous upload is always downloadable until this one is replaced.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const status = cloudStatus ?? (await checkCloudStatus());
+      setCloudStatus(status);
+      const result = await uploadToCloud(
+        status.version,
+        db.getSettings().receptionistProfile?.name || 'front desk'
+      );
+      setCloudMessage(result.message);
+      setCloudError(!result.success);
+      if (result.success) setCloudStatus(await checkCloudStatus());
+    } catch (error: any) {
+      setCloudMessage(error.message || 'Upload failed.');
+      setCloudError(true);
+    }
+  });
+
+  const handleCloudDownload = () => runCloud(async () => {
+    try {
+      const status = await checkCloudStatus();
+      setCloudStatus(status);
+      if (status.empty) {
+        setCloudMessage('Cloud is empty — nothing to download yet.');
+        setCloudError(true);
+        return;
+      }
+      const confirmed = window.confirm(
+        `Download cloud copy v${status.version} (saved ${status.updatedAt ? new Date(status.updatedAt).toLocaleString() : 'unknown'} by ${status.updatedBy || 'front desk'})?\n\nThis REPLACES the data in this browser. Export a backup first if this device has newer work.`
+      );
+      if (!confirmed) return;
+
+      const result = await downloadFromCloud();
+      setSettings(db.getSettings());
+      setCloudMessage(result.message);
+      setCloudError(!result.success);
+    } catch (error: any) {
+      setCloudMessage(error.message || 'Download failed.');
+      setCloudError(true);
+    }
+  });
 
   const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -434,6 +535,90 @@ export const ApplicationSettings: React.FC = () => {
                 <input type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
               </label>
             </div>
+          </div>
+
+          {/* Optional cloud sync — Vercel serverless endpoint in api/sync.ts */}
+          <div className="pt-4 border-t border-line space-y-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <span className="font-semibold text-xs text-ink flex items-center gap-1.5">
+                  <Cloud className="w-3.5 h-3.5 text-brand" />
+                  <span>Cloud Sync (desk + phone)</span>
+                </span>
+                <p className="text-[11px] text-muted mt-1 max-w-xl">
+                  Optional. Upload this desk&apos;s full database to your Vercel endpoint and download it on
+                  another device. Nothing is uploaded until you press Upload.
+                </p>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-[4px] font-semibold ${
+                cloudStatus && !cloudStatus.empty ? 'status-pill-success' : cloudStatus ? 'status-pill-warning' : 'status-pill-neutral'
+              }`}>
+                {cloudStatus
+                  ? cloudStatus.empty
+                    ? 'Connected · empty'
+                    : `Connected · v${cloudStatus.version}`
+                  : 'Not connected'}
+              </span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <KeyRound className="w-3.5 h-3.5 text-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  value={syncKeyInput}
+                  onChange={(event) => setSyncKeyInput(event.target.value)}
+                  placeholder="Sync key (SYNC_SECRET set in Vercel)"
+                  className="w-full bg-raised border border-line rounded-[6px] pl-8 pr-3 py-2 text-xs text-ink focus:ring-2 focus:ring-brand focus:outline-none"
+                  autoComplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleSaveSyncKey}
+                disabled={cloudBusy}
+                className="px-3.5 py-2 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-semibold text-ink transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${cloudBusy ? 'animate-spin' : ''}`} />
+                <span>Save &amp; test</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleCloudUpload}
+                disabled={cloudBusy}
+                className="py-2 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Upload to cloud</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCloudDownload}
+                disabled={cloudBusy}
+                className="py-2 rounded-[6px] bg-raised hover:bg-hover border border-line text-xs font-semibold text-ink flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download from cloud</span>
+              </button>
+            </div>
+
+            {cloudMessage && (
+              <p className={`text-[11px] flex items-start gap-1.5 ${cloudError ? 'text-bad' : 'text-ok'}`}>
+                {cloudError ? (
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                ) : (
+                  <CheckCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                )}
+                <span>{cloudMessage}</span>
+              </p>
+            )}
+
+            {lastSyncLabel && (
+              <p className="text-[10px] text-muted font-mono">Last cloud sync on this device — {lastSyncLabel}</p>
+            )}
           </div>
 
           <div className="pt-4 border-t border-line flex items-center justify-between">

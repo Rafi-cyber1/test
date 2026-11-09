@@ -17,6 +17,17 @@ A fresh install starts with **no demo members and an empty inventory** — the o
 
 The browser app stores its data in that browser's `localStorage`. Data is local to the browser profile and is not synchronized between computers. Use **Settings → Backup & Restore** to export or restore a JSON backup. The backup file is a *full* snapshot — members, plans, fee ledger, receipts, attendance, expenses, **inventory products, POS sales, stock purchases, suppliers**, notifications, station settings, and the audit trail — and restoring it brings every one of those modules back (older member-only backups are still accepted).
 
+## Optional cloud sync (Vercel)
+
+The app works fully offline with `localStorage`. If you want the desk computer and your phone to share one dataset, the repo already contains a tiny sync endpoint (`api/sync.ts`) that stores the full snapshot in Upstash Redis:
+
+1. Vercel → **Storage/Marketplace** → add **Upstash Redis** (free) — it injects `KV_REST_API_URL` / `KV_REST_API_TOKEN`.
+2. Vercel → **Settings → Environment Variables** → add `SYNC_SECRET` (any long random string).
+3. Redeploy, then open **Settings → Database → Cloud Sync**, paste the key, **Save & test**.
+4. **Upload to cloud** on the desk, **Download from cloud** on the phone.
+
+Nothing is uploaded automatically, and the key never ships inside the bundle. Serverless functions only run on Vercel (or `vercel dev`), not in the plain `npm run dev` preview. Details, alternatives (Supabase / Neon / Turso) and the full relational plan: `docs/database-integration-plan.md`.
+
 ## Phone / tablet
 
 The layout adapts to any screen; nothing needs to be installed:

@@ -2,6 +2,8 @@
 
 _How to move the front desk from browser `localStorage` to a real, shared database without rewriting the app._
 
+> Hosting on **Vercel**? That changes nothing about the recommendation below — the React app stays on Vercel and the database is a hosted service the browser talks to. Section 10 covers the Vercel-specific options, including one that is already wired into this repo.
+
 ---
 
 ## 1. Where the data lives today
@@ -329,3 +331,63 @@ The counter must work while the internet is down:
 4. Write path + IndexedDB queue + offline pill.
 5. Backup-JSON importer script + count verification.
 6. Login screen (`profiles` + role), then flip the flag.
+
+---
+
+## 10. Hosting on Vercel — your options
+
+Nothing about Vercel blocks a database. A Vercel project can be:
+
+1. **Static frontend only** (this app today) + a managed database that the browser talks to over HTTPS, or
+2. **Static frontend + `/api` serverless functions** in the same repo, where the functions talk to the database.
+
+Both are supported out of the box. What Vercel does *not* give you is a long-running server or a local disk, so never try to run SQLite with a file on a serverless function — use a hosted database.
+
+### 10.1 Already wired in this repo: snapshot sync through `/api/sync`
+
+The app's data is already a single JSON snapshot (that is what the backup button exports). The smallest possible "shared database" is therefore a key-value bucket that stores that snapshot, with a version counter:
+
+```
+Browser (desk / phone)
+   │  fetch /api/sync   x-sync-key: <SYNC_SECRET>
+   ▼
+Vercel serverless function   api/sync.ts
+   ▼
+Upstash Redis (REST)  ── key: gymtown:snapshot  → { version, updatedAt, updatedBy, snapshot }
+```
+
+- `GET /api/sync` returns the stored snapshot, `POST` writes a new version.
+- A `baseVersion` check prevents silently overwriting another device's newer data (HTTP 409 → the app tells you to download first).
+- The sync key is **not** in the bundle: it is typed once into Settings and kept in that browser.
+- Uploads and downloads are both manual buttons — with counts in the confirmation — so nothing can surprise the owner.
+
+**Setup (about 10 minutes, no code changes):**
+
+1. Vercel → your project → **Storage / Marketplace** → add **Upstash Redis** (free tier). It injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically (an Upstash account directly also works with `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`).
+2. Vercel → **Settings → Environment Variables** → add `SYNC_SECRET` = a long random string (e.g. 32+ characters). Keep it safe; this is the "sync key".
+3. **Redeploy** (env vars only apply to new deployments).
+4. Open the app → **Settings → Database** → paste the `SYNC_SECRET` value in the *Cloud Sync* card → **Save & test**.
+5. Desk computer: **Upload to cloud**. Phone / second laptop: enter the same key → **Download from cloud**.
+
+Trade-offs: perfect for one gym with 1–3 devices and a few hundred members (free Upstash limit is 1 MB per value — the client trims the audit trail to 400 rows to stay under it). It is *snapshot* sync, so two desks editing at the same second resolve as "download first, then upload" rather than row-level merging. If you later need true multi-user editing, move to §3–§6 (row-level Postgres).
+
+### 10.2 Other database choices that work on Vercel
+
+| Service | How it connects | Free tier | Notes |
+| --- | --- | --- | --- |
+| **Supabase** (Postgres) | Browser → Supabase JS client, or via `/api` | 500 MB DB | Full plan in §3–§6: auth, RLS, realtime. Best long-term fit |
+| **Neon** / **Vercel Postgres** | `/api` function with `@neondatabase/serverless` | 0.5 GB | Vercel-native Postgres; you write the API layer yourself |
+| **Upstash Redis** (Vercel KV) | `/api` function over REST | 10k commands/day | Already used for the snapshot sync above |
+| **Turso** (libSQL/SQLite) | Browser or `/api` with `@libsql/client` | 500 DBs, 9 GB | SQL with edge replicas, very cheap |
+| **MongoDB Atlas** | Browser (Data API) or `/api` | 512 MB | Document model, less comfortable for a fee ledger |
+| **Firebase Firestore** | Browser SDK | 1 GB, 50k reads/day | Fast realtime, weaker relational reporting |
+| **Airtable / Google Sheets** | REST | small | Tempting for a single desk, but rate limits and no transactions — not recommended for money data |
+| **PocketBase / own Node server** | Needs a always-on host | — | Vercel cannot host it; you would need Railway/Render/VPS |
+
+### 10.3 Which should you pick?
+
+- **Just want the phone and the desk to share data this week:** use the wired snapshot sync (§10.1). No schema, no migrations, free.
+- **Want logins, per-row reports, three desks typing at once, audit history:** Supabase (§3–§6). Same code seam, more work, ~3–5 days.
+- **Want to stay 100% inside Vercel (billing, dashboard):** Neon Postgres + a couple of `/api` routes. Middle ground between the two.
+
+In every case keep the manual **Export Full Backup** button — a database is not a backup. Export weekly, and before any migration.
