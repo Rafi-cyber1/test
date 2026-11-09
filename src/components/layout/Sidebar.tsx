@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -12,6 +12,7 @@ import {
   User,
   Droplet,
   Wallet,
+  X,
 } from 'lucide-react';
 import { db } from '../../db/storage';
 import { UserAccount } from '../../types';
@@ -24,6 +25,9 @@ interface SidebarProps {
   onToggleCollapse: () => void;
   currentUser: UserAccount;
   onOpenSuperAdmin?: () => void;
+  /** Off-canvas drawer state — only used below the `lg` breakpoint. */
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -32,7 +36,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   onToggleCollapse,
   currentUser,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
+  // Below `lg` the sidebar is an off-canvas drawer and always shows full labels.
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const sync = () => setIsSmallScreen(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  const compact = isCollapsed && !isSmallScreen;
+
   const members = db.getMembers();
   const lowStockCount = db.getLowStockProducts().length;
 
@@ -71,15 +89,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const receptionistShift = db.getSettings().receptionistProfile?.shift || 'Morning Shift';
 
   return (
-    <aside
-      className={`bg-panel border-r border-line flex flex-col justify-between transition-all duration-150 ease-out select-none ${
-        isCollapsed ? 'w-16' : 'w-[232px]'
-      } shrink-0 relative h-full`}
-    >
+    <>
+      {/* Mobile backdrop */}
+      <div
+        onClick={onCloseMobile}
+        aria-hidden="true"
+        className={`lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-[1px] transition-opacity duration-200 ${
+          isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      />
+
+      <aside
+        className={`bg-panel border-r border-line flex flex-col justify-between select-none shrink-0 h-full
+          fixed inset-y-0 left-0 z-50 w-[260px] transition-transform duration-200 ease-out
+          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:static lg:z-auto lg:translate-x-0 lg:transition-all lg:duration-150
+          ${compact ? 'lg:w-16' : 'lg:w-[232px]'}`}
+      >
       <div className="flex-1 overflow-y-auto">
         {/* Logo Section: Top-left, height 32-36px, with 20px padding */}
-        <div className={`${isCollapsed ? 'p-2' : 'p-5 pb-4'} border-b border-line flex items-center justify-between`}>
-          {!isCollapsed ? (
+        <div className={`${compact ? 'p-2' : 'p-5 pb-4'} border-b border-line flex items-center justify-between`}>
+          {!compact ? (
             <div className="flex items-center gap-2.5 overflow-hidden">
               <GymTownLogo size="sm" showText={false} />
               <div className="flex flex-col min-w-0">
@@ -97,20 +127,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
 
+          {/* Desktop collapse toggle */}
           <button
             onClick={onToggleCollapse}
             className={`text-muted hover:text-ink p-1 rounded-[4px] hover:bg-raised transition-colors cursor-pointer ${
-              isCollapsed ? 'hidden' : 'block'
+              compact ? 'hidden' : 'hidden lg:block'
             }`}
-            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={compact ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <ChevronLeft className="w-4 h-4 stroke-[1.5]" />
+          </button>
+
+          {/* Mobile close */}
+          <button
+            onClick={onCloseMobile}
+            className="lg:hidden text-muted hover:text-ink p-1.5 -mr-1 rounded-[4px] hover:bg-raised transition-colors cursor-pointer"
+            title="Close menu"
+            aria-label="Close menu"
+          >
+            <X className="w-4 h-4 stroke-[1.8]" />
           </button>
         </div>
 
         {/* Expand toggle when collapsed */}
-        {isCollapsed && (
-          <div className="py-2 flex justify-center border-b border-line">
+        {compact && (
+          <div className="py-2 hidden lg:flex justify-center border-b border-line">
             <button
               onClick={onToggleCollapse}
               className="text-muted hover:text-ink p-1 rounded-[4px] hover:bg-raised transition-colors cursor-pointer"
@@ -125,8 +166,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <nav className="p-2 space-y-4">
           {navGroups.map((grp) => (
             <div key={grp.group} className="space-y-0.5">
-              {!isCollapsed && (
-                <div className="px-3 py-1 text-[10px] uppercase tracking-[0.04em] text-muted font-semibold">
+              {!compact && (
+                <div className="hidden lg:block px-3 py-1 text-[10px] uppercase tracking-[0.04em] text-muted font-semibold">
                   {grp.group}
                 </div>
               )}
@@ -144,20 +185,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         ? 'border-l-2 border-brand bg-raised text-ink font-semibold'
                         : 'border-l-2 border-transparent text-muted hover:text-ink hover:bg-raised/60 font-medium'
                     }`}
-                    title={isCollapsed ? item.label : undefined}
+                    title={compact ? item.label : undefined}
                   >
                     <Icon className={`w-[18px] h-[18px] shrink-0 stroke-[1.5] ${isActive ? 'text-brand' : 'currentColor'}`} />
-                    {!isCollapsed && (
+                    {!compact && (
                       <span className="truncate flex-1 text-left">{item.label}</span>
                     )}
 
-                    {!isCollapsed && item.badge !== undefined && (
+                    {!compact && item.badge !== undefined && (
                       <span className="font-mono text-[10px] font-semibold text-muted bg-app px-1.5 py-0.2 rounded-full border border-line tabular-nums">
                         {item.badge}
                       </span>
                     )}
 
-                    {!isCollapsed && item.alert !== undefined && (
+                    {!compact && item.alert !== undefined && (
                       <span className="status-pill-warning text-[10px] py-0 px-1.5 tabular-nums">
                         {item.alert}
                       </span>
@@ -180,7 +221,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="w-7 h-7 rounded-[4px] bg-app border border-line flex items-center justify-center shrink-0 text-ink font-condensed font-bold text-xs tracking-wider">
             {receptionistName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}
           </div>
-          {!isCollapsed && (
+          {!compact && (
             <div className="flex-1 min-w-0">
               <div className="text-xs font-semibold text-ink truncate leading-tight">
                 {receptionistName}
@@ -192,7 +233,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </button>
 
-        {!isCollapsed && (
+        {!compact && (
           <div className="px-2 py-1 flex items-center justify-between text-[10px] text-muted font-mono">
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-ok" />
@@ -202,6 +243,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 };

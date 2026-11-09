@@ -106,7 +106,7 @@ Software created by CRYONIX`;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="w-full max-w-md bg-raised border border-line rounded-[8px] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[95vh]">
+      <div className="w-full max-w-md bg-raised border border-line rounded-[8px] shadow-2xl overflow-hidden flex flex-col my-auto max-h-[95dvh]">
         {/* Top Control Bar (Hidden when printing) */}
         <div className="p-3.5 border-b border-line bg-panel flex items-center justify-between no-print">
           <div>

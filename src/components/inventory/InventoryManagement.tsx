@@ -261,7 +261,7 @@ export const InventoryManagement: React.FC = () => {
       {/* Toast Alert */}
       {toastMessage && (
         <div
-          className={`fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-[6px] border text-xs font-semibold shadow-xl transition-all duration-150 ${
+          className={`fixed bottom-20 right-3 sm:bottom-5 sm:right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-[6px] border text-xs font-semibold shadow-xl transition-all duration-150 ${
             toastMessage.type === 'success'
               ? 'bg-panel border-line border-l-4 border-l-ok text-ink'
               : 'bg-panel border-line border-l-4 border-l-bad text-bad'
@@ -277,7 +277,7 @@ export const InventoryManagement: React.FC = () => {
       )}
 
       {/* Top Module Subheader & Sub-Navigation */}
-      <div className="h-12 border-b border-line bg-panel px-5 flex items-center justify-between shrink-0">
+      <div className="min-h-12 border-b border-line bg-panel px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 font-condensed uppercase tracking-[0.04em] text-sm font-bold text-ink">
             <ShoppingBag className="w-4 h-4 text-brand" />
@@ -295,7 +295,7 @@ export const InventoryManagement: React.FC = () => {
         </div>
 
         {/* Sub-tab Navigation */}
-        <div className="flex items-center gap-1 bg-app p-1 rounded-[6px] border border-line">
+        <div className="flex items-center gap-1 bg-app p-1 rounded-[6px] border border-line overflow-x-auto max-w-full [&>button]:shrink-0 [&>button]:whitespace-nowrap">
           <button
             onClick={() => setActiveSubTab('pos')}
             className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
@@ -364,9 +364,9 @@ export const InventoryManagement: React.FC = () => {
         {/* SUB-TAB 1: FAST POS / DAILY SALES COUNTER */}
         {/* ======================================================== */}
         {activeSubTab === 'pos' && (
-          <div className="h-full flex flex-col md:flex-row overflow-hidden">
+          <div className="h-full flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
             {/* Left 68%: Product Catalog Grid & Quick Select */}
-            <div className="flex-1 flex flex-col border-r border-line overflow-hidden">
+            <div className="flex-1 flex flex-col border-r-0 md:border-r border-line md:overflow-hidden">
               {/* Filter Strip */}
               <div className="p-3 border-b border-line bg-panel flex flex-wrap items-center justify-between gap-2.5">
                 {/* Search */}
@@ -494,7 +494,7 @@ export const InventoryManagement: React.FC = () => {
             </div>
 
             {/* Right 32%: POS Order Cart & Checkout Drawer */}
-            <div className="w-full md:w-[380px] lg:w-[420px] bg-panel flex flex-col shrink-0 h-full">
+            <div className="w-full md:w-[380px] lg:w-[420px] bg-panel flex flex-col shrink-0 border-t md:border-t-0 border-line md:h-full">
               {/* Cart Header */}
               <div className="p-3.5 border-b border-line flex items-center justify-between bg-raised">
                 <div className="flex items-center gap-2">
@@ -646,7 +646,7 @@ export const InventoryManagement: React.FC = () => {
                   <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                     Payment Method
                   </label>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                     {(['Cash'] as PaymentMethod[]).map((method) => (
                       <button
                         key={method}
@@ -716,7 +716,7 @@ export const InventoryManagement: React.FC = () => {
         {/* SUB-TAB 2: DAILY SALES DASHBOARD & PROFIT REPORTS */}
         {/* ======================================================== */}
         {activeSubTab === 'dashboard' && (
-          <div className="h-full overflow-y-auto p-5 space-y-5">
+          <div className="h-full overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5">
             {/* Period Switcher Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
@@ -857,7 +857,7 @@ export const InventoryManagement: React.FC = () => {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full min-w-[720px] text-left border-collapse text-xs">
                   <thead>
                     <tr className="border-b border-line bg-raised text-muted text-[11px] uppercase tracking-wider">
                       <th className="py-2.5 px-4 font-semibold">Product</th>
@@ -972,7 +972,7 @@ export const InventoryManagement: React.FC = () => {
             </div>
 
             {/* Product Table */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead className="sticky top-0 z-10 bg-raised border-b border-line text-muted text-[11px] uppercase tracking-wider">
                   <tr>
@@ -1061,7 +1061,7 @@ export const InventoryManagement: React.FC = () => {
         {/* SUB-TAB 4: RESTOCKING & SHIPMENT PURCHASES */}
         {/* ======================================================== */}
         {activeSubTab === 'purchases' && (
-          <div className="h-full overflow-y-auto p-5 space-y-5">
+          <div className="h-full overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
@@ -1082,8 +1082,8 @@ export const InventoryManagement: React.FC = () => {
             </div>
 
             {/* Purchases History Table */}
-            <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
-              <table className="w-full text-left border-collapse text-xs">
+            <div className="border border-line rounded-[8px] bg-panel overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-line bg-raised text-muted text-[11px] uppercase tracking-wider">
                     <th className="py-2.5 px-4 font-semibold">PO Number</th>
@@ -1129,7 +1129,7 @@ export const InventoryManagement: React.FC = () => {
         {/* SUB-TAB 5: INVENTORY AUDIT & STOCK TRANSACTIONS */}
         {/* ======================================================== */}
         {activeSubTab === 'transactions' && (
-          <div className="h-full overflow-y-auto p-5 space-y-4">
+          <div className="h-full overflow-y-auto p-3 sm:p-5 space-y-4">
             <div>
               <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold text-ink">
                 Inventory Movement Log (Audit Trail)
@@ -1139,8 +1139,8 @@ export const InventoryManagement: React.FC = () => {
               </p>
             </div>
 
-            <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
-              <table className="w-full text-left border-collapse text-xs">
+            <div className="border border-line rounded-[8px] bg-panel overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-line bg-raised text-muted text-[11px] uppercase tracking-wider">
                     <th className="py-2.5 px-4 font-semibold">Timestamp</th>
@@ -1247,7 +1247,7 @@ export const InventoryManagement: React.FC = () => {
                 setShowAddProductDrawer(false);
                 refreshData();
               }}
-              className="flex-1 overflow-y-auto p-5 space-y-4 text-xs"
+              className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 text-xs"
             >
               <div>
                 <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
@@ -1453,7 +1453,7 @@ export const InventoryManagement: React.FC = () => {
                 setShowAdjustStockDrawer(false);
                 refreshData();
               }}
-              className="p-5 space-y-4 text-xs flex-1 overflow-y-auto"
+              className="p-3 sm:p-5 space-y-4 text-xs flex-1 overflow-y-auto"
             >
               <div className="p-3 rounded-[6px] bg-panel border border-line space-y-1 text-xs">
                 <div className="flex justify-between">
@@ -1553,7 +1553,7 @@ export const InventoryManagement: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleConfirmRestock} className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+            <form onSubmit={handleConfirmRestock} className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">

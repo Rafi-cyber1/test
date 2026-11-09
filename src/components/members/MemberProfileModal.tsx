@@ -180,7 +180,7 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
     <>
       <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-center justify-center p-4">
         {/* Modal Container */}
-        <div className="w-full max-w-4xl bg-panel border border-line rounded-[8px] overflow-hidden flex flex-col max-h-[90vh] shadow-2xl">
+        <div className="w-full max-w-4xl bg-panel border border-line rounded-[8px] overflow-hidden flex flex-col max-h-[90dvh] shadow-2xl">
           {/* Top Bar */}
           <div className="p-3.5 border-b border-line flex items-center justify-between bg-raised">
             <div className="flex items-center gap-2">
@@ -455,8 +455,8 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                       )}
                     </div>
 
-                    <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
-                      <table className="w-full text-left border-collapse text-xs">
+                    <div className="border border-line rounded-[8px] bg-panel overflow-x-auto">
+                      <table className="w-full min-w-[520px] text-left border-collapse text-xs">
                         <thead>
                           <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                             <th className="py-2 px-3 font-semibold">Receipt #</th>
@@ -513,8 +513,8 @@ export const MemberProfileModal: React.FC<MemberProfileModalProps> = ({
                       </span>
                     </div>
 
-                    <div className="border border-line rounded-[8px] bg-panel overflow-hidden">
-                      <table className="w-full text-left border-collapse text-xs">
+                    <div className="border border-line rounded-[8px] bg-panel overflow-x-auto">
+                      <table className="w-full min-w-[520px] text-left border-collapse text-xs">
                         <thead>
                           <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                             <th className="py-2 px-3 font-semibold">Date & Time</th>

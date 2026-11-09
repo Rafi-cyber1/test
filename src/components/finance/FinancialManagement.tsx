@@ -460,7 +460,7 @@ export const FinancialManagement: React.FC<FinancialManagementProps> = ({
                 <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                   Payment Method
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {(['Cash'] as PaymentMethod[]).map((method) => (
                     <button
                       key={method}

@@ -466,3 +466,33 @@ button, a, input, select, textarea {
     display: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Mobile / touch polish
+   --------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth momentum scrolling inside scroll panes on iOS */
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Long presses / double taps should not select UI chrome */
+  button,
+  a {
+    touch-action: manipulation;
+  }
+}
+
+/* Horizontal scroll panes get a slim, unobtrusive scrollbar */
+@layer utilities {
+  .scroll-slim {
+    scrollbar-width: thin;
+  }
+}

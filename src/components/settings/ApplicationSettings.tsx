@@ -114,7 +114,7 @@ export const ApplicationSettings: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-app text-ink">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 bg-app text-ink">
       {/* Top Header */}
       <div className="p-4 rounded-[8px] bg-panel border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -466,7 +466,7 @@ export const ApplicationSettings: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full min-w-[640px] text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-line bg-raised text-muted text-[10px] uppercase tracking-wider">
                   <th className="py-2.5 px-4 font-semibold">Timestamp</th>

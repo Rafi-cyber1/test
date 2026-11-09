@@ -214,7 +214,7 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/75 backdrop-blur-[2px]">
-        <div className="w-[520px] max-w-full bg-raised border border-line rounded-[8px] overflow-hidden flex flex-col shadow-2xl max-h-[92vh]">
+        <div className="w-[520px] max-w-full bg-raised border border-line rounded-[8px] overflow-hidden flex flex-col shadow-2xl max-h-[92dvh]">
           {/* Header */}
           <div className="p-4 border-b border-line bg-panel flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -391,7 +391,7 @@ Thank you for renewing your gym membership at THE GYM TOWN! Stay consistent! ðŸ’
                     <label className="text-[11px] uppercase tracking-wider text-muted font-semibold block mb-1">
                       Payment Mode
                     </label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {(['Cash'] as PaymentMethod[]).map(
                         (method) => (
                           <button

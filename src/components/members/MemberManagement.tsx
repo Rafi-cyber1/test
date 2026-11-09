@@ -181,15 +181,15 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-app text-ink">
       {/* Toast Alert */}
       {toastMsg && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-[6px] bg-panel border border-line border-l-4 border-l-ok text-xs font-semibold shadow-xl">
+        <div className="fixed bottom-20 right-3 sm:bottom-5 sm:right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-[6px] bg-panel border border-line border-l-4 border-l-ok text-xs font-semibold shadow-xl">
           <Check className="w-4 h-4 text-ok" />
           <span>{toastMsg}</span>
         </div>
       )}
 
       {/* Top Search & Filter Bar */}
-      <div className="p-3.5 border-b border-line bg-panel flex flex-wrap items-center justify-between gap-3 shrink-0">
-        <div className="flex items-center gap-2 flex-1 max-w-lg">
+      <div className="p-3 sm:p-3.5 border-b border-line bg-panel flex flex-wrap items-center justify-between gap-2 sm:gap-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 flex-1 max-w-lg min-w-0">
           <div className="relative flex-1">
             <Search className="w-3.5 h-3.5 text-muted absolute left-2.5 top-1/2 -translate-y-1/2 stroke-[1.5]" />
             <input
@@ -209,7 +209,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-1 bg-raised p-0.5 rounded-[6px] border border-line text-xs">
+          <div className="flex items-center gap-1 bg-raised p-0.5 rounded-[6px] border border-line text-xs overflow-x-auto max-w-full">
             {([
               { key: false, label: `Active Members (${allMembers.length})` },
               { key: true, label: `Removed Members (${removedMembers.length})` },
@@ -222,7 +222,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
             ))}
           </div>
 
-          {!showRemovedMembers && <div className="flex items-center gap-1 bg-raised p-0.5 rounded-[6px] border border-line text-xs">
+          {!showRemovedMembers && <div className="flex items-center gap-1 bg-raised p-0.5 rounded-[6px] border border-line text-xs overflow-x-auto max-w-full">
             {(
               [
                 { key: 'ALL', label: `All (${allMembers.length})` },
@@ -248,7 +248,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {!showRemovedMembers && allMembers.length > 0 && (
             <button
               onClick={() => setShowQuickRemoveModal(true)}
@@ -281,8 +281,8 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
       </div>
 
       {/* Main Table: Sticky header, 44px rows, 1px dividers, row hover highlight */}
-      <div className="flex-1 overflow-y-auto">
-        <table className="w-full text-left border-collapse text-xs">
+      <div className="flex-1 overflow-auto">
+        <table className="w-full min-w-[760px] text-left border-collapse text-xs">
           <thead className="sticky top-0 z-10 bg-raised border-b border-line text-muted text-[11px] uppercase tracking-wider">
             <tr>
               <th className="py-2.5 px-4 font-semibold">Roll #</th>
@@ -471,7 +471,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
 
       {editingMember && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4">
-          <form onSubmit={handleSaveMember} className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[8px] border border-line bg-panel p-5 shadow-2xl">
+          <form onSubmit={handleSaveMember} className="w-full max-w-3xl max-h-[90dvh] overflow-y-auto rounded-[8px] border border-line bg-panel p-5 shadow-2xl">
             <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
               <h3 className="font-condensed text-base font-bold uppercase">Edit Member · {editingMember.rollNumber}</h3>
               <button type="button" onClick={() => setEditingMember(null)} className="text-muted hover:text-ink" aria-label="Close edit member"><X className="h-4 w-4" /></button>

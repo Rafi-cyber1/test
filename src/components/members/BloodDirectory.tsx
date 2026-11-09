@@ -42,7 +42,7 @@ export const BloodDirectory: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-app text-ink">
-      <section className="p-5 border-b border-line bg-panel">
+      <section className="p-3 sm:p-5 border-b border-line bg-panel">
         <div className="flex items-start gap-3">
           <div className="p-2 rounded-[6px] bg-bad/10 text-bad">
             <Droplet className="w-5 h-5" />

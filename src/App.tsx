@@ -3,6 +3,7 @@ import { TitleBar } from './components/desktop/TitleBar';
 import { CommandPalette } from './components/desktop/CommandPalette';
 import { Sidebar } from './components/layout/Sidebar';
 import { HeaderBar } from './components/layout/HeaderBar';
+import { MobileTabBar } from './components/layout/MobileTabBar';
 import { NotificationCenter } from './components/layout/NotificationCenter';
 import { ExecutiveDashboard } from './components/dashboard/ExecutiveDashboard';
 import { MemberManagement } from './components/members/MemberManagement';
@@ -23,6 +24,7 @@ import { Member, PaymentRecord } from './types';
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [showNewMemberModal, setShowNewMemberModal] = useState(false);
@@ -66,8 +68,8 @@ export default function App() {
   const unreadCount = expiringList.length + overdueMembers.length;
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-app text-ink overflow-hidden font-sans select-none">
-      {/* 1. Custom Windows Desktop Title Bar */}
+    <div className="flex flex-col h-[100dvh] w-full bg-app text-ink overflow-hidden font-sans select-none">
+      {/* 1. Custom Windows Desktop Title Bar (desktop / tablet only) */}
       <TitleBar onOpenLicense={() => setActiveTab('settings')} />
 
       {/* 2. Main Desktop Workstation Body */}
@@ -75,10 +77,15 @@ export default function App() {
         {/* Collapsible Sidebar */}
         <Sidebar
           activeTab={activeTab}
-          onTabChange={(tab) => setActiveTab(tab)}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setIsMobileNavOpen(false);
+          }}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           currentUser={dbState.currentUser}
+          isMobileOpen={isMobileNavOpen}
+          onCloseMobile={() => setIsMobileNavOpen(false)}
         />
 
         {/* Viewport Workspace */}
@@ -86,6 +93,7 @@ export default function App() {
           {/* Top Header Bar */}
           <HeaderBar
             currentTab={activeTab}
+            onOpenSidebar={() => setIsMobileNavOpen(true)}
             onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
             onOpenNotificationCenter={() => setIsNotificationCenterOpen(true)}
             unreadNotifications={unreadCount}
@@ -103,7 +111,7 @@ export default function App() {
           />
 
           {/* Active Screen Container with scrollable viewport */}
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden">
             {activeTab === 'dashboard' && (
               <ExecutiveDashboard
                 onNavigate={(tab) => setActiveTab(tab)}
@@ -161,6 +169,9 @@ export default function App() {
           </main>
         </div>
       </div>
+
+      {/* 3. Mobile bottom tab bar (phones / small tablets) */}
+      <MobileTabBar activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab)} />
 
       {/* 4. Global Command Palette (Ctrl+K) */}
       <CommandPalette

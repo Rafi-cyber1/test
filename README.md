@@ -17,6 +17,20 @@ A fresh install starts with **no demo members and an empty inventory** — the o
 
 The browser app stores its data in that browser's `localStorage`. Data is local to the browser profile and is not synchronized between computers. Use **Settings → Backup & Restore** to export or restore a JSON backup. The backup file is a *full* snapshot — members, plans, fee ledger, receipts, attendance, expenses, **inventory products, POS sales, stock purchases, suppliers**, notifications, station settings, and the audit trail — and restoring it brings every one of those modules back (older member-only backups are still accepted).
 
+## Phone / tablet
+
+The layout adapts to any screen; nothing needs to be installed:
+
+- **Below 1024 px** the sidebar turns into a slide-out drawer (hamburger at the top left) and a thumb-friendly bottom tab bar appears — Desk, Members, Attendance, Fee Record, Store (POS). The other screens (Blood Directory, Plans & Rates, Station Settings) stay one tap away inside the drawer.
+- Header actions collapse to icons, toolbars wrap, and every wide table scrolls sideways inside its own panel so nothing is cut off.
+- Full-screen slide-over forms (Register Member, Restock, POS sale) and dialogs (renewal, receipt, profile) fill the phone screen and scroll internally.
+- The Windows-style title bar is hidden below 768 px to give the workspace more room.
+- `viewport-fit=cover` plus safe-area padding keeps content clear of notches and gesture bars, and `public/manifest.webmanifest` lets the browser **Add to Home Screen** so it opens full-screen like an app.
+
+Designed for 360–430 px phones, 768 px tablets, and desktop widths from 1024 px upwards.
+
+Data still lives in the phone's own browser storage — it is not shared with the desk computer. See `docs/database-integration-plan.md` for how to put both on one shared database.
+
 ## Desktop app
 
 The Windows Electron app uses browser `localStorage` in its Electron profile; it does not use SQLite or a separate database server. Desktop data remains on that computer and is separate from the browser version.

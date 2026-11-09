@@ -6,6 +6,7 @@ import {
   Sun,
   Moon,
   RefreshCw,
+  Menu,
 } from 'lucide-react';
 import { db } from '../../db/storage';
 import { appStorage } from '../../db/appStorage';
@@ -13,6 +14,7 @@ import { GymTownLogo } from '../common/GymTownLogo';
 
 interface HeaderBarProps {
   currentTab: string;
+  onOpenSidebar?: () => void;
   onOpenCommandPalette: () => void;
   onOpenNotificationCenter: () => void;
   unreadNotifications: number;
@@ -25,6 +27,7 @@ interface HeaderBarProps {
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   currentTab,
+  onOpenSidebar,
   onOpenCommandPalette,
   onOpenNotificationCenter,
   unreadNotifications,
@@ -78,30 +81,40 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
     .toUpperCase();
 
   return (
-    <header className="h-14 bg-panel border-b border-line px-5 flex items-center justify-between shrink-0 select-none">
-      {/* Left: Page Title */}
-      <div className="flex items-center gap-3 min-w-0">
-        <GymTownLogo size="sm" className="shrink-0" />
+    <header className="h-14 bg-panel border-b border-line px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0 select-none">
+      {/* Left: Mobile menu + Page Title */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button
+          onClick={onOpenSidebar}
+          className="lg:hidden -ml-1 p-2 rounded-[6px] text-muted hover:text-ink hover:bg-raised transition-colors cursor-pointer"
+          title="Open navigation menu"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-5 h-5 stroke-[1.6]" />
+        </button>
+
+        <GymTownLogo size="sm" className="shrink-0 hidden lg:flex" />
         <div className="flex flex-col justify-center min-w-0">
-          <h1 className="font-condensed text-base font-bold text-ink tracking-[0.04em] uppercase leading-none truncate">
+          <h1 className="font-condensed text-sm sm:text-base font-bold text-ink tracking-[0.04em] uppercase leading-none truncate">
             {currentInfo.title}
           </h1>
-          <span className="text-[11px] text-muted mt-1 font-medium truncate">
+          <span className="hidden sm:block text-[11px] text-muted mt-1 font-medium truncate">
             {currentInfo.subtitle}
           </span>
         </div>
       </div>
 
       {/* Right Controls: Search, Register Member, Theme Toggle, User Avatar */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         {/* Global Search Button */}
         <button
           onClick={onOpenCommandPalette}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] bg-raised border border-line text-xs text-muted hover:text-ink hover:border-line-strong transition-all duration-150 cursor-pointer"
+          className="flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-[6px] bg-raised border border-line text-xs text-muted hover:text-ink hover:border-line-strong transition-all duration-150 cursor-pointer"
+          aria-label="Search member or action"
         >
           <Search className="w-3.5 h-3.5 text-muted stroke-[1.5]" />
           <span className="hidden md:inline text-[11px]">Search member or action...</span>
-          <span className="font-mono text-[9px] bg-panel text-muted px-1.5 py-0.5 rounded-[4px] border border-line">
+          <span className="hidden lg:inline font-mono text-[9px] bg-panel text-muted px-1.5 py-0.5 rounded-[4px] border border-line">
             Ctrl+K
           </span>
         </button>
@@ -110,21 +123,24 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         {onOpenMonthlyRenewal && (
           <button
             onClick={onOpenMonthlyRenewal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line hover:border-brand text-ink text-xs font-semibold transition-all duration-150 cursor-pointer"
+            className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-[6px] bg-raised hover:bg-hover border border-line hover:border-brand text-ink text-xs font-semibold transition-all duration-150 cursor-pointer"
             title="Renew Monthly Fee by Member Unique ID (the-gym-town-01)"
+            aria-label="Renew monthly fee"
           >
             <RefreshCw className="w-3.5 h-3.5 text-brand stroke-[1.5]" />
-            <span className="hidden sm:inline">Renew Fee</span>
+            <span className="hidden xl:inline">Renew Fee</span>
           </button>
         )}
 
         {/* Primary Action Button: Register Member */}
         <button
           onClick={onOpenNewMember}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-semibold transition-all duration-150 cursor-pointer focus:ring-2 focus:ring-brand focus:outline-none"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 sm:py-1.5 rounded-[6px] bg-brand hover:bg-brand-strong text-white text-xs font-semibold transition-all duration-150 cursor-pointer focus:ring-2 focus:ring-brand focus:outline-none"
+          aria-label="Register member"
         >
           <UserPlus className="w-3.5 h-3.5 stroke-[1.5]" />
-          <span>Register Member</span>
+          <span className="hidden md:inline">Register Member</span>
+          <span className="md:hidden">New</span>
         </button>
 
         {/* Notifications Trigger */}
@@ -154,7 +170,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
         {/* User Avatar with Initials */}
         <div
-          className="w-8 h-8 rounded-full bg-raised border border-line flex items-center justify-center text-ink font-condensed font-bold text-xs tracking-wider cursor-default select-none"
+          className="hidden sm:flex w-8 h-8 rounded-full bg-raised border border-line items-center justify-center text-ink font-condensed font-bold text-xs tracking-wider cursor-default select-none"
           title={`Reception Officer: ${receptionistName}`}
         >
           {initials}

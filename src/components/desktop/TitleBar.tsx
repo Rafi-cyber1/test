@@ -51,7 +51,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ onOpenLicense, onToggleMaxim
   };
 
   return (
-    <div className="h-8 bg-app border-b border-line flex items-center justify-between px-3 select-none text-xs text-muted z-50 shrink-0">
+    <div className="hidden md:flex h-8 bg-app border-b border-line items-center justify-between px-3 select-none text-xs text-muted z-50 shrink-0">
       {/* Left: Brand & App Tag with Logo */}
       <div className="flex items-center gap-2">
         <GymTownLogo size="xs" />

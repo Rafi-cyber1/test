@@ -89,10 +89,10 @@ export const MembershipPlans: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-app text-ink">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 bg-app text-ink">
       {/* Toast */}
       {toastMsg && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-[6px] bg-panel border border-line border-l-4 border-l-ok text-xs font-semibold shadow-xl">
+        <div className="fixed bottom-20 right-3 sm:bottom-5 sm:right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-[6px] bg-panel border border-line border-l-4 border-l-ok text-xs font-semibold shadow-xl">
           <Check className="w-4 h-4 text-ok" />
           <span>{toastMsg}</span>
         </div>

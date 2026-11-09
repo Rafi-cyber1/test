@@ -132,7 +132,7 @@ export const MemberFeeLedger: React.FC<MemberFeeLedgerProps> = ({
   };
 
   return (
-    <section className="flex-1 p-5 space-y-4 text-ink">
+    <section className="flex-1 p-3 sm:p-5 space-y-4 text-ink">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="font-condensed uppercase tracking-[0.04em] text-lg font-bold">Member Fee Record</h2>

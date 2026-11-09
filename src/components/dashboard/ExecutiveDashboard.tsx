@@ -54,7 +54,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
   const maxAtt = Math.max(1, ...last7Days.map((d) => d.count));
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-app text-ink">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 bg-app text-ink">
       <div className="border border-line rounded-[8px] bg-panel grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-line overflow-hidden">
         <div className="p-4">
           <span className="text-[11px] uppercase tracking-[0.04em] text-muted font-semibold block">
@@ -115,7 +115,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
               return (
                 <div key={d.dayStr} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
-                  <span className="font-mono text-[10px] text-muted tabular-nums opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="font-mono text-[10px] text-muted tabular-nums opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     {d.count}
                   </span>
                   <div

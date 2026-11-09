@@ -27,7 +27,7 @@ export const WhatsAppManager: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 space-y-5 bg-app text-ink">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 bg-app text-ink">
       {/* Top Header */}
       <div className="p-4 rounded-[8px] bg-panel border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>

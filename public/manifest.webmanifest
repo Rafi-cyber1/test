@@ -1,0 +1,15 @@
+{
+  "name": "The Gym Town — Front Desk",
+  "short_name": "Gym Town",
+  "description": "Gym management desk: members, attendance, fee record and store POS.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07080D",
+  "theme_color": "#07080D",
+  "icons": [
+    { "src": "./logo.png", "sizes": "560x219", "type": "image/png", "purpose": "any" },
+    { "src": "./logo.png", "sizes": "560x219", "type": "image/png", "purpose": "maskable" }
+  ]
+}
