@@ -41,6 +41,7 @@ export const ApplicationSettings: React.FC = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [restoreStatus, setRestoreStatus] = useState<string | null>(null);
+  const [exportMessage, setExportMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'receptionist' | 'gym' | 'database' | 'audit'>('receptionist');
 
   // Optional cloud sync (Vercel serverless endpoint at /api/sync)
@@ -62,6 +63,13 @@ export const ApplicationSettings: React.FC = () => {
 
   const auditLogs = db.getState().auditLogs;
   const backupCounts = db.getBackupCounts();
+  const backupAgeDays: number | null = (() => {
+    const raw = db.getState().lastBackupDate;
+    if (!raw) return null;
+    const stamp = new Date(raw).getTime();
+    if (Number.isNaN(stamp)) return null;
+    return Math.max(0, Math.floor((Date.now() - stamp) / 86_400_000));
+  })();
 
   const validatePhoneNumbers = (phones: Array<{ label: string; value: string }>) => {
     const invalidPhone = phones.find(({ value }) => value.trim() && !db.isValidPhoneNumber(value));
@@ -101,11 +109,29 @@ export const ApplicationSettings: React.FC = () => {
     const json = db.exportBackupJson();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
+
+    const stamp = new Date()
+      .toISOString()
+      .replace('T', '_')
+      .replace(/[:.]/g, '-')
+      .slice(0, 16);
+    const fileName = `TheGymTown_Backup_${stamp}.json`;
+
     const link = document.createElement('a');
     link.href = url;
-    link.download = `TheGymTown_Hyderabad_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = fileName;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+    // Some browsers need the object URL to stay alive for a moment.
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+    const sizeKb = Math.max(1, Math.round(json.length / 1024));
+    setExportMessage(
+      `${fileName} (${sizeKb} KB) downloaded to this device's Downloads folder — keep a copy in Google Drive too.`
+    );
+    setSettings(db.getSettings());
   };
 
   const runCloud = async (task: () => Promise<void>) => {
@@ -528,6 +554,21 @@ export const ApplicationSettings: React.FC = () => {
                 <Download className="w-3.5 h-3.5" />
                 <span>Export Full Backup</span>
               </button>
+
+              <p className={`text-[10px] leading-snug ${backupAgeDays === null || backupAgeDays > 7 ? 'text-warn' : 'text-muted'}`}>
+                {backupAgeDays === null
+                  ? 'Is device par abhi tak koi backup nahi liya gaya — aaj hi le lein.'
+                  : backupAgeDays === 0
+                    ? 'Aakhri backup aaj liya gaya.'
+                    : `Aakhri backup ${backupAgeDays} din pehle liya gaya${backupAgeDays > 7 ? ' — dobara le lein' : ''}.`}
+              </p>
+
+              {exportMessage && (
+                <p className="text-[10px] text-ok flex items-start gap-1.5">
+                  <CheckCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                  <span>{exportMessage}</span>
+                </p>
+              )}
             </div>
 
             <div className="p-4 rounded-[6px] bg-raised border border-line space-y-2">

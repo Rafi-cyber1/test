@@ -17,7 +17,9 @@ A fresh install starts with **no demo members and an empty inventory** — the o
 
 The browser app stores its data in that browser's `localStorage`. Data is local to the browser profile and is not synchronized between computers.
 
-> ⚠️ **Without cloud sync that means:** clearing the browser's site data, opening the site in another browser / incognito window, or opening it on another device shows an **empty** app. Either turn on cloud sync below, or hand the app over together with a scheduled *Export Full Backup* routine. Use **Settings → Backup & Restore** to export or restore a JSON backup. The backup file is a *full* snapshot — members, plans, fee ledger, receipts, attendance, expenses, **inventory products, POS sales, stock purchases, suppliers**, notifications, station settings, and the audit trail — and restoring it brings every one of those modules back (older member-only backups are still accepted).
+> ⚠️ **Without cloud sync that means:** clearing the browser's site data, opening the site in another browser / incognito window, or opening it on another device shows an **empty** app. Either turn on cloud sync below, or hand the app over together with a scheduled *Export Full Backup* routine.
+>
+> **Yes — the JSON backup downloads as a normal file** (on a Chromebook it lands in *Files → Downloads*; move it to Google Drive). Restoring that file on any device brings every module back. Step-by-step, including what to do after a Powerwash: [`docs/backup-and-restore.md`](docs/backup-and-restore.md). Use **Settings → Backup & Restore** to export or restore a JSON backup. The backup file is a *full* snapshot — members, plans, fee ledger, receipts, attendance, expenses, **inventory products, POS sales, stock purchases, suppliers**, notifications, station settings, and the audit trail — and restoring it brings every one of those modules back (older member-only backups are still accepted).
 
 ## Optional cloud sync (Vercel)
 
