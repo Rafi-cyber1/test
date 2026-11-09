@@ -336,6 +336,8 @@ The counter must work while the internet is down:
 
 ## 10. Hosting on Vercel — your options
 
+> Diagrams: [`diagrams/supabase-architecture.svg`](./diagrams/supabase-architecture.svg) (system + payment flow) and [`diagrams/supabase-setup-flow.svg`](./diagrams/supabase-setup-flow.svg) (6-step switch-over). Step-by-step text: [`supabase-setup.md`](./supabase-setup.md).
+
 Nothing about Vercel blocks a database. A Vercel project can be:
 
 1. **Static frontend only** (this app today) + a managed database that the browser talks to over HTTPS, or

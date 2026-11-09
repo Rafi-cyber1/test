@@ -6,22 +6,19 @@ _Answering: “Supabase — kaise hoga?” This is the exact sequence, with the 
 
 ## 0. The picture
 
-```
-                 ┌──────────────────────────────┐
-   desk PC  ────►│  React app (Vercel, static)  │
-   phone    ────►│  db facade → cloud adapter    │
-   2nd desk ────►└──────────────┬───────────────┘
-                                │  HTTPS (anon key + RLS)
-                                ▼
-                    ┌───────────────────────────┐
-                    │   Supabase (Postgres)     │
-                    │   auth · RLS · realtime   │
-                    └───────────────────────────┘
-```
+![Supabase integration architecture](./diagrams/supabase-architecture.svg)
+
+_Khuli hui HD file: [`diagrams/supabase-architecture.svg`](./diagrams/supabase-architecture.svg)_
 
 - The app still runs on **Vercel** exactly as it does today. Supabase is only a database + login service the browser talks to over HTTPS.
 - No server to maintain: Supabase's API (PostgREST) is the backend.
 - `localStorage` stays as the offline copy, so the counter still works when the internet drops.
+
+**Setup ka flow (6 steps, kaun karta hai + kitna waqt):**
+
+![Supabase setup flow](./diagrams/supabase-setup-flow.svg)
+
+_Khuli hui HD file: [`diagrams/supabase-setup-flow.svg`](./diagrams/supabase-setup-flow.svg)_
 
 **Already in the repo:**
 
