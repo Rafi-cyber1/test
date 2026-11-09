@@ -27,6 +27,7 @@ The app works fully offline with `localStorage`. If you want the desk computer a
 4. **Upload to cloud** on the desk, **Download from cloud** on the phone.
 
 Nothing is uploaded automatically, and the key never ships inside the bundle. Serverless functions only run on Vercel (or `vercel dev`), not in the plain `npm run dev` preview. Details, alternatives (Supabase / Neon / Turso) and the full relational plan: `docs/database-integration-plan.md`.
+Going the Supabase/Postgres route instead? `docs/supabase-setup.md` is the step-by-step, and `supabase/migrations/001_schema.sql` + `npm run import:supabase` are already in the repo.
 
 ## Phone / tablet
 

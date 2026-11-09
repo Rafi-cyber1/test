@@ -375,7 +375,7 @@ Trade-offs: perfect for one gym with 1–3 devices and a few hundred members (fr
 
 | Service | How it connects | Free tier | Notes |
 | --- | --- | --- | --- |
-| **Supabase** (Postgres) | Browser → Supabase JS client, or via `/api` | 500 MB DB | Full plan in §3–§6: auth, RLS, realtime. Best long-term fit |
+| **Supabase** (Postgres) | Browser → Supabase JS client, or via `/api` | 500 MB DB | Full plan in §3–§6 + the click-by-click guide in [`supabase-setup.md`](./supabase-setup.md). Best long-term fit |
 | **Neon** / **Vercel Postgres** | `/api` function with `@neondatabase/serverless` | 0.5 GB | Vercel-native Postgres; you write the API layer yourself |
 | **Upstash Redis** (Vercel KV) | `/api` function over REST | 10k commands/day | Already used for the snapshot sync above |
 | **Turso** (libSQL/SQLite) | Browser or `/api` with `@libsql/client` | 500 DBs, 9 GB | SQL with edge replicas, very cheap |
