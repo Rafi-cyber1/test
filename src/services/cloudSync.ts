@@ -99,7 +99,7 @@ const request = async (method: 'GET' | 'POST', body?: unknown) => {
 };
 
 /** Builds the same payload shape as the manual full backup. */
-const buildSnapshot = () => {
+export const buildSnapshot = () => {
   const database = JSON.parse(JSON.stringify(db.getState()));
 
   // Keep the payload inside the free Upstash request limit: the audit trail is
@@ -116,6 +116,39 @@ const buildSnapshot = () => {
     counts: db.getBackupCounts(),
     database,
   };
+};
+
+/** Raw GET — used by the background auto-sync engine. */
+export const pullCloudRaw = async (): Promise<{
+  version: number;
+  updatedAt: string | null;
+  updatedBy: string | null;
+  snapshot: unknown | null;
+  empty: boolean;
+}> => {
+  const payload = await request('GET');
+  return {
+    version: payload?.version || 0,
+    updatedAt: payload?.updatedAt || null,
+    updatedBy: payload?.updatedBy || null,
+    snapshot: payload?.snapshot ?? null,
+    empty: payload?.empty !== false || !payload?.snapshot,
+  };
+};
+
+/** Raw POST — returns the new version, or throws with `status === 409` on conflict. */
+export const pushCloudRaw = async (
+  baseVersion: number,
+  updatedBy: string,
+  snapshot?: unknown
+): Promise<{ version: number; updatedAt: string }> => {
+  const payload = await request('POST', {
+    baseVersion,
+    updatedBy,
+    snapshot: snapshot ?? buildSnapshot(),
+  });
+  rememberSync('Upload', payload.version);
+  return { version: payload.version, updatedAt: payload.updatedAt };
 };
 
 export const checkCloudStatus = async (): Promise<CloudStatus> => {

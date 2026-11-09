@@ -19,6 +19,7 @@ import { MonthlyFeeRenewalModal } from './components/membership/MonthlyFeeRenewa
 import { PrintableReceipt } from './components/finance/PrintableReceipt';
 import { db } from './db/storage';
 import { WhatsAppService } from './services/whatsappService';
+import { cloudAutoSync, AutoSyncState } from './services/cloudAutoSync';
 import { Member, PaymentRecord } from './types';
 
 export default function App() {
@@ -37,12 +38,20 @@ export default function App() {
 
   // Database state
   const [dbState, setDbState] = useState(db.getState());
+  const [cloudSync, setCloudSync] = useState<AutoSyncState>(cloudAutoSync.getState());
 
   // Subscribe to database updates
   useEffect(() => {
     const unsubscribe = db.subscribe(() => {
       setDbState({ ...db.getState() });
     });
+    return () => unsubscribe();
+  }, []);
+
+  // Background cloud sync (only active when a sync key is saved in Settings)
+  useEffect(() => {
+    const unsubscribe = cloudAutoSync.subscribe(() => setCloudSync(cloudAutoSync.getState()));
+    cloudAutoSync.start();
     return () => unsubscribe();
   }, []);
 
@@ -97,6 +106,7 @@ export default function App() {
             onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
             onOpenNotificationCenter={() => setIsNotificationCenterOpen(true)}
             unreadNotifications={unreadCount}
+            cloudSync={cloudSync}
             onOpenNewMember={() => setShowNewMemberModal(true)}
             onOpenMonthlyRenewal={() => {
               setRenewalRollNumber(undefined);

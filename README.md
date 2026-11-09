@@ -15,7 +15,9 @@ The header has a **Dark / Light theme toggle** (Ice Blue `#168BFF` accent) and t
 
 A fresh install starts with **no demo members and an empty inventory** — the only pre-configured data is the membership plan price list (Cardio / Muscle Building, admission + monthly). Add members, products, and suppliers from the app itself.
 
-The browser app stores its data in that browser's `localStorage`. Data is local to the browser profile and is not synchronized between computers. Use **Settings → Backup & Restore** to export or restore a JSON backup. The backup file is a *full* snapshot — members, plans, fee ledger, receipts, attendance, expenses, **inventory products, POS sales, stock purchases, suppliers**, notifications, station settings, and the audit trail — and restoring it brings every one of those modules back (older member-only backups are still accepted).
+The browser app stores its data in that browser's `localStorage`. Data is local to the browser profile and is not synchronized between computers.
+
+> ⚠️ **Without cloud sync that means:** clearing the browser's site data, opening the site in another browser / incognito window, or opening it on another device shows an **empty** app. Either turn on cloud sync below, or hand the app over together with a scheduled *Export Full Backup* routine. Use **Settings → Backup & Restore** to export or restore a JSON backup. The backup file is a *full* snapshot — members, plans, fee ledger, receipts, attendance, expenses, **inventory products, POS sales, stock purchases, suppliers**, notifications, station settings, and the audit trail — and restoring it brings every one of those modules back (older member-only backups are still accepted).
 
 ## Optional cloud sync (Vercel)
 
@@ -26,7 +28,7 @@ The app works fully offline with `localStorage`. If you want the desk computer a
 3. Redeploy, then open **Settings → Database → Cloud Sync**, paste the key, **Save & test**.
 4. **Upload to cloud** on the desk, **Download from cloud** on the phone.
 
-Nothing is uploaded automatically, and the key never ships inside the bundle. Serverless functions only run on Vercel (or `vercel dev`), not in the plain `npm run dev` preview. Details, alternatives (Supabase / Neon / Turso) and the full relational plan: `docs/database-integration-plan.md`.
+Once the key is saved, **Auto sync** (on by default) uploads every change within ~2 seconds and pulls other desks' changes within 25 seconds — so the owner's phone sees the desk's data, and a fresh browser downloads the cloud copy instead of starting empty. The manual Upload/Download buttons remain for the first connection and for recovery. The key never ships inside the bundle. Serverless functions only run on Vercel (or `vercel dev`), not in the plain `npm run dev` preview. Details, alternatives (Supabase / Neon / Turso) and the full relational plan: `docs/database-integration-plan.md`.
 Going the Supabase/Postgres route instead? `docs/supabase-setup.md` is the step-by-step, and `supabase/migrations/001_schema.sql` + `npm run import:supabase` are already in the repo.
 
 ## Phone / tablet

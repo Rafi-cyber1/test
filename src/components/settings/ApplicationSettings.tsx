@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   HardDrive,
   Download,
@@ -20,12 +20,11 @@ import { GymTownLogo } from '../common/GymTownLogo';
 import {
   CloudStatus,
   checkCloudStatus,
-  downloadFromCloud,
   getLastSyncLabel,
   getSyncKey,
   setSyncKey,
-  uploadToCloud,
 } from '../../services/cloudSync';
+import { cloudAutoSync, AutoSyncState } from '../../services/cloudAutoSync';
 
 export const ApplicationSettings: React.FC = () => {
   const [settings, setSettings] = useState<GymSettings>(db.getSettings());
@@ -51,6 +50,15 @@ export const ApplicationSettings: React.FC = () => {
   const [cloudError, setCloudError] = useState(false);
   const [cloudBusy, setCloudBusy] = useState(false);
   const [lastSyncLabel, setLastSyncLabel] = useState(getLastSyncLabel());
+  const [autoSyncState, setAutoSyncState] = useState<AutoSyncState>(cloudAutoSync.getState());
+
+  useEffect(() => {
+    const unsubscribe = cloudAutoSync.subscribe(() => {
+      setAutoSyncState(cloudAutoSync.getState());
+      setLastSyncLabel(getLastSyncLabel());
+    });
+    return () => unsubscribe();
+  }, []);
 
   const auditLogs = db.getState().auditLogs;
   const backupCounts = db.getBackupCounts();
@@ -128,6 +136,7 @@ export const ApplicationSettings: React.FC = () => {
           : `Cloud connected · v${status.version} · saved ${status.updatedAt ? new Date(status.updatedAt).toLocaleString() : 'unknown'} by ${status.updatedBy || 'front desk'}.`
       );
       setCloudError(false);
+      await cloudAutoSync.restart();
     } catch (error: any) {
       setCloudStatus(null);
       setCloudMessage(error.message || 'Could not reach the cloud endpoint.');
@@ -142,15 +151,11 @@ export const ApplicationSettings: React.FC = () => {
     if (!confirmed) return;
 
     try {
-      const status = cloudStatus ?? (await checkCloudStatus());
-      setCloudStatus(status);
-      const result = await uploadToCloud(
-        status.version,
-        db.getSettings().receptionistProfile?.name || 'front desk'
-      );
-      setCloudMessage(result.message);
-      setCloudError(!result.success);
-      if (result.success) setCloudStatus(await checkCloudStatus());
+      await cloudAutoSync.forceUpload();
+      const engineState = cloudAutoSync.getState();
+      setCloudMessage(engineState.message);
+      setCloudError(engineState.status === 'error');
+      setCloudStatus(await checkCloudStatus());
     } catch (error: any) {
       setCloudMessage(error.message || 'Upload failed.');
       setCloudError(true);
@@ -171,10 +176,11 @@ export const ApplicationSettings: React.FC = () => {
       );
       if (!confirmed) return;
 
-      const result = await downloadFromCloud();
+      await cloudAutoSync.forceDownload();
+      const engineState = cloudAutoSync.getState();
       setSettings(db.getSettings());
-      setCloudMessage(result.message);
-      setCloudError(!result.success);
+      setCloudMessage(engineState.message);
+      setCloudError(engineState.status === 'error');
     } catch (error: any) {
       setCloudMessage(error.message || 'Download failed.');
       setCloudError(true);
@@ -609,6 +615,44 @@ export const ApplicationSettings: React.FC = () => {
                 <span>Download from cloud</span>
               </button>
             </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-line/60">
+              <label className="flex items-center gap-2 text-[11px] text-ink cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={autoSyncState.auto}
+                  onChange={(event) => cloudAutoSync.setAuto(event.target.checked)}
+                  className="w-3.5 h-3.5 accent-[#168BFF] cursor-pointer"
+                />
+                <span>Auto sync in background (recommended)</span>
+              </label>
+              <span className={`text-[10px] font-mono ${
+                autoSyncState.status === 'synced'
+                  ? 'text-ok'
+                  : autoSyncState.status === 'conflict' || autoSyncState.status === 'needs-choice' || autoSyncState.status === 'error'
+                    ? 'text-warn'
+                    : 'text-muted'
+              }`}>
+                {autoSyncState.status === 'disabled'
+                  ? 'sync off'
+                  : autoSyncState.status === 'synced'
+                    ? `synced · v${autoSyncState.version}${autoSyncState.lastSyncAt ? ` · ${new Date(autoSyncState.lastSyncAt).toLocaleTimeString()}` : ''}`
+                    : autoSyncState.status === 'offline'
+                      ? 'offline — changes local hain, reconnect par jayenge'
+                      : autoSyncState.status === 'needs-choice'
+                        ? 'choose: upload ya download'
+                        : autoSyncState.status === 'conflict'
+                          ? 'conflict — pehle download karein'
+                          : autoSyncState.status}
+              </span>
+            </div>
+
+            {(autoSyncState.status === 'conflict' || autoSyncState.status === 'needs-choice') && (
+              <p className="text-[11px] text-warn flex items-start gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>{autoSyncState.message}</span>
+              </p>
+            )}
 
             {cloudMessage && (
               <p className={`text-[11px] flex items-start gap-1.5 ${cloudError ? 'text-bad' : 'text-ok'}`}>

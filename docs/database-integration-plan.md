@@ -363,6 +363,17 @@ Upstash Redis (REST)  ── key: gymtown:snapshot  → { version, updatedAt, up
 - The sync key is **not** in the bundle: it is typed once into Settings and kept in that browser.
 - Uploads and downloads are both manual buttons — with counts in the confirmation — so nothing can surprise the owner.
 
+**Auto sync is built in.** Once the key is saved, Settings → Cloud Sync has an *Auto sync in background* switch (on by default). With it on:
+
+- every change is uploaded ~2 seconds later (debounced) — no button pressing;
+- the app checks the cloud every 25 seconds while the tab is visible, and on focus / reconnect, so a second desk or a phone picks up new members and payments by itself;
+- the header shows a small cloud pill: `v42` (synced), `saving…`, `offline`, `conflict`, `choose`;
+- a brand-new browser (empty `localStorage`) **automatically downloads** the cloud copy at login — nothing starts from zero;
+- if two devices both already hold data and have never synced, the engine refuses to guess: it asks for **Upload** or **Download**;
+- a version conflict parks the sync in `conflict` (nothing is overwritten) until someone presses *Download from cloud*.
+
+The manual buttons stay for the first connection and for recovery. All of this is covered by `tests/integration/cloud-autosync.test.ts` (6 tests: seeding, adopting, asking, conflict, failed push, recovery).
+
 **Setup (about 10 minutes, no code changes):**
 
 1. Vercel → your project → **Storage / Marketplace** → add **Upstash Redis** (free tier). It injects `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically (an Upstash account directly also works with `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`).

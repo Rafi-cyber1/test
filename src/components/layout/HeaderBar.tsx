@@ -7,14 +7,19 @@ import {
   Moon,
   RefreshCw,
   Menu,
+  Cloud,
+  CloudOff,
+  AlertTriangle,
 } from 'lucide-react';
 import { db } from '../../db/storage';
 import { appStorage } from '../../db/appStorage';
 import { GymTownLogo } from '../common/GymTownLogo';
+import type { AutoSyncState } from '../../services/cloudAutoSync';
 
 interface HeaderBarProps {
   currentTab: string;
   onOpenSidebar?: () => void;
+  cloudSync?: AutoSyncState;
   onOpenCommandPalette: () => void;
   onOpenNotificationCenter: () => void;
   unreadNotifications: number;
@@ -28,6 +33,7 @@ interface HeaderBarProps {
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   currentTab,
   onOpenSidebar,
+  cloudSync,
   onOpenCommandPalette,
   onOpenNotificationCenter,
   unreadNotifications,
@@ -106,6 +112,44 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
       {/* Right Controls: Search, Register Member, Theme Toggle, User Avatar */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        {/* Cloud sync state — only when this device has a sync key */}
+        {cloudSync && cloudSync.status !== 'disabled' && (
+          <div
+            className={`hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-[6px] border text-[10px] font-semibold ${
+              cloudSync.status === 'synced'
+                ? 'border-ok/40 bg-ok/10 text-ok'
+                : cloudSync.status === 'syncing' || cloudSync.status === 'checking'
+                  ? 'border-brand/40 bg-brand/10 text-brand'
+                  : cloudSync.status === 'offline'
+                    ? 'border-line bg-raised text-muted'
+                    : 'border-warn/40 bg-warn/10 text-warn'
+            }`}
+            title={cloudSync.message || 'Cloud sync'}
+          >
+            {cloudSync.status === 'offline' ? (
+              <CloudOff className="w-3 h-3" />
+            ) : cloudSync.status === 'conflict' || cloudSync.status === 'needs-choice' || cloudSync.status === 'error' ? (
+              <AlertTriangle className="w-3 h-3" />
+            ) : (
+              <Cloud className="w-3 h-3" />
+            )}
+            <span className="font-mono">
+              {cloudSync.status === 'synced'
+                ? `v${cloudSync.version}`
+                : cloudSync.status === 'syncing'
+                  ? 'saving…'
+                  : cloudSync.status === 'checking'
+                    ? 'checking…'
+                    : cloudSync.status === 'offline'
+                      ? 'offline'
+                      : cloudSync.status === 'conflict'
+                        ? 'conflict'
+                        : cloudSync.status === 'needs-choice'
+                          ? 'choose'
+                          : 'sync error'}
+            </span>
+          </div>
+        )}
         {/* Global Search Button */}
         <button
           onClick={onOpenCommandPalette}
