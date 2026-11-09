@@ -549,6 +549,11 @@ export const ApplicationSettings: React.FC = () => {
                   Optional. Upload this desk&apos;s full database to your Vercel endpoint and download it on
                   another device. Nothing is uploaded until you press Upload.
                 </p>
+                <p className="text-[10px] text-muted mt-1 max-w-xl">
+                  Runs on the Vercel deployment (or with <span className="font-mono">vercel dev</span>) — the
+                  plain <span className="font-mono">npm run dev</span> preview has no <span className="font-mono">/api</span> functions,
+                  where this card will report “endpoint not found”.
+                </p>
               </div>
               <span className={`text-[10px] px-2 py-0.5 rounded-[4px] font-semibold ${
                 cloudStatus && !cloudStatus.empty ? 'status-pill-success' : cloudStatus ? 'status-pill-warning' : 'status-pill-neutral'
